@@ -1,5 +1,7 @@
 #!/usr/bin/env node
 
+//this file is used to start the server
+
 /**
  * Module dependencies.
  */

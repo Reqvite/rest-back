@@ -1,9 +1,9 @@
-const indexService = require('../services/IndexService')
+
+//test controller file that should be deleted or changed later.
 
 const IndexController = {
     index: (req, res) => {
-        const data = indexService.get(req.query.id);
-        res.send(data);
+        res.send('Hello World!');
     }
 }
 

@@ -1,3 +1,6 @@
+
+//test controller file that should be deleted or changed later.
+
 const UserController = {
     index: (req, res) => {
         const users = [
