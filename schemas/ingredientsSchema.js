@@ -14,7 +14,7 @@
  *           type: string
  *           description: The name of the ingredient.
  *         _id:
- *           type: integer
+ *           type: string
  *           description: The unique ID of the ingredient.
  *         dish_id:
  *           type: integer

@@ -11,7 +11,7 @@
  *         - restaurant_id
  *       properties:
  *         _id:
- *           type: integer
+ *           type: string
  *           description: The unique ID of the table.
  *         status:
  *           type: string

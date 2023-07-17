@@ -21,7 +21,7 @@
  *           type: string
  *           description: The name of the dish.
  *         _id:
- *           type: integer
+ *           type: string
  *           description: The unique ID of the dish.
  *         order_id:
  *           type: integer

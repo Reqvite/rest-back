@@ -21,7 +21,7 @@
  *           type: string
  *           description: The name of the restaurant.
  *         _id:
- *           type: integer
+ *           type: string
  *           description: The unique ID of the restaurant.
  *         description:
  *           type: string

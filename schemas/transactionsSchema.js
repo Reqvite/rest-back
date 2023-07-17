@@ -11,7 +11,7 @@
  *         - order_id
  *       properties:
  *         _id:
- *           type: integer
+ *           type: string
  *           description: The unique ID of the transaction.
  *         paymentAmount:
  *           type: number

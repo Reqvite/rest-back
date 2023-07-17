@@ -13,6 +13,8 @@ const router = express.Router();
  *     responses:
  *       200:
  *         description: The server is running properly
+ *       502:
+ *         description: The server is not running properly
  */
 router.get('/', (req, res) => {
     res.status(200).send('Server is running properly');

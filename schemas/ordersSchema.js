@@ -10,7 +10,7 @@
  *         - table_id
  *       properties:
  *         _id:
- *           type: integer
+ *           type: string
  *           description: The unique ID of the order.
  *         status:
  *           type: string

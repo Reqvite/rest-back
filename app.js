@@ -7,12 +7,12 @@ const swaggerUi = require('swagger-ui-express');
 const swaggerSpecs = require('./utils/swagger');
 
 //routes imports for the different parts of the application
-let indexRouter = require('./routes/index');
-let usersRouter = require('./routes/users');
-let healthcheckRoute = require('./routes/healthcheck');
-let restaurantsRoute = require('./routes/restaurants');
-let administratorsRoute = require('./routes/administrators');
-let waitersRoute = require('./routes/waiters');
+const indexRouter = require('./routes/index');
+const usersRouter = require('./routes/users');
+const healthcheckRoute = require('./routes/healthcheck');
+const restaurantsRoute = require('./routes/restaurants');
+const administratorsRoute = require('./routes/administrators');
+const waitersRoute = require('./routes/waiters');
 
 
 let app = express();
@@ -32,9 +32,9 @@ app.get('/api-docs', swaggerUi.setup(swaggerSpecs));
 app.use('/healthcheck', healthcheckRoute);
 
 app.use('/users', usersRouter);
-app.use(`restaurants`, restaurantsRoute);
-app.use(`administrators`, administratorsRoute);
-app.use(`waiters`, waitersRoute);
+app.use(`/restaurants`, restaurantsRoute);
+app.use(`/administrators`, administratorsRoute);
+app.use(`/waiters`, waitersRoute);
 
 
 
