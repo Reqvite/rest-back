@@ -2,7 +2,7 @@
  * @openapi
  * components:
  *   schemas:
- *     Cook:
+ *     Personnel:
  *       type: object
  *       required:
  *         - _id
