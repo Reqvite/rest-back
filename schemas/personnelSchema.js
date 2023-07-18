@@ -15,7 +15,8 @@
  *         - address
  *       properties:
  *         _id:
- *           type: string
+ *           type: string ( ObjectId )
+ *           RegExp: /^[0-9a-fA-F]{24}$/
  *           description: The unique ID of the cook.
  *         name:
  *           type: string
