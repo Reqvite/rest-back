@@ -10,7 +10,8 @@
  *         - table_id
  *       properties:
  *         _id:
- *           type: string
+ *           type: string ( ObjectId )
+ *           RegExp: /^[0-9a-fA-F]{24}$/
  *           description: The unique ID of the order.
  *         status:
  *           type: string

@@ -5,6 +5,7 @@ const cookieParser = require('cookie-parser');
 const logger = require('morgan');
 const swaggerUi = require('swagger-ui-express');
 const swaggerSpecs = require('./utils/swagger');
+const connectDB = require('./db');
 
 //routes imports for the different parts of the application
 const indexRouter = require('./routes/index');
@@ -17,6 +18,13 @@ const waitersRoute = require('./routes/waiters');
 
 let app = express();
 
+//connect to the database
+try {
+    connectDB();
+}
+catch (err) {
+    console.log(err);
+}
 
 app.use(logger('dev'));
 app.use(express.json());
