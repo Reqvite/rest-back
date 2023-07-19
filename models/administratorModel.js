@@ -1,22 +1,22 @@
-const {Schema, SchemaTypes, model} = require('mongoose')
+const Joi = require("joi");
+const {Schema, model} = require('mongoose')
 
-const AdministratorSchema = new Schema({
+const administratorSchema = new Schema({
     name: {
         type: String,
         required: [true, "Name is required"],
     },
     password: {
-        type: Number,
+        type: String,
         required: [true, "Password is required"],
     },
     restaurant_id: {
-        type: SchemaTypes.ObjectId,
+        type: Schema.Types.ObjectId,
         ref: 'Restaurant',
         required: [true, "Restaurant_id is required"],
     },
     gender: {
         type: String,
-        enum: ['male', 'female', 'other'],
         required: [true, "Gender is required"],
     },
     phone: {
@@ -39,7 +39,18 @@ const AdministratorSchema = new Schema({
 
 })
 
-const Administrator = model('Administrator', AdministratorSchema)
+const administratorValidation = Joi.object({
+    name: Joi.string().min(3).max(30).required(),
+    password: Joi.string().min(6).max(30).required(),
+    restaurant_id: Joi.string().required(),
+    gender: Joi.string().min(6).max(30).required(),
+    phone: Joi.string().min(8).max(12),
+    email: Joi.string().min(8).max(20),
+    address: Joi.string().min(8).max(50),
+    picture: Joi.string().min(5).max(100)
+  });
+  
+const Administrator = model('Administrator', administratorSchema)
 
 module.exports = {
     Administrator,
