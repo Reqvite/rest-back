@@ -1,6 +1,4 @@
 const { Schema, model } = require("mongoose");
-const Joi = require("joi");
-Joi.objectId = require("joi-objectid")(Joi);
 
 const cookSchema = new Schema({
   name: {
@@ -30,16 +28,6 @@ const cookSchema = new Schema({
   }
 });
 
-const cookJoiSchema = Joi.object({
-  name: Joi.string().min(3).max(30).required(),
-  password: Joi.string().min(6).max(30).required(),
-  restaurant_id: Joi.objectId().required(),
-  phone: Joi.string().min(8).max(12),
-  email: Joi.string().min(8).max(20),
-  address: Joi.string().min(8).max(50),
-  picture: Joi.string().min(5).max(100)
-});
-
 const Cook = model("Cook", cookSchema);
 
-module.exports = { Cook, cookJoiSchema };
+module.exports = Cook;
