@@ -21,7 +21,8 @@
  *           type: string
  *           description: The name of the dish.
  *         _id:
- *           type: string
+ *           type: string ( ObjectId )
+ *           RegExp: /^[0-9a-fA-F]{24}$/
  *           description: The unique ID of the dish.
  *         order_id:
  *           type: integer
