@@ -35,6 +35,7 @@ const DishSchema = new mongoose.Schema({
     },
     status:{
         type:String,
+        enum:['ordered', 'in progress', 'ready', 'served'],
         required: true
     },
     updatedAt:{
