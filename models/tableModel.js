@@ -63,7 +63,6 @@ const tableSchema = new Schema(
   { versionKey: false, timestamps: true }
 );
 
-// Maybe it's better to move this check to the controller before saving the table.
 tableSchema.pre("save", async function (next) {
   try {
     const restaurant = await mongoose
@@ -80,7 +79,6 @@ tableSchema.pre("save", async function (next) {
   }
 });
 
-// Maybe it's better to move this check to the controller before saving the table.
 tableSchema.index({ tableNumber: 1, restaurant_id: 1 }, { unique: true });
 
 const Table = mongoose.model("Table", tableSchema);
