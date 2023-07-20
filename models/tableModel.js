@@ -3,14 +3,17 @@ const { Schema } = mongoose;
 
 const tableSchema = new Schema(
   {
-    tableNumber: {
-      type: String,
+    table_number: {
+      type: Number,
       required: [true, "Table number is required"],
-      match: [
-        /^(?:.{0,50} )?(?:№| #)(?!0\d)\d{1,4}(?!\S)$/,
-        "Invalid table number format. It should be in the format '<text> №<digits>' or '<text> #<digits>'.",
-      ],
-      trim: true,
+      min: 1,
+      max: 999,
+      validate: {
+        validator: function (value) {
+          return /^[1-9]\d*$/.test(value);
+        },
+        message: '{VALUE} is not a valid non-negative integer.',
+      },
     },
     status: {
       type: String,
@@ -52,7 +55,7 @@ const tableSchema = new Schema(
       type: Number,
       required: [true, "Seats number is required"],
       min: [1, "Seats number must be at least 1"],
-      max: [100, "Seats number must not exceed 100"],
+      max: [10, "Seats number must not exceed 10"],
     },
     restaurant_id: {
       type: Schema.Types.ObjectId,
@@ -60,7 +63,7 @@ const tableSchema = new Schema(
       required: [true, "Restaurant ID is required"],
     },
   },
-  { versionKey: false, timestamps: true }
+  { versionKey: false, timestamps: false }
 );
 
 tableSchema.pre("save", async function (next) {
@@ -79,7 +82,7 @@ tableSchema.pre("save", async function (next) {
   }
 });
 
-tableSchema.index({ tableNumber: 1, restaurant_id: 1 }, { unique: true });
+tableSchema.index({ restaurant_id: 1, table_number: 1 }, { unique: true });
 
 const Table = mongoose.model("Table", tableSchema);
 module.exports = Table;
