@@ -14,7 +14,8 @@
  *           type: string
  *           description: The name of the ingredient.
  *         _id:
- *           type: string
+ *           type: string ( ObjectId )
+ *           RegExp: /^[0-9a-fA-F]{24}$/
  *           description: The unique ID of the ingredient.
  *         dish_id:
  *           type: integer
