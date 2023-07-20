@@ -17,6 +17,7 @@ const transactionSchema = new Schema({
     paymentAmount: {
         type: Number,
         required: true,
+        default: 0,
         validate: {
             validator: function(v) {
                 return v >= 0;
@@ -28,6 +29,7 @@ const transactionSchema = new Schema({
     paymentDate: {
         type: Date,
         required: true,
+        default: Date.now,
         validate: {
             validator: function(v) {
                 return !isNaN(Date.parse(v));
@@ -49,7 +51,7 @@ const transactionSchema = new Schema({
     },
     type: {
         type: String,
-        enum: ['cash', 'card'],
+        enum: ['cash', 'POS', 'online'],
         required: true,
         description: 'The type of transaction.'
     }
