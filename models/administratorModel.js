@@ -1,4 +1,3 @@
-const Joi = require("joi");
 const {Schema, model} = require('mongoose')
 
 const administratorSchema = new Schema({
@@ -9,15 +8,17 @@ const administratorSchema = new Schema({
     password: {
         type: String,
         required: [true, "Password is required"],
+        validate: {
+            validator: function (password) {
+                return /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{8,30}$/.test(password);
+            },
+            message: "Password must contain at least one lowercase letter, one uppercase letter, one digit, and be between 8 and 30 characters long.",
+        },
     },
     restaurant_id: {
         type: Schema.Types.ObjectId,
         ref: 'Restaurant',
         required: [true, "Restaurant_id is required"],
-    },
-    gender: {
-        type: String,
-        required: [true, "Gender is required"],
     },
     phone: {
         type: String,
@@ -34,22 +35,10 @@ const administratorSchema = new Schema({
     },
     picture: {
         type: String,
-        required: [true, "Picture is required"],
     }
 
 })
 
-const administratorValidation = Joi.object({
-    name: Joi.string().min(3).max(30).required(),
-    password: Joi.string().min(6).max(30).required(),
-    restaurant_id: Joi.string().required(),
-    gender: Joi.string().min(6).max(30).required(),
-    phone: Joi.string().min(8).max(12),
-    email: Joi.string().min(8).max(20),
-    address: Joi.string().min(8).max(50),
-    picture: Joi.string().min(5).max(100)
-  });
-  
 const Administrator = model('Administrator', administratorSchema)
 
 module.exports = {
