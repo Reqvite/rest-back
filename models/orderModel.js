@@ -13,14 +13,12 @@ const orderSchema = new Schema(
     },
     orderItems: [
       {
-        dish_id: {
+        dish: {
           type: mongoose.ObjectId,
           ref: "Dish",
           required: [true, "At least one item is required"],
         },
         quantity: Number,
-
-        _id: false,
       },
     ],
     table_id: {
@@ -33,8 +31,9 @@ const orderSchema = new Schema(
       ref: "Waiter",
     },
   },
-  { versionKey: false, timestamps: true }
+  { versionKey: false }
 );
 
 const Order = mongoose.model("Order", orderSchema);
+
 module.exports = Order;
