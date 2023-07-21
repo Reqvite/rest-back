@@ -21,21 +21,20 @@ const DishSchema = new mongoose.Schema({
         type:Boolean,
         required: true
     },
-    vegaterien:{
+    vegetarian:{
         type:Boolean,
         required: true
     },
-    portiomWeight:{
+     pescatarian:{
+        type:Boolean,
+        required: true
+    },
+    portionWeight:{
         type:Number,
         required: true
     },
     price:{
         type:Number,
-        required: true
-    },
-    status:{
-        type:String,
-        enum:['ordered', 'in progress', 'ready', 'served'],
         required: true
     },
     updatedAt:{
