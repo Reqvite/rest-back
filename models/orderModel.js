@@ -19,6 +19,14 @@ const orderSchema = new Schema(
           required: [true, "At least one item is required"],
         },
         quantity: Number,
+        status: {
+          type: String,
+          enum: {
+            values: ["Ordered", "In progress", "Ready", "Served"],
+            message: "{VALUE} is not supported",
+          },
+          default: "Ordered",
+        },
       },
     ],
     table_id: {
