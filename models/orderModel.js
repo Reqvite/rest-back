@@ -1,5 +1,5 @@
 const mongoose = require("mongoose");
-const { Schema } = mongoose;
+const { Schema, ObjectId, model } = mongoose;
 
 const orderSchema = new Schema(
   {
@@ -14,11 +14,14 @@ const orderSchema = new Schema(
     orderItems: [
       {
         dish: {
-          type: mongoose.ObjectId,
+          type: ObjectId,
           ref: "Dish",
           required: [true, "At least one item is required"],
         },
-        quantity: Number,
+        quantity: {
+          type: Number,
+          min: [1, "Minimum number of units 1"],
+        },
         status: {
           type: String,
           enum: {
@@ -30,18 +33,18 @@ const orderSchema = new Schema(
       },
     ],
     table_id: {
-      type: mongoose.ObjectId,
+      type: ObjectId,
       ref: "Table",
       required: [true, "Table id is required"],
     },
     waiter_id: {
-      type: mongoose.ObjectId,
+      type: ObjectId,
       ref: "Waiter",
     },
   },
   { versionKey: false }
 );
 
-const Order = mongoose.model("Order", orderSchema);
+const Order = model("Order", orderSchema);
 
 module.exports = Order;
