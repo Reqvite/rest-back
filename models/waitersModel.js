@@ -38,7 +38,7 @@ const WaitersSchema = new mongoose.Schema({
     }
 });
 
-const Waiters = mongoose.model('Waiters', WaitersModel);
+const Waiters = mongoose.model('Waiters', WaitersSchema);
 
 module.exports = {
     Waiters,
