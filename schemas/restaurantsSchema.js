@@ -1,5 +1,3 @@
-
-
 /**
  * @openapi
  * components:
@@ -16,6 +14,7 @@
  *         - type
  *         - webSite
  *         - workHours
+ *         - dishes_ids
  *       properties:
  *         name:
  *           type: string
@@ -66,4 +65,9 @@
  *             Saturday:
  *               type: string
  *               description: Saturday work hours.
+ *         dishes_ids:
+ *           type: array
+ *           items:
+ *             type: string (ObjectId)
+ *           description: An array of dish IDs associated with the restaurant
  */
