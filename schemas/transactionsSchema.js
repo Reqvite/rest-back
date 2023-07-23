@@ -27,5 +27,5 @@
  *           description: The unique ID of the order associated with the transaction.
  *         type:
  *           type: string
- *           description: The type of the transaction: card or cash.
+ *           description: "The type of the transaction: card or cash."
  */
