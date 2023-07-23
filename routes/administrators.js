@@ -5,67 +5,16 @@ const router = express.Router();
 /**
  * @openapi
  * paths:
- *   /administrators/dishes:
+ *   /personnel/restaurant/{restaurantId}:
  *     get:
  *       tags:
  *         - Administrators
- *       summary: Get all dishes
- *       responses:
- *         '200':
- *           description: A list of dishes
- *           content:
- *             application/json:
- *               schema:
- *                 type: array
- *                 items:
- *                   $ref: '#/components/schemas/Dish'
- *     post:
- *       tags:
- *         - Administrators
- *       summary: Add new dish to the menu
- *       requestBody:
- *         required: true
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/Dish'
- *       responses:
- *         '201':
- *           description: Dish added
- *
- *   /dishes/{dishId}:
- *     patch:
- *       tags:
- *         - Administrators
- *       summary: Update dish
+ *       summary: Get all personnel by restaurant
  *       parameters:
  *         - in: path
- *           name: dishId
+ *           name: restaurantId
  *           required: true
  *           type: string
- *       responses:
- *         '204':
- *           description: No content
- *           schema:
- *             $ref: '#/definitions/Transaction'
- *     delete:
- *       tags:
- *         - Administrators
- *       summary: Delete dish
- *       parameters:
- *         - in: path
- *           name: dishid
- *           required: true
- *           type: string
- *       responses:
- *         '204':
- *           description: Dish deleted
- *
- *   /administrators/personnel:
- *     get:
- *       tags:
- *         - Administrators
- *       summary: Get all personnel
  *       responses:
  *         '200':
  *           description: A list of personnel
@@ -75,6 +24,7 @@ const router = express.Router();
  *                 type: array
  *                 items:
  *                   $ref: '#/components/schemas/Personnel'
+ *   /personnel:
  *     post:
  *       tags:
  *         - Administrators
@@ -90,6 +40,23 @@ const router = express.Router();
  *           description: Personnel added
  *
  *   /personnel/{personnelId}:
+ *     get:
+ *       tags:
+ *         - Administrators
+ *       summary: Get personnel by id
+ *       parameters:
+ *         - in: path
+ *           name: personnelId
+ *           required: true
+ *           type: string
+ *       responses:
+ *         '200':
+ *           description: A single personnel
+ *           content:
+ *             application/json:
+ *               schema:
+ *                 $ref: '#/components/schemas/Personnel'
+ *
  *     patch:
  *       tags:
  *         - Administrators
@@ -104,26 +71,26 @@ const router = express.Router();
  *           description: No content
  *           schema:
  *             $ref: '#/components/schemas/Personnel'
+ *
  *     delete:
  *       tags:
  *         - Administrators
  *       summary: Delete personnel
  *       parameters:
  *         - in: path
- *           name: personnelid
+ *           name: personnelId
  *           required: true
  *           type: string
  *       responses:
  *         '204':
  *           description: No content
- *
  */
 
-router.get("/dishes", administratorsController.getDishes);
-router.post("/dishes", administratorsController.addDish);
-router.patch("/dishes/:id", administratorsController.updateDish);
-router.delete("/dishes/:id", administratorsController.deleteDish);
-router.get("/personnel", administratorsController.getPersonnel);
+router.get(
+  "/personnel/restaurant/:id",
+  administratorsController.getPersonnelByRestaurantId
+);
+router.get("/personnel/:id", administratorsController.getPersonnel);
 router.post("/personnel", administratorsController.addPersonnel);
 router.patch("/personnel/:id", administratorsController.updatePersonnel);
 router.delete("/personnel/:id", administratorsController.deletePersonnel);

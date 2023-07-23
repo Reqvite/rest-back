@@ -1,15 +1,6 @@
 const administratorsController = {
-  getDishes: (req, res) => {
-    res.send("getDishes");
-  },
-  addDish: (req, res) => {
-    res.send("addDish");
-  },
-  updateDish: (req, res) => {
-    res.send("updateDish");
-  },
-  deleteDish: (req, res) => {
-    res.send("deleteDish");
+  getPersonnelByRestaurantId: (req, res) => {
+    res.send("getPersonnelByRestaurantId");
   },
   getPersonnel: (req, res) => {
     res.send("getPersonnel");
