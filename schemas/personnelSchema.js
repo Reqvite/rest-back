@@ -27,9 +27,6 @@
  *         restaurant_id:
  *           type: integer
  *           description: The unique ID of the restaurant where the cook works.
- *         gender:
- *           type: string
- *           description: The gender of the cook.
  *         phone:
  *           type: string
  *           description: The phone number of the cook.
