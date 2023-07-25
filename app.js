@@ -18,11 +18,12 @@ const restaurantsRoute = require('./routes/restaurants');
 const administratorsRoute = require('./routes/administrators');
 const waitersRoute = require('./routes/waiters');
 const transactionsRoute = require('./routes/transactions');
+const ingredientsRoute = require('./routes/ingredients');
 const uploadRoute = require('./routes/upload');
 
 let app = express();
 
-//connect to the database
+// connect to the database
 try {
     connectDB();
 }
@@ -49,6 +50,8 @@ app.use(`/restaurants`, restaurantsRoute);
 app.use(`/administrators`, administratorsRoute);
 app.use(`/waiters`, waitersRoute);
 app.use(`/transactions`, transactionsRoute);
+app.use(`/ingredients`, ingredientsRoute);
+
 app.use(`/api`, uploadRoute)
 
 // catch 404 and forward to error handler
