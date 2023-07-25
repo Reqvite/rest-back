@@ -8,6 +8,8 @@ const swaggerSpecs = require('./utils/swagger');
 const connectDB = require('./db');
 const cors = require('cors');
 
+require('dotenv').config();
+
 //routes imports for the different parts of the application
 const indexRouter = require('./routes/index');
 const usersRouter = require('./routes/users');
@@ -33,7 +35,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
-app.use(cors({ origin: 'http://localhost:3000' }));
+app.use(cors({ origin: process.env.CORS_ORIGIN }));
 
 //routes
 app.use('/', indexRouter);
