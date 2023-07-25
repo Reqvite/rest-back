@@ -19,7 +19,7 @@ const transactionsRoute = require('./routes/transactions');
 
 let app = express();
 
-//connect to the database
+// connect to the database
 try {
     connectDB();
 }
