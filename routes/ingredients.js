@@ -5,7 +5,7 @@ const router = express.Router();
 /**
  * @openapi
  * paths:
- *   /:
+ *   /ingredients:
  *     get:
  *       summary: Get all ingredients
  *       responses:
@@ -14,10 +14,9 @@ const router = express.Router();
  *           content:
  *             application/json:
  *               schema:
- *                 $ref: '#/components/schemas/Ingredient'
  *                 type: array
  *                 items:
- *                   type: string
+ *                   $ref: '#/components/schemas/Ingredient'
  */
 router.get('/', ingredientsController.getAllIngredients);
 
