@@ -15,6 +15,7 @@ const restaurantsRoute = require('./routes/restaurants');
 const administratorsRoute = require('./routes/administrators');
 const waitersRoute = require('./routes/waiters');
 const transactionsRoute = require('./routes/transactions');
+const dishesRoute = require('./routes/dishes')
 
 
 let app = express();
@@ -45,6 +46,7 @@ app.use(`/restaurants`, restaurantsRoute);
 app.use(`/administrators`, administratorsRoute);
 app.use(`/waiters`, waitersRoute);
 app.use(`/transactions`, transactionsRoute);
+app.use(`/dishes`, dishesRoute);
 
 
 
