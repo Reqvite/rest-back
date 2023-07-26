@@ -15,6 +15,9 @@ const restaurantsRoute = require('./routes/restaurants');
 const administratorsRoute = require('./routes/administrators');
 const waitersRoute = require('./routes/waiters');
 const transactionsRoute = require('./routes/transactions');
+const ingredientsRoute = require('./routes/ingredients');
+const uploadRoute = require('./routes/upload');
+const tablessRoute = require('./routes/tables');
 const dishesRoute = require('./routes/dishes')
 
 
@@ -44,8 +47,10 @@ app.use('/healthcheck', healthcheckRoute);
 app.use('/users', usersRouter);
 app.use(`/restaurants`, restaurantsRoute);
 app.use(`/administrators`, administratorsRoute);
-app.use(`/waiters`, waitersRoute);
-app.use(`/transactions`, transactionsRoute);
+app.use('/waiters', waitersRoute);
+app.use('/transactions', transactionsRoute);
+app.use('/ingredients', ingredientsRoute);
+app.use('/tables', tablessRoute);
 app.use(`/dishes`, dishesRoute);
 
 
