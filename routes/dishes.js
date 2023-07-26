@@ -77,7 +77,7 @@ const dishController = require ('../controllers/DishController')
          description: Dish deleted.
  */
 
-router.get('/:restaurant_id', dishController.getAllDishes)
+router.get('/:restaurant/:id', dishController.getAllDishes)
 router.post('/dish/', dishController.addDish)
 
 router.get('/dish/:id', dishController.getDishesById)
