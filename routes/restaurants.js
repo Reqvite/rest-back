@@ -1,20 +1,22 @@
 const express = require('express');
 const router = express.Router();
-
-
+const restaurantsController = require('../controllers/RestaurantsController');
 
 /**
  * @openapi
  * /restaurant/{id}:
  *   get:
- *     summary: Get restaurant by ID
+ *     summary: Get restaurant by id
+ *     tags: 
+ *       - Restaurants
+ *     operationId: getRestaurantById
  *     parameters:
  *       - name: id
  *         in: path
  *         required: true
- *         description: The ID of the restaurant.
+ *         description: The id of the restaurant.
  *         schema:
- *           type: integer
+ *           type: string (ObjectId)
  *     responses:
  *       200:
  *         description: The restaurant object
@@ -23,8 +25,6 @@ const router = express.Router();
  *             schema:
  *               $ref: '#/components/schemas/Restaurant'
  */
-router.get('/restaurant/:id', (req, res) => {
-    res.status(200).send('Restaurant');
-});
+router.get('/:id', restaurantsController.getRestaurantById);
 
 module.exports = router;
