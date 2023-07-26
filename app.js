@@ -20,15 +20,16 @@ const waitersRoute = require('./routes/waiters');
 const transactionsRoute = require('./routes/transactions');
 const ingredientsRoute = require('./routes/ingredients');
 const uploadRoute = require('./routes/upload');
+const tablessRoute = require('./routes/tables');
 
 let app = express();
 
 // connect to the database
 try {
-    connectDB();
+  connectDB();
 }
 catch (err) {
-    console.log(err);
+  console.log(err);
 }
 
 app.use(logger('dev'));
@@ -48,14 +49,15 @@ app.use('/healthcheck', healthcheckRoute);
 app.use('/users', usersRouter);
 app.use(`/restaurants`, restaurantsRoute);
 app.use(`/administrators`, administratorsRoute);
-app.use(`/waiters`, waitersRoute);
-app.use(`/transactions`, transactionsRoute);
-app.use(`/ingredients`, ingredientsRoute);
+app.use('/waiters', waitersRoute);
+app.use('/transactions', transactionsRoute);
+app.use('/ingredients', ingredientsRoute);
+app.use('/tables', tablessRoute);
 
-app.use(`/api`, uploadRoute)
+app.use('/api', uploadRoute)
 
 // catch 404 and forward to error handler
-app.use(function(req, res, next) {
+app.use(function (req, res, next) {
   next(createError(404));
 });
 
