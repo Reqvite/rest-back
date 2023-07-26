@@ -5,7 +5,7 @@ const dishController = require ('../controllers/DishController')
 /*
   @openapi
   paths:
-   /{rest_id}:
+   /{restaurant_id}:
     get:
       summary: Get all dishes connected to selected restaurant
        parameters:
@@ -77,7 +77,7 @@ const dishController = require ('../controllers/DishController')
          description: Dish deleted.
  */
 
-router.get('/:rest_id', dishController.getAllDishes)
+router.get('/:restaurant_id', dishController.getAllDishes)
 router.post('/dish/', dishController.addDish)
 
 router.get('/dish/:id', dishController.getDishesById)

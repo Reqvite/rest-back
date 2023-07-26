@@ -6,6 +6,9 @@ const logger = require('morgan');
 const swaggerUi = require('swagger-ui-express');
 const swaggerSpecs = require('./utils/swagger');
 const connectDB = require('./db');
+const cors = require('cors');
+
+require('dotenv').config();
 
 //routes imports for the different parts of the application
 const indexRouter = require('./routes/index');
@@ -23,12 +26,12 @@ const dishesRoute = require('./routes/dishes')
 
 let app = express();
 
-//connect to the database
+// connect to the database
 try {
-    connectDB();
+  connectDB();
 }
 catch (err) {
-    console.log(err);
+  console.log(err);
 }
 
 app.use(logger('dev'));
@@ -36,6 +39,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
+app.use(cors({ origin: process.env.CORS_ORIGIN }));
 
 //routes
 app.use('/', indexRouter);
@@ -55,11 +59,13 @@ app.use(`/dishes`, dishesRoute);
 
 
 
+app.use('/api', uploadRoute)
+
 // catch 404 and forward to error handler
-app.use(function(req, res, next) {
+app.use(function (req, res, next) {
   next(createError(404));
 });
 
-app.listen(3000, () => console.log('Example app listening on port 3000!'));
+app.listen(3001, () => console.log('Example app listening on port 3001!'));
 
 module.exports = app;
