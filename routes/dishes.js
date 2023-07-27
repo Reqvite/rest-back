@@ -21,11 +21,30 @@ const dishController = require ('../controllers/DishController')
  *                 type: array
  *                 items:
  *                   $ref: '#/components/schemas/Dish'
+ * 
  *   /dish/{id}:
- *     post:
+ *     get:
  *       tags:
  *         - Dishes
  *       summary: Get dish by id.
+ *       parameters:
+*          - in: path
+*            name: dish_id
+*            required: true
+*            type: string
+ *       responses:
+ *         200:
+ *           description: Returns a list of dishes.
+ *           content:
+ *             application/json:
+ *               schema:
+ *                 type: array
+ *                 items:
+ *                   $ref: '#/components/schemas/Dish'
+ *     post:
+ *       tags:
+ *         - Dishes
+ *       summary: Add dish by id.
  *       parameters:
 *          - in: path
 *            name: dish_id
