@@ -21,6 +21,8 @@ const transactionsRoute = require('./routes/transactions');
 const ingredientsRoute = require('./routes/ingredients');
 const uploadRoute = require('./routes/upload');
 const tablessRoute = require('./routes/tables');
+const dishesRoute = require('./routes/dishes')
+
 
 let app = express();
 
@@ -53,6 +55,9 @@ app.use('/waiters', waitersRoute);
 app.use('/transactions', transactionsRoute);
 app.use('/ingredients', ingredientsRoute);
 app.use('/tables', tablessRoute);
+app.use(`/dishes`, dishesRoute);
+
+
 
 app.use('/api', uploadRoute)
 
