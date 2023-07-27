@@ -11,21 +11,20 @@
  *         - order_id
  *       properties:
  *         _id:
- *           type: string ( ObjectId )
- *           RegExp: /^[0-9a-fA-F]{24}$/
+ *           type: string
  *           description: The unique ID of the transaction.
  *         paymentAmount:
  *           type: number
- *           format: float
  *           description: The amount of the payment transaction.
  *         paymentDate:
  *           type: string
  *           format: date
  *           description: The date of the payment transaction.
  *         order_id:
- *           type: integer
+ *           type: string
  *           description: The unique ID of the order associated with the transaction.
  *         type:
  *           type: string
- *           description: "The type of the transaction: card or cash."
+ *           enum: ['online', 'POS', 'cash']
+ *           description: The type of transaction.
  */

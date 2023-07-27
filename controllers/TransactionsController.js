@@ -6,11 +6,15 @@ const TransactionsController = {
     const { amount, order_id, type } = req.body;
     const paymentData = LiqPayService.getLiqPayPaymentData(amount, order_id);
 
-    await Transaction.create({
-      paymentAmount: amount,
-      order_id,
-      type,
-    });
+    const existingTransaction = await Transaction.findOne({ order_id });
+
+    if (!existingTransaction) {
+      await Transaction.create({
+        paymentAmount: amount,
+        order_id,
+        type,
+      });
+    }
 
     console.log(
       `https://www.liqpay.ua/api/3/checkout?data=${paymentData.data}&signature=${paymentData.signature}`

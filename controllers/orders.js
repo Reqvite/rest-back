@@ -1,3 +1,5 @@
+const LiqPayService = require("../services/liqpay/liqpayService");
+
 const getOrderById = async (req, res) => {
   const { orderId } = req.params;
 
@@ -35,12 +37,16 @@ const createOrder = async (req, res) => {
 };
 
 const updateOrderStatus = async (req, res) => {
-  const { orderId } = req.params;
+  const { data, signature } = req.body;
+
+  const status = LiqPayService.getPayStatus(data, signature);
+
+  console.log(status);
   return res.json({
     code: 200,
     status: "success",
     data: {
-      orderId,
+      status,
     },
   });
 };
