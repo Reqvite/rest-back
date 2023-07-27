@@ -10,18 +10,8 @@ const cors = require("cors");
 
 require("dotenv").config();
 
-//routes imports for the different parts of the application
-const indexRouter = require("./routes/index");
-const usersRouter = require("./routes/users");
-const healthcheckRoute = require("./routes/healthcheck");
-const restaurantsRoute = require("./routes/restaurants");
-const administratorsRoute = require("./routes/administrators");
-const waitersRoute = require("./routes/waiters");
-const transactionsRoute = require("./routes/transactions");
-const ingredientsRoute = require("./routes/ingredients");
-const uploadRoute = require("./routes/upload");
-const tablessRoute = require("./routes/tables");
-const dishesRoute = require("./routes/dishes");
+//routes
+const routes = require("./routes");
 
 let app = express();
 
@@ -40,22 +30,20 @@ app.use(express.static(path.join(__dirname, "public")));
 app.use(cors({ origin: process.env.CORS_ORIGIN }));
 
 //routes
-app.use("/", indexRouter);
-
 app.use("/api-docs", swaggerUi.serve);
 app.get("/api-docs", swaggerUi.setup(swaggerSpecs));
-app.use("/healthcheck", healthcheckRoute);
+app.use("/healthcheck", routes.healthcheck);
 
-app.use("/users", usersRouter);
-app.use(`/restaurants`, restaurantsRoute);
-app.use(`/administrators`, administratorsRoute);
-app.use("/waiters", waitersRoute);
-app.use("/transactions", transactionsRoute);
-app.use("/ingredients", ingredientsRoute);
-app.use("/tables", tablessRoute);
-app.use(`/dishes`, dishesRoute);
-
-app.use("/api", uploadRoute);
+app.use(`/restaurants`, routes.restaurants);
+app.use(`/administrators`, routes.administrators);
+app.use(`/waiters`, routes.waiters);
+app.use(`/transactions`, routes.transactions);
+app.use("/orders", routes.orders);
+app.use("/users", routes.users);
+app.use("/ingredients", routes.ingredients);
+app.use("/tables", routes.tables);
+app.use(`/dishes`, routes.dishes);
+app.use("/api", routes.upload);
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
