@@ -21,5 +21,6 @@ const router = express.Router();
  */
 
 router.post("/", transactionsController.create);
+router.post("/status", transactionsController.updateStatus);
 
 module.exports = router;

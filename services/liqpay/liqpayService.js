@@ -1,4 +1,3 @@
-const decodeBase64UTF8 = require("../../helpers/decodeBase64UTF8 ");
 const LiqPay = require("./lib/liqpay");
 const { PUBLIC_LIQPAY_KEY, PRIVATE_LIQPAY_KEY, BASE_URL, BASE_URL_FRONT } =
   process.env;
@@ -34,7 +33,7 @@ const LiqPayService = {
     return liqpay.cnb_object(dataParams);
   },
 
-  getPayStatus: (data, signature) => {
+  getPaymentStatus: (data, signature) => {
     const str = PRIVATE_LIQPAY_KEY + data + PRIVATE_LIQPAY_KEY;
     const mySign = liqpay.str_to_sign(str);
 
@@ -46,23 +45,23 @@ const LiqPayService = {
     const {
       order_id,
       status,
-      amount,
-      completion_date,
-      create_date,
-      description,
-      end_date,
-      paytype,
-    } = decodeBase64UTF8(data);
+      //   amount,
+      //   completion_date,
+      //   create_date,
+      //   description,
+      //   end_date,
+      //   paytype,
+    } = liqpay.decodeBase64UTF8(data);
 
     return {
       order_id,
       status,
-      amount,
-      completion_date,
-      create_date,
-      description,
-      end_date,
-      paytype,
+      //   amount,
+      //   completion_date,
+      //   create_date,
+      //   description,
+      //   end_date,
+      //   paytype,
     };
   },
 };

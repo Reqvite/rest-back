@@ -84,6 +84,12 @@ class LiqPay {
 
     return { data: data, signature: signature };
   }
+
+  decodeBase64UTF8(base64String) {
+    const decodedBase64 = Buffer.from(base64String, "base64");
+    const decodedUTF8 = new TextDecoder().decode(decodedBase64);
+    return JSON.parse(decodedUTF8);
+  }
 }
 
 module.exports = LiqPay;
