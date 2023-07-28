@@ -22,11 +22,11 @@ const dishController = require ('../controllers/DishController')
  *                 items:
  *                   $ref: '#/components/schemas/Dish'
  * 
- *   /dish/{id}:
- *     get:
+  *   /dish:
+ *     post:
  *       tags:
  *         - Dishes
- *       summary: Get dish by id.
+ *       summary: Add dish.
  *       parameters:
 *          - in: path
 *            name: dish_id
@@ -41,10 +41,11 @@ const dishController = require ('../controllers/DishController')
  *                 type: array
  *                 items:
  *                   $ref: '#/components/schemas/Dish'
- *     post:
+ *   /dish/{id}:
+ *     get:
  *       tags:
  *         - Dishes
- *       summary: Add dish by id.
+ *       summary: Get dish by id.
  *       parameters:
 *          - in: path
 *            name: dish_id
@@ -88,7 +89,7 @@ const dishController = require ('../controllers/DishController')
 
 
 
-router.get('/:restaurantId', dishController.getAllDishes)
+router.get('/restaurant/:id', dishController.getAllDishes)
 router.post('/dish/', dishController.addDish)
 
 router.get('/dish/:id', dishController.getDishesById)

@@ -4,7 +4,7 @@ const restaurantsController = require('../controllers/RestaurantsController');
 
 /**
  * @openapi
- * /restaurant/{id}:
+ * /restaurants/{id}:
  *   get:
  *     summary: Get restaurant by id
  *     tags: 
