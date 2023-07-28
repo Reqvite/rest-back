@@ -3,7 +3,6 @@ const Ingredient = require("../models/ingredientModel");
 const IngredientsController = {
   getAllIngredients: async (req, res) => {
     const result = await Ingredient.find();
-    console.log(result);
 
     if (!result) {
       res.status(400);
