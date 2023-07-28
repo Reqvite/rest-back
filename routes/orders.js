@@ -2,11 +2,11 @@ const express = require("express");
 const router = express.Router();
 const { orders } = require("../controllers");
 
-router.get("/:orderId", orders.getOrderById);
-router.get("/:tableId", orders.getOrderByTableId);
-router.post("/", orders.createOrder);
-router.patch("/:orderId", orders.updateOrderStatus);
-router.patch("/:orderId/:dishId", orders.updateDishStatus);
+router.get("/:restId/table/:tableId", orders.getOrderByTableId);
+router.get("/:restId/:orderId", orders.getOrderById);
+router.post("/:restId", orders.createOrder);
+router.patch("/:restId/:orderId", orders.updateOrderStatus);
+router.patch("/:restId/:orderId/:dishId", orders.updateDishStatus);
 
 module.exports = router;
 

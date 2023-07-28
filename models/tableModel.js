@@ -12,7 +12,7 @@ const tableSchema = new Schema(
         validator: function (value) {
           return /^[1-9]\d*$/.test(value);
         },
-        message: '{VALUE} is not a valid non-negative integer.',
+        message: "{VALUE} is not a valid non-negative integer.",
       },
     },
     status: {

@@ -1,5 +1,5 @@
-import mongoose from 'mongoose';
-const { Schema } = mongoose;
+const mongoose = require("mongoose");
+const { Schema, model } = mongoose;
 
 const restaurantSchema = new Schema({
   name: {
@@ -45,17 +45,17 @@ const restaurantSchema = new Schema({
     type: String,
   },
   workHours: {
-    Monday: { type: String, default: 'Closed' },
-    Tuesday: { type: String, default: 'Closed' },
-    Wednesday: { type: String, default: 'Closed' },
-    Thursday: { type: String, default: 'Closed' },
-    Friday: { type: String, default: 'Closed' },
-    Saturday: { type: String, default: 'Closed' },
-    Sunday: { type: String, default: 'Closed' },
+    Monday: { type: String, default: "Closed" },
+    Tuesday: { type: String, default: "Closed" },
+    Wednesday: { type: String, default: "Closed" },
+    Thursday: { type: String, default: "Closed" },
+    Friday: { type: String, default: "Closed" },
+    Saturday: { type: String, default: "Closed" },
+    Sunday: { type: String, default: "Closed" },
   },
-  dishes_ids: [{ type: Schema.Types.ObjectId, ref: 'Dish' }],
+  dishes_ids: [{ type: Schema.Types.ObjectId, ref: "Dish" }],
 });
 
-const Restaurant = model('Restaurant', restaurantSchema);
+const Restaurant = model("Restaurant", restaurantSchema);
 
 module.exports = Restaurant;

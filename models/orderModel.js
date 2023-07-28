@@ -37,9 +37,10 @@ const orderSchema = new Schema(
       ref: "Table",
       required: [true, "Table id is required"],
     },
-    waiter_id: {
+    rest_id: {
       type: ObjectId,
-      ref: "Waiter",
+      ref: "Restaurant",
+      required: [true, "Restaurant id is required"],
     },
   },
   { versionKey: false }
