@@ -50,6 +50,12 @@ app.use(function (req, res, next) {
   next(createError(404));
 });
 
+// catch 500
+app.use(function (err, req, res, next) {
+  const { status = 500, message = "Server error" } = err;
+  res.status(status).json({ message });
+});
+
 app.listen(3001, () => console.log("Example app listening on port 3001!"));
 
 module.exports = app;
