@@ -59,10 +59,24 @@ const router = express.Router();
  *             $ref: '#/components/schemas/Table'
  */
 
-router.get("/restaurant/:id", tableController.getTablesByRestaurantId);
+const ctrlWrapper = (ctrl) => {
+  return async (req, res, next) => {
+    try {
+      await ctrl(req, res, next);
+    } catch (error) {
+      next(error);
+    }
+  };
+};
 
-router.get("/:id", tableController.getTable);
+//прибрати
+router.get("/", ctrlWrapper(tableController.getAllTables));
 
-router.patch("/:id", tableController.updateTable);
+router.get("/:id", ctrlWrapper(tableController.getTable));
+router.get(
+  "/restaurant/:id",
+  ctrlWrapper(tableController.getTablesByRestaurantId)
+);
+router.patch("/:id", ctrlWrapper(tableController.updateTable));
 
 module.exports = router;
