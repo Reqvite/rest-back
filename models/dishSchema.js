@@ -6,7 +6,7 @@ const DishSchema = new mongoose.Schema({
         required: true
     },
     ingridients: [{
-        type:Schema.Types.ObjectId,
+        type:mongoose.Schema.Types.ObjectId,
         ref:'Ingredient' 
     }],
     picture:{
