@@ -5,7 +5,7 @@ const TransactionsController = {
   create: async (req, res) => {
     const { amount, order_id, type } = req.body;
 
-    const paymentData = LiqPayService.getLiqPayPaymentData(amount, order_id);
+    const paymentInfo = LiqPayService.getLiqPayPaymentData(amount, order_id);
 
     const existingTransaction = await Transaction.findOne({ order_id });
 
@@ -18,26 +18,31 @@ const TransactionsController = {
     }
 
     console.log(
-      `https://www.liqpay.ua/api/3/checkout?data=${paymentData.data}&signature=${paymentData.signature}`
+      `https://www.liqpay.ua/api/3/checkout?data=${paymentInfo.data}&signature=${paymentInfo.signature}`
     );
 
-    res.status(201).json({ status: "succes", code: 201, paymentData });
+    res.status(201).json({ status: "succes", code: 201, paymentInfo });
   },
   updateStatus: async (req, res) => {
     const { data, signature } = req.body;
 
-    const { status, order_id } = LiqPayService.getPaymentStatus(
-      data,
-      signature
-    );
+    const { order_id, info } = LiqPayService.getPaymentStatus(data, signature);
 
-    const order = await Order.findByIdAndUpdate(order_id);
+    if (info) {
+      //if multiple ids
+    }
+
+    const updatedOrder = await Order.findByIdAndUpdate(
+      order_id,
+      { status: "Paid" },
+      { new: true }
+    );
 
     return res.json({
       code: 200,
       status: "success",
       data: {
-        status,
+        updatedOrder,
       },
     });
   },

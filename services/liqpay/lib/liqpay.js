@@ -15,7 +15,7 @@ class LiqPay {
 
     params.public_key = this.public_key;
     const data = Buffer.from(JSON.stringify(params)).toString("base64");
-    const signature = this.str_to_sign(
+    const signature = this.strToSign(
       this.private_key + data + this.private_key
     );
 
@@ -38,13 +38,13 @@ class LiqPay {
       });
   }
 
-  cnb_signature(params) {
-    params = this.cnb_params(params);
+  cnbSignature(params) {
+    params = this.cnbParams(params);
     const data = Buffer.from(JSON.stringify(params)).toString("base64");
-    return this.str_to_sign(this.private_key + data + this.private_key);
+    return this.strToSign(this.private_key + data + this.private_key);
   }
 
-  cnb_params(params) {
+  cnbParams(params) {
     params.public_key = this.public_key;
 
     if (!params.version) {
@@ -63,22 +63,22 @@ class LiqPay {
     return params;
   }
 
-  str_to_sign(str) {
+  strToSign(str) {
     const sha1 = crypto.createHash("sha1");
     sha1.update(str);
     return sha1.digest("base64");
   }
 
-  cnb_object(params) {
+  cnbObject(params) {
     let language = "ua";
 
     if (params.language) {
       language = params.language;
     }
 
-    params = this.cnb_params(params);
+    params = this.cnbParams(params);
     const data = Buffer.from(JSON.stringify(params)).toString("base64");
-    const signature = this.str_to_sign(
+    const signature = this.strToSign(
       this.private_key + data + this.private_key
     );
 

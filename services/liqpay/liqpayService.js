@@ -5,19 +5,18 @@ const liqpay = new LiqPay(PUBLIC_LIQPAY_KEY, PRIVATE_LIQPAY_KEY);
 
 const apiUrl =
   process.env.NODE_ENV === "development"
-    ? "http://localhost:3001/api/user/status"
+    ? "http://localhost:3001/transactions/status"
     : `${BASE_URL}/orders/status`;
 
 const frontUrl =
   process.env.NODE_ENV === "development"
-    ? "http://localhost:3000"
+    ? "https://www.youtube.com/"
     : `${BASE_URL_FRONT}`;
 
 const LiqPayService = {
   getLiqPayPaymentData: (amount, order_id) => {
     const description = `Payment for the restaurant bill according to order №${order_id}`;
 
-    console.log(apiUrl);
     const dataParams = {
       public_key: PUBLIC_LIQPAY_KEY,
       version: 3,
@@ -30,38 +29,24 @@ const LiqPayService = {
       server_url: apiUrl,
     };
 
-    return liqpay.cnb_object(dataParams);
+    return liqpay.cnbObject(dataParams);
   },
 
   getPaymentStatus: (data, signature) => {
     const str = PRIVATE_LIQPAY_KEY + data + PRIVATE_LIQPAY_KEY;
-    const mySign = liqpay.str_to_sign(str);
+    const mySign = liqpay.strToSign(str);
 
     if (mySign !== signature) {
       // need to change to api errors
       throw new Error("Invalid signature");
     }
 
-    const {
-      order_id,
-      status,
-      //   amount,
-      //   completion_date,
-      //   create_date,
-      //   description,
-      //   end_date,
-      //   paytype,
-    } = liqpay.decodeBase64UTF8(data);
+    const { order_id, status, info } = liqpay.decodeBase64UTF8(data);
 
     return {
       order_id,
       status,
-      //   amount,
-      //   completion_date,
-      //   create_date,
-      //   description,
-      //   end_date,
-      //   paytype,
+      info,
     };
   },
 };
