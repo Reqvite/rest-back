@@ -76,9 +76,6 @@ const ctrlWrapper = (ctrl) => {
   };
 };
 
-//прибрати
-router.get("/", ctrlWrapper(tableController.getAllTables));
-
 router.get("/:id", ctrlWrapper(tableController.getTable));
 router.get(
   "/restaurant/:id",
