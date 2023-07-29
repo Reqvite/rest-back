@@ -1,6 +1,13 @@
 const express = require("express");
-const tableController = require("../controllers/TablesControllers");
 const router = express.Router();
+
+const tableController = require("../controllers/TablesControllers");
+const {
+  checkSeatsNumber,
+  checkTableNumber,
+  checkRestaurantId,
+  checkExistingTable,
+} = require("../utils/validation/aditionalValidation");
 
 /**
  * @openapi
@@ -77,6 +84,12 @@ router.get(
   "/restaurant/:id",
   ctrlWrapper(tableController.getTablesByRestaurantId)
 );
-router.patch("/:id", ctrlWrapper(tableController.updateTable));
+router.patch("/:id", [
+  checkSeatsNumber,
+  checkTableNumber,
+  checkRestaurantId,
+  checkExistingTable,
+  ctrlWrapper(tableController.updateTable),
+]);
 
 module.exports = router;
