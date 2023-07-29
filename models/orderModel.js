@@ -6,7 +6,7 @@ const orderSchema = new Schema(
     status: {
       type: String,
       enum: {
-        values: ["Open", "Paid"],
+        values: ["Open", "Paid", "Canceled"],
         message: "{VALUE} is not supported",
       },
       default: "Open",
@@ -14,7 +14,7 @@ const orderSchema = new Schema(
     orderItems: [
       {
         dish: {
-          type: ObjectId,
+          type: Schema.Types.ObjectId,
           ref: "Dish",
           required: [true, "At least one item is required"],
         },
