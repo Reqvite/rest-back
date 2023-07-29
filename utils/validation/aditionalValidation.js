@@ -1,5 +1,4 @@
-const Table = require("../../models/tableModel");
-const Restaurant = require("../../models/restaurantModel");
+const { Table, Restaurant } = require("../../models");
 
 const checkSeatsNumber = (req, res, next) => {
   if (req.body.seats && typeof req.body.seats !== "number") {

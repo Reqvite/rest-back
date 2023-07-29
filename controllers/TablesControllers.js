@@ -1,4 +1,4 @@
-const Table = require("../models/tableModel");
+const { Table } = require("../models");
 
 const tableController = {
   getTable: async (req, res) => {

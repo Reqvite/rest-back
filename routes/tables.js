@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
+const { tables } = require("../controllers");
 
-const tableController = require("../controllers/TablesControllers");
 const {
   checkSeatsNumber,
   checkTableNumber,
@@ -76,17 +76,14 @@ const ctrlWrapper = (ctrl) => {
   };
 };
 
-router.get("/:id", ctrlWrapper(tableController.getTable));
-router.get(
-  "/restaurant/:id",
-  ctrlWrapper(tableController.getTablesByRestaurantId)
-);
+router.get("/:id", ctrlWrapper(tables.getTable));
+router.get("/restaurant/:id", ctrlWrapper(tables.getTablesByRestaurantId));
 router.patch("/:id", [
   checkSeatsNumber,
   checkTableNumber,
   checkRestaurantId,
   checkExistingTable,
-  ctrlWrapper(tableController.updateTable),
+  ctrlWrapper(tables.updateTable),
 ]);
 
 module.exports = router;
