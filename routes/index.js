@@ -8,5 +8,7 @@ module.exports = {
   dishes: require("./dishes"),
   ingredients: require("./ingredients"),
   tables: require("./tables"),
-  upload: require("./upload"),
+  tokens: require("./tokens"),
+  login: require("./login"),
+  upload: require("./upload")
 };
