@@ -1,10 +1,19 @@
-
-const Dish = require('../models/dishSchema')
+const Dish = require('../models/dishModel')
+const Restaurant = require('../models/restaurantModel')
 
 const DishController = {
     getAllDishes: async (req,res)=>{
         const restaurantId = req.params.id;
-        res.send('Dishes list by restaurant id:');
+        console.log(restaurantId)
+        let dish;
+        try{
+            dish = await Restaurant.findById(restaurantId)
+        }catch(e){
+            if(!dish){
+                return res.status(404).json({message:"No dish was found"})
+            }
+        }
+        res.send('Dishes list by restaurant id:'+ dish.dishes_ids);
     },
     getDishesById: async (req,res)=>{
         const dishId = req.params.id;
@@ -19,7 +28,7 @@ const DishController = {
 
         res.send(dish);
     },
-    addDish: async (req,res)=>{
+    addDish: async (req,res,next)=>{
         let newDish;
         try{
             newDish = new Dish({
@@ -43,6 +52,7 @@ const DishController = {
         }
 
         res.send(newDish);
+        next()
     },
     editDishById: async (req,res)=>{
         const dishId = req.params.id;

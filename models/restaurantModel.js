@@ -1,5 +1,5 @@
-import mongoose from 'mongoose';
-const { Schema } = mongoose;
+const mongoose = require("mongoose");
+const { Schema, model } = mongoose;
 
 const restaurantSchema = new Schema({
   name: {

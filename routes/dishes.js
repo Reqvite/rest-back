@@ -7,7 +7,7 @@ const dishController = require ('../controllers/DishController')
 /**
  * @openapi
  * paths:
- *   /{restaurantId}:
+ *   /restaurant/{Id}:
  *     get:
  *       tags:
  *         - Dishes
@@ -88,16 +88,12 @@ const dishController = require ('../controllers/DishController')
  */
 
 
-
+// .dishes/
 router.get('/restaurant/:id', dishController.getAllDishes)
 router.post('/dish/', dishController.addDish)
 
 router.get('/dish/:id', dishController.getDishesById)
 router.patch('/dish/:id', dishController.editDishById)
 router.delete('/dish/:id', dishController.deleteDishById)
-
-
-
-
 
 module.exports = router;
