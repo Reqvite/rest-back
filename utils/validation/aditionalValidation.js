@@ -1,4 +1,15 @@
 const { Table, Restaurant } = require("../../models");
+const mongoose = require("mongoose");
+
+const isValidObjectId = (id) => mongoose.Types.ObjectId.isValid(id);
+
+const validateObjectId = (req, res, next) => {
+  const { id } = req.params;
+  if (!isValidObjectId(id)) {
+    return res.status(400).json({ error: "Invalid ObjectId" });
+  }
+  next();
+};
 
 const checkSeatsNumber = (req, res, next) => {
   if (req.body.seats && typeof req.body.seats !== "number") {
@@ -14,26 +25,9 @@ const checkTableNumber = (req, res, next) => {
   next();
 };
 
-const checkRestaurantId = async (req, res, next) => {
-  if (req.body.restaurant_id) {
-    try {
-      const restaurant = await Restaurant.findById(req.body.restaurant_id);
-      if (!restaurant) {
-        return res.status(400).json({
-          error: "Restaurant not found. Please provide a valid restaurant ID.",
-        });
-      }
-      next();
-    } catch (error) {
-      return res.status(500).json({ error: "Internal server error" });
-    }
-  } else {
-    next();
-  }
-};
-
 const checkExistingTable = async (req, res, next) => {
   const { id } = req.params;
+
   const currentTable = await Table.findById(id);
 
   if (!currentTable) {
@@ -58,6 +52,6 @@ const checkExistingTable = async (req, res, next) => {
 module.exports = {
   checkSeatsNumber,
   checkTableNumber,
-  checkRestaurantId,
   checkExistingTable,
+  validateObjectId,
 };

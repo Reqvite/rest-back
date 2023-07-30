@@ -3,9 +3,9 @@ const router = express.Router();
 const { tables } = require("../controllers");
 
 const {
+  validateObjectId,
   checkSeatsNumber,
   checkTableNumber,
-  checkRestaurantId,
   checkExistingTable,
 } = require("../utils/validation/aditionalValidation");
 
@@ -76,14 +76,19 @@ const ctrlWrapper = (ctrl) => {
   };
 };
 
-router.get("/:id", ctrlWrapper(tables.getTable));
-router.get("/restaurant/:id", ctrlWrapper(tables.getTablesByRestaurantId));
-router.patch("/:id", [
+router.get("/:id", validateObjectId, ctrlWrapper(tables.getTable));
+router.get(
+  "/restaurant/:id",
+  validateObjectId,
+  ctrlWrapper(tables.getTablesByRestaurantId)
+);
+router.patch(
+  "/:id",
+  validateObjectId,
   checkSeatsNumber,
   checkTableNumber,
-  checkRestaurantId,
   checkExistingTable,
-  ctrlWrapper(tables.updateTable),
-]);
+  ctrlWrapper(tables.updateTable)
+);
 
 module.exports = router;
