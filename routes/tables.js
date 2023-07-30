@@ -12,7 +12,7 @@ const {
 /**
  * @openapi
  * paths:
- *   /table/restaurant/{restaurantId}:
+ *   /tables/restaurant/{restaurantId}:
  *     get:
  *       tags:
  *         - Tables
@@ -33,7 +33,7 @@ const {
  *                 type: array
  *                 items:
  *                   $ref: '#/components/schemas/Table'
- *   /table/{tableId}:
+ *   /tables/{tableId}:
  *     get:
  *       tags:
  *         - Tables

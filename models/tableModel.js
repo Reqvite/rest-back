@@ -6,8 +6,8 @@ const tableSchema = new Schema(
     table_number: {
       type: Number,
       required: [true, "Table number is required"],
-      min: [1, "Table number number must be at least 1"],
-      max: [10, "Table number must not exceed 999"],
+      min: [1, "Table number must be at least 1"],
+      max: [999, "Table number must not exceed 999"],
       validate: {
         validator: function (value) {
           return typeof value === "number" && /^[1-9]\d*$/.test(value);
