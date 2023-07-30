@@ -12,7 +12,7 @@ require("dotenv").config();
 
 //routes
 const routes = require("./routes");
-const { userIdValidator } = require("./utils/validator");
+const { userIdValidator } = require("./utils/validation/additionalValidation");
 
 let app = express();
 

@@ -1,7 +1,7 @@
 const { Table, Restaurant } = require("../../models");
 const mongoose = require("mongoose");
 
-const isValidObjectId = (id) => mongoose.Types.ObjectId.isValid(id);
+const isValidObjectId = id => mongoose.Types.ObjectId.isValid(id);
 
 const validateObjectId = (req, res, next) => {
   const { id } = req.params;
@@ -37,16 +37,24 @@ const checkExistingTable = async (req, res, next) => {
   const existingTable = await Table.findOne({
     _id: { $ne: id },
     restaurant_id: currentTable.restaurant_id,
-    table_number: req.body.table_number,
+    table_number: req.body.table_number
   });
 
   if (existingTable) {
     return res.status(400).json({
-      error: "Table with this table number already exists for this restaurant",
+      error: "Table with this table number already exists for this restaurant"
     });
   }
 
   next();
+};
+
+const userIdValidator = (req, res, next) => {
+  if (req.userId !== req.params.id) {
+    res.sendStatus(403);
+  } else {
+    return next();
+  }
 };
 
 module.exports = {
@@ -54,4 +62,5 @@ module.exports = {
   checkTableNumber,
   checkExistingTable,
   validateObjectId,
+  userIdValidator
 };
