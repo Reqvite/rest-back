@@ -1,6 +1,6 @@
 const {Schema, model} = require('mongoose')
 
-const administratorSchema = new Schema({
+const personnelSchema = new Schema({
     name: {
         type: String,
         required: [true, "Name is required"],
@@ -8,12 +8,16 @@ const administratorSchema = new Schema({
     password: {
         type: String,
         required: [true, "Password is required"],
-        validate: {
-            validator: function (password) {
-                return /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{8,30}$/.test(password);
-            },
-            message: "Password must contain at least one lowercase letter, one uppercase letter, one digit, and be between 8 and 30 characters long.",
-        },
+    },
+    gender: {
+        type: String,
+        required: [true, "Gender is required"],
+        enum: ['Female', 'Male'],
+    },
+    role: {
+        type: String,
+        required: [true, "Role is required"],
+        enum: ['Admin', 'Cook', 'Waiter'],
     },
     restaurant_id: {
         type: Schema.Types.ObjectId,
@@ -39,8 +43,8 @@ const administratorSchema = new Schema({
 
 })
 
-const Administrator = model('Administrator', administratorSchema)
+const Personnel = model('Personnel', personnelSchema)
 
 module.exports = {
-    Administrator,
+    Personnel,
   };
