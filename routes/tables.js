@@ -7,7 +7,7 @@ const {
   checkSeatsNumber,
   checkTableNumber,
   checkExistingTable,
-} = require("../utils/validation/aditionalValidation");
+} = require("../utils/validation/additionalValidation");
 
 /**
  * @openapi
