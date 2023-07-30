@@ -6,7 +6,7 @@ const DishController = {
         const restaurantId = req.params.id;
         res.send('Dishes list by restaurant id:');
     },
-    getDishById: async (req,res)=>{
+    getDishesById: async (req,res)=>{
         const dishId = req.params.id;
         let dish;
         try{

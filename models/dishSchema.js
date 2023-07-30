@@ -1,12 +1,13 @@
 const mongoose = require('mongoose');
 
+
 const DishSchema = new mongoose.Schema({
     name: {
         type: String,
         required: true
     },
     ingridients: [{
-        type:Schema.Types.ObjectId,
+        type: mongoose.Schema.Types.ObjectId,
         ref:'Ingredient' 
     }],
     picture:{
