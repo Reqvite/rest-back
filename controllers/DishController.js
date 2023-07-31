@@ -5,7 +5,6 @@ const Ingredient = require('../models/ingredientModel');
 const DishController = {
     getAllDishes: async (req,res)=>{
         const restaurantId = req.params.id;
-        console.log(restaurantId)
         let dish;
         try{
             dish = await Restaurant.findById(restaurantId).populate({
@@ -14,7 +13,7 @@ const DishController = {
                 populate: {
                   path: 'ingredients',
                   model: Ingredient,
-                  select: 'name type'
+                  select: 'name'
                 },
             })
         }catch(e){
@@ -85,7 +84,6 @@ const DishController = {
                 price: req.body.price,
                 updatedAt: req.body.updatedAt.toLocaleString(),
             })
-            await dish.save()
         } catch(e){
             console.log(e)
             if(!dish){
@@ -99,17 +97,18 @@ const DishController = {
     deleteDishById: async (req,res)=>{
         const dishId = req.params.id;
         const restaurantId = req.params.rest_id;
-        console.log(dishId,restaurantId)
+        let dish;
         try{
             const updatedRestaurant = await Restaurant.findByIdAndUpdate(
                 restaurantId,
                 { $pull: { dishes_ids: dishId } },
                 { new: true }
             );
+            dish = await Dish.findByIdAndRemove(dishId)
         } catch(e){
             console.log(e)
         }
-        res.send();
+        res.send('Dish id# is deleted');
     },
 }
 
