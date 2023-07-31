@@ -12,6 +12,7 @@ require("dotenv").config();
 
 //routes
 const routes = require("./routes");
+const { userIdValidator } = require("./utils/validation/additionalValidation");
 
 let app = express();
 
@@ -35,15 +36,17 @@ app.get("/api-docs", swaggerUi.setup(swaggerSpecs));
 app.use("/healthcheck", routes.healthcheck);
 
 app.use(`/restaurants`, routes.restaurants);
-app.use(`/administrators`, routes.administrators);
+app.use(`/personnel`, routes.personnel);
 app.use(`/waiters`, routes.waiters);
 app.use(`/transactions`, routes.transactions);
 app.use("/orders", routes.orders);
-app.use("/users", routes.users);
 app.use("/ingredients", routes.ingredients);
 app.use("/tables", routes.tables);
 app.use(`/dishes`, routes.dishes);
+app.use(`/login`, routes.login);
 app.use("/api", routes.upload);
+
+routes.personnel.use("/:id/tokens", userIdValidator, routes.tokens);
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
