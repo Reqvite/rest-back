@@ -19,7 +19,16 @@ const personnelJoiSchema = Joi.object({
     .required(),
   email: Joi.string().email().required(),
   address: Joi.string().required(),
-  picture: Joi.string()
+  picture: Joi.string(),
 }).options({ abortEarly: false, allowUnknown: false });
 
-module.exports = personnelJoiSchema;
+const personnelJoiSchemaDelete = Joi.object({
+  restaurant_id: Joi.string()
+    .pattern(/^[0-9a-fA-F]{24}$/)
+    .required(),
+}).options({ abortEarly: false, allowUnknown: false });
+
+module.exports = {
+  personnelJoiSchema,
+  personnelJoiSchemaDelete
+};

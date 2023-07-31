@@ -9,8 +9,8 @@ const connectDB = require("./db");
 const cors = require("cors");
 
 require("dotenv").config();
-const globalErrorHandler = require("./errors/globalErrorHandler");
-const { NotFoundError } = require("./errors/CustomErrors");
+const globalErrorHandler = require("./utils/errors/globalErrorHandler");
+const { NotFoundError } = require("./utils/errors/CustomErrors");
 
 //routes
 const routes = require("./routes");
