@@ -19,7 +19,7 @@ const loginController = {
       throw new Error(`Credentials do not match. Access denied.`);
     }
     const tokens = await tokenController.getTokens(userEntity._id);
-    return { ...tokens, userId: userEntity._id, name: userEntity.name };
+    return { ...tokens, userId: userEntity._id, name: userEntity.name, role: userEntity.role };
   },
 
   loginUser: async (req, res) => {

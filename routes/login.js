@@ -43,6 +43,9 @@ const router = express.Router();
  *                     type: string
  *                   name:
  *                     type: string
+ *                   role:
+ *                     type: string
+ *                     enum: ['Admin', 'Cook', 'Waiter']
  *         500:
  *           description: Something went wrong
  *           content:
