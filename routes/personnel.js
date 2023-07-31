@@ -1,6 +1,8 @@
 const express = require("express");
 const personnelController = require("../controllers/PersonnelController");
 const router = express.Router();
+const personnelJoiSchema = require("../utils/validation/joiSchemas/personnelJoiSchema");
+const { validateBody } = require("../utils/validation/additionalValidation");
 
 /**
  * @openapi
@@ -142,8 +144,9 @@ router.get(
     personnelController.getPersonnelByRestaurantId
 );
 router.get("/:id", personnelController.getPersonnelById);
-router.post("/", personnelController.addPersonnel);
-router.patch("/:id", personnelController.updatePersonnel);
+// router.post("/", personnelController.addPersonnel);
+router.post("/", validateBody(personnelJoiSchema), personnelController.addPersonnel);
+router.patch("/:id", validateBody(personnelJoiSchema), personnelController.updatePersonnel);
 router.delete("/:id", personnelController.deletePersonnel);
 
 module.exports = router;
