@@ -1,21 +1,14 @@
 const Personnel = require('../models/personnelModel');
 const bcrypt = require('bcrypt');
 const { AuthorizationError, NotFoundError } = require('../utils/errors/CustomErrors');
-const { StatusCodes } = require('http-status-codes');
-const { BAD_REQUEST, FORBIDDEN } = StatusCodes;
 const asyncErrorHandler = require('../utils/errors/asyncErrorHandler');
 
 const personnelController = {
   getPersonnelByRestaurantId: asyncErrorHandler(async (req, res, next) => {
     const personnel = await Personnel.find({ restaurant_id: req.params.id });
 
-    if (
-      personnel === null ||
-      (Array.isArray(personnel) && personnel.length === 0)
-    ) {
-      const err = new NotFoundError(
-        'No personnel records found for the given restaurant ID!'
-      );
+    if (personnel === null || (Array.isArray(personnel) && personnel.length === 0)) {
+      const err = new NotFoundError('No personnel records found for the given restaurant ID!');
       return next(err);
     }
 
@@ -26,10 +19,7 @@ const personnelController = {
     const personnel = await Personnel.findById(req.params.id);
     console.log(personnel);
 
-    if (
-      personnel === null ||
-      (Array.isArray(personnel) && personnel.length === 0)
-    ) {
+    if (personnel === null || (Array.isArray(personnel) && personnel.length === 0)) {
       const err = new NotFoundError('Personnel with that ID is not found!');
       return next(err);
     }
@@ -74,26 +64,14 @@ const personnelController = {
   }),
 
   updatePersonnel: asyncErrorHandler(async (req, res, next) => {
-    const {
-      firstName,
-      lastName,
-      gender,
-      phone,
-      role,
-      email,
-      address,
-      picture,
-      restaurant_id,
-    } = req.body;
+    const { firstName, lastName, gender, phone, role, email, address, picture, restaurant_id } =
+      req.body;
     const personnelId = req.params.id;
 
     // Find the personnel by ID
     const personnel = await Personnel.findById(personnelId);
 
-    if (
-      personnel === null ||
-      (Array.isArray(personnel) && personnel.length === 0)
-    ) {
+    if (personnel === null || (Array.isArray(personnel) && personnel.length === 0)) {
       const err = new NotFoundError('Personnel with that ID is not found!');
       return next(err);
     }
@@ -127,10 +105,7 @@ const personnelController = {
     // Find the personnel by ID
     const personnel = await Personnel.findById(personnelId);
 
-    if (
-      personnel === null ||
-      (Array.isArray(personnel) && personnel.length === 0)
-    ) {
+    if (personnel === null || (Array.isArray(personnel) && personnel.length === 0)) {
       const err = new NotFoundError('Personnel with that ID is not found!');
       return next(err);
     }

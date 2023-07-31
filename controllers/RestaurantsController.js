@@ -1,18 +1,19 @@
-const { Restaurant } = require("../models")
+const { Restaurant } = require('../models');
+const asyncErrorHandler = require('../utils/errors/asyncErrorHandler');
+const { NotFoundError } = require('../utils/errors/CustomErrors');
 
 const restaurantsController = {
-  getRestaurantById: async (req, res) => {
-    try {
+  getRestaurantById: asyncErrorHandler(async (req, res, next) => {
       const { id } = req.params;
-
       const restaurant = await Restaurant.findById(id);
-      console.log(restaurant)
+
+      if (restaurant === null || (Array.isArray(restaurant) && restaurant.length === 0)) {
+        const err = new NotFoundError('No restaurant records found for the given restaurant ID!');
+        return next(err);
+      }
 
       res.status(200).json(restaurant);
-    } catch (error) {
-      res.status(404).json({ error });
-    }
-  }
+  }),
 };
 
 module.exports = restaurantsController;
