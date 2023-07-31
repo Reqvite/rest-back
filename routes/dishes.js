@@ -22,14 +22,14 @@ const dishController = require ('../controllers/DishController')
  *                 items:
  *                   $ref: '#/components/schemas/Dish'
  * 
-  *   /dish:
+  *   /dish/restaurant/{Id}:
  *     post:
  *       tags:
  *         - Dishes
- *       summary: Add dish.
+ *       summary: Add dish to the collection and update restaurant dishes.
  *       parameters:
 *          - in: path
-*            name: dish_id
+*            name: restaurant_id
 *            required: true
 *            type: string
  *       responses:
@@ -73,6 +73,8 @@ const dishController = require ('../controllers/DishController')
  *          '204':
  *           description: Dish edited.
  * 
+ * 
+ *   /dish/{id}/restaurant/{Id}: 
  *     delete:
  *       tags:
  *         - Dishes
@@ -90,10 +92,10 @@ const dishController = require ('../controllers/DishController')
 
 // .dishes/
 router.get('/restaurant/:id', dishController.getAllDishes)
-router.post('/dish/', dishController.addDish)
+router.post('/dish/restaurant/:id', dishController.addDish)
 
 router.get('/dish/:id', dishController.getDishesById)
 router.patch('/dish/:id', dishController.editDishById)
-router.delete('/dish/:id', dishController.deleteDishById)
+router.delete('/dish/:id/restaurant/:rest_id', dishController.deleteDishById)
 
 module.exports = router;
