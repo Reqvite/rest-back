@@ -3,17 +3,20 @@ const LiqPayService = require("../services/liqpay/liqpayService");
 
 const TransactionsController = {
   create: async (req, res) => {
-    const { amount, order_id, type } = req.body;
+    const { amount, order_id, type, info } = req.body;
 
-    const paymentInfo = LiqPayService.getLiqPayPaymentData(amount, order_id);
+    const paymentInfo = LiqPayService.getLiqPayPaymentData(
+      amount,
+      order_id,
+      info
+    );
 
-    const existingTransaction = await Transaction.findOne({ order_id });
-
-    if (!existingTransaction) {
+    if (!(await Transaction.findOne({ order_id }))) {
       await Transaction.create({
         paymentAmount: amount,
-        order_id,
+        liqPayOrder_id: order_id,
         type,
+        restaurantOrder_id: info,
       });
     }
 
@@ -25,15 +28,13 @@ const TransactionsController = {
   },
   updateStatus: async (req, res) => {
     const { data, signature } = req.body;
+    const { order_id, status, info } = LiqPayService.getPaymentStatus(
+      data,
+      signature
+    );
 
-    const { order_id, info } = LiqPayService.getPaymentStatus(data, signature);
-
-    if (info) {
-      //if multiple ids
-    }
-
-    const updatedOrder = await Order.findByIdAndUpdate(
-      order_id,
+    const updatedOrders = await Order.updateMany(
+      { _id: { $in: info.split(",") } },
       { status: "Paid" },
       { new: true }
     );
@@ -42,7 +43,7 @@ const TransactionsController = {
       code: 200,
       status: "success",
       data: {
-        updatedOrder,
+        updatedOrders,
       },
     });
   },

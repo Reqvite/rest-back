@@ -26,13 +26,17 @@ const transactionSchema = new Schema({
     },
     description: "The date of the payment transaction.",
   },
-  order_id: {
+  liqPayOrder_id: {
     type: ObjectId,
     ref: "Order",
     required: [
       true,
-      "The unique ID of the order associated with the transaction.",
+      "The unique ID for LiqPay associated with the transaction.",
     ],
+  },
+  restaurantOrder_id: {
+    type: Array,
+    required: [true, "Id or Ids of the order associated with the transaction."],
   },
   type: {
     type: String,
