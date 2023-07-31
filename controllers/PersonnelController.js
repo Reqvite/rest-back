@@ -1,11 +1,31 @@
 const DB = require("../models/personnelModel");
 const bcrypt = require("bcrypt");
+const s3 = require("@aws-sdk/client-s3");
+const presigner = require("@aws-sdk/s3-request-presigner");
 
+const s3Client = new s3.S3Client({
+    region: process.env.AWS_REGION,
+    credentials: {
+        accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+        secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY
+    }
+});
 
 const personnelController = {
     getPersonnelByRestaurantId: async (req, res) => {
         try {
             const personnel = await DB.Personnel.find({restaurant_id: req.params.id});
+
+            for( const person of personnel) {
+                if (!person.picture) {person.picture = "RESTio.png"}
+                const getObjectParams = {
+                    Bucket: process.env.AWS_BUCKET_NAME,
+                    Key: person.picture,
+                }
+                const command = new s3.GetObjectCommand(getObjectParams);
+                person.picture = await presigner.getSignedUrl(s3Client, command, {expiresIn: 3600});
+            }
+
             res.status(200).json(personnel);
         } catch (err) {
             res.status(500).json(err);
