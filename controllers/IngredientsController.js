@@ -3,7 +3,7 @@ const asyncErrorHandler = require('../utils/errors/asyncErrorHandler');
 const { NotFoundError } = require('../utils/errors/CustomErrors');
 
 const IngredientsController = {
-  getAllIngredients: asyncErrorHandler(async (req, res) => {
+  getAllIngredients: asyncErrorHandler(async (_, res, next) => {
     const result = await Ingredient.find();
 
     if (result === null || (Array.isArray(result) && result.length === 0)) {
