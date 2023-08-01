@@ -18,11 +18,11 @@ const createOrderJoiSchema = Joi.object({
 
 const updateOrderStatusJoiSchema = Joi.object({
   status: Joi.string().valid('Open', 'Paid', 'Canceled').required(),
-});
+}).options({ abortEarly: false, allowUnknown: false });;
 
 const updateDishStatusJoiSchema = Joi.object({
   status: Joi.string().valid('Ordered', 'In progress', 'Ready', 'Served').required(),
-});
+}).options({ abortEarly: false, allowUnknown: false });;
 
 module.exports = {
   createOrderJoiSchema,

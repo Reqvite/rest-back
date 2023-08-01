@@ -5,8 +5,7 @@ const {
   personnelJoiSchema,
   personnelJoiSchemaDelete,
 } = require('../utils/validation/joiSchemas/personnelJoiSchemas');
-const { validateBody } = require('../utils/validation/additionalValidation');
-const verifyToken = require('../utils/validation/verifyToken')
+const { validateBody, validateObjectId } = require('../utils/validation/additionalValidation');
 
 /**
  * @openapi
@@ -142,10 +141,20 @@ const verifyToken = require('../utils/validation/verifyToken')
  *           description: Internal Server Error - Something went wrong on the server
  */
 
-router.get('/restaurant/:id', verifyToken, personnelController.getPersonnelByRestaurantId);
-router.get('/:id', personnelController.getPersonnelById);
+router.get('/restaurant/:id', validateObjectId, personnelController.getPersonnelByRestaurantId);
+router.get('/:id', validateObjectId, personnelController.getPersonnelById);
 router.post('/', validateBody(personnelJoiSchema), personnelController.addPersonnel);
-router.patch('/:id', validateBody(personnelJoiSchema), personnelController.updatePersonnel);
-router.delete('/:id', validateBody(personnelJoiSchemaDelete), personnelController.deletePersonnel);
+router.patch(
+  '/:id',
+  validateObjectId,
+  validateBody(personnelJoiSchema),
+  personnelController.updatePersonnel
+);
+router.delete(
+  '/:id',
+  validateObjectId,
+  validateBody(personnelJoiSchemaDelete),
+  personnelController.deletePersonnel
+);
 
 module.exports = router;

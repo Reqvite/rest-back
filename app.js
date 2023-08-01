@@ -50,17 +50,19 @@ app.use("/api", routes.upload);
 
 routes.personnel.use("/:id/tokens", userIdValidator, routes.tokens);
 
-// catch 404 and forward to error handler
-// app.use(function (req, res, next) {
-//   next(createError(404));
-// });
-
-app.all("*", (req, res, next) => {
+app.all("*", (req, _, next) => {
   const err = new NotFoundError(`Cant find ${req.originalUrl} on the server`)
   next(err);
 })
 
 app.use(globalErrorHandler)
+
+// Have not tested these below middlewares yet
+
+// catch 404 and forward to error handler
+// app.use(function (req, res, next) {
+//   next(createError(404));
+// });
 
 // catch 500
 // app.use(function (err, req, res, next) {

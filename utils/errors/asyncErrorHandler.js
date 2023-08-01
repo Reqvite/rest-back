@@ -1,5 +1,5 @@
 const { StatusCodes } = require('http-status-codes');
-const { NOT_FOUND, UNAUTHORIZED, FORBIDDEN, BAD_REQUEST, CONFLICT } =
+const { BAD_REQUEST, CONFLICT } =
   StatusCodes;
 const MONGO_ENTITY_EXISTS_ERROR_CODE = 11000;
 
