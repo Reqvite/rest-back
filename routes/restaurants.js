@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const restaurantsController = require('../controllers/RestaurantsController');
+const { validateObjectId } = require('../utils/validation/additionalValidation');
 
 /**
  * @openapi
@@ -25,6 +26,6 @@ const restaurantsController = require('../controllers/RestaurantsController');
  *             schema:
  *               $ref: '#/components/schemas/Restaurant'
  */
-router.get('/:id', restaurantsController.getRestaurantById);
+router.get('/:id', validateObjectId, restaurantsController.getRestaurantById);
 
 module.exports = router;

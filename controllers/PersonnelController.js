@@ -2,6 +2,9 @@ const DB = require("../models/personnelModel");
 const bcrypt = require("bcrypt");
 const s3 = require("@aws-sdk/client-s3");
 const presigner = require("@aws-sdk/s3-request-presigner");
+const {AuthorizationError, NotFoundError} = require('../utils/errors/CustomErrors');
+const Personnel = require('../models/personnelModel');
+const asyncErrorHandler = require('../utils/errors/asyncErrorHandler');
 
 const s3Client = new s3.S3Client({
     region: process.env.AWS_REGION,
@@ -12,180 +15,148 @@ const s3Client = new s3.S3Client({
 });
 
 const personnelController = {
-    getPersonnelByRestaurantId: async (req, res) => {
-        try {
-            const personnel = await DB.Personnel.find({restaurant_id: req.params.id});
+    getPersonnelByRestaurantId: asyncErrorHandler(async (req, res, next) => {
+        const personnel = await Personnel.find({restaurant_id: req.params.id});
 
-            for( const person of personnel) {
-                if (!person.picture) {person.picture = "RESTio.png"}
-                const getObjectParams = {
-                    Bucket: process.env.AWS_BUCKET_NAME,
-                    Key: person.picture,
-                }
-                const command = new s3.GetObjectCommand(getObjectParams);
-                person.picture = await presigner.getSignedUrl(s3Client, command, {expiresIn: 3600});
+        for (const person of personnel) {
+            if (!person.picture) {
+                person.picture = "RESTio.png"
             }
-
-            res.status(200).json(personnel);
-        } catch (err) {
-            res.status(500).json(err);
+            const getObjectParams = {
+                Bucket: process.env.AWS_BUCKET_NAME,
+                Key: person.picture,
+            }
+            const command = new s3.GetObjectCommand(getObjectParams);
+            person.picture = await presigner.getSignedUrl(s3Client, command, {expiresIn: 3600});
         }
-    },
 
-    getPersonnelById: async (req, res) => {
-        try {
-
-            if (!req.params.id) return res.status(400).json({message: "Missing personnel id"});
-
-            const personnel = await DB.Personnel.findById(req.params.id);
-
-            if(!personnel) return res.status(404).json({message: "Personnel not found"});
-
-            personnel.password = "Type New Password Here";
-
-            console.log(personnel);
-
-            res.status(200).json(personnel);
-        } catch (err) {
-            res.status(500).json(err);
+        if (personnel === null || (Array.isArray(personnel) && personnel.length === 0)) {
+            const err = new NotFoundError('No personnel records found for the given restaurant ID!');
+            return next(err);
         }
-    },
 
-    addPersonnel: async (req, res) => {
-        try {
-            const {
-                firstName,
-                lastName,
-                password,
-                gender,
-                role,
-                restaurant_id,
-                phone,
-                email,
-                address,
-                picture,
-            } = req.body;
+        res.status(200).json(personnel);
+    }),
 
-            // Check if the required fields are provided
-            if (!firstName || !lastName || !password || !gender || !role || !restaurant_id || !phone || !email || !address) {
-                return res.status(400).json({message: "Missing required fields"});
-            }
+    getPersonnelById: asyncErrorHandler(async (req, res) => {
+        const personnel = await Personnel.findById(req.params.id);
+        console.log(personnel);
 
-            // Validate the password using the regex pattern
-            if (
-                !/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{8,30}$/.test(password)
-            ) {
-                return res.status(400).json({
-                    message:
-                        "Password must contain at least one lowercase letter, one uppercase letter, one digit, and be between 8 and 30 characters long.",
-                });
-            }
-
-            // Hash the password using bcrypt
-            const hashedPassword = await bcrypt.hash(password, 13);
-
-            // Create the personnel object to save to the database
-            const newPersonnel = new DB.Personnel({
-                name: `${firstName} ${lastName}`,
-                password: hashedPassword,
-                restaurant_id,
-                gender,
-                role,
-                phone,
-                email,
-                address,
-                picture,
-            });
-
-            console.log(newPersonnel);
-            // Save the personnel data to the database
-            const savedPersonnel = await newPersonnel.save();
-
-            res.status(201).json(savedPersonnel);
-        } catch (err) {
-            res.status(500).json(err);
+        if (!personnel.picture) {
+            personnel.picture = "RESTio.png"
         }
-    },
-
-    updatePersonnel: async (req, res) => {
-        try {
-            const { firstName, lastName, gender, phone, role, email, address, picture, restaurant_id } = req.body;
-            const personnelId = req.params.id;
-
-            // Check if the required fields are provided
-            if (!firstName || !lastName || !gender || !role || !phone || !email || !address || !restaurant_id) {
-                return res.status(400).json({ message: "Missing required fields" });
-            }
-
-            // Find the personnel by ID
-            const personnel = await DB.Personnel.findById(personnelId);
-
-            if (!personnel) {
-                return res.status(404).json({ message: "Personnel not found" });
-            }
-
-            //Take a restaurant id from the request body and check if it matches the rest id of the personnel
-            if(personnel.restaurant_id.toString() !== req.body.restaurant_id) {
-
-                console.log(personnel.restaurant_id.toString());
-                console.log(req.body.restaurant_id);
-                return res.status(401).json({ message: "Unauthorized" });
-            }
-
-            // Update the personnel data
-            personnel.name = `${firstName} ${lastName}`;
-            personnel.gender = gender;
-            personnel.phone = phone;
-            personnel.role = role;
-            personnel.email = email;
-            personnel.address = address;
-            personnel.picture = picture;
-
-            // Save the updated personnel data to the database
-            const updatedPersonnel = await personnel.save();
-
-            res.status(200).json(updatedPersonnel);
-        } catch (err) {
-            res.status(500).json(err);
+        const getObjectParams = {
+            Bucket: process.env.AWS_BUCKET_NAME,
+            Key: personnel.picture,
         }
-    },
+        const command = new s3.GetObjectCommand(getObjectParams);
+        personnel.picture = await presigner.getSignedUrl(s3Client, command, {expiresIn: 3600});
 
-
-    deletePersonnel: async (req, res) => {
-        try {
-            const personnelId = req.params.id;
-
-            if(!personnelId) {
-                return res.status(400).json({ message: "Missing personnel ID" });
-            }
-
-            if(!req.body.restaurant_id) {
-                return res.status(400).json({ message: "Missing restaurant ID" });
-            }
-
-            // Find the personnel by ID
-            const personnel = await DB.Personnel.findById(personnelId);
-
-            if (!personnel) {
-                return res.status(404).json({ message: "Personnel not found" });
-            }
-
-            //Take a restaurant id from the request body and check if it matches the rest id of the personnel
-            if(personnel.restaurant_id.toString() !== req.body.restaurant_id) {
-
-                console.log(personnel.restaurant_id.toString());
-                console.log(req.body.restaurant_id);
-                return res.status(401).json({ message: "Unauthorized" });
-            }
-
-            // Delete the personnel from the database
-            await personnel.deleteOne();
-
-            res.status(200).json({ message: "Personnel deleted successfully" });
-        } catch (err) {
-            res.status(500).json(err);
+        if ((Array.isArray(personnel) && personnel.length === 0)) {
+            const err = new NotFoundError('Personnel with that ID is not found!');
+            return next(err);
         }
-    },
+
+        res.status(200).json(personnel);
+    }),
+
+    addPersonnel: asyncErrorHandler(async (req, res) => {
+        const {
+            firstName,
+            lastName,
+            password,
+            gender,
+            role,
+            restaurant_id,
+            phone,
+            email,
+            address,
+            picture,
+        } = req.body;
+
+        // Hash the password using bcrypt
+        const hashedPassword = await bcrypt.hash(password, 13);
+
+        // Create the personnel object to save to the database
+        const newPersonnel = new Personnel({
+            name: `${firstName} ${lastName}`,
+            password: hashedPassword,
+            restaurant_id,
+            gender,
+            role,
+            phone,
+            email,
+            address,
+            picture,
+        });
+
+        console.log(newPersonnel);
+        // Save the personnel data to the database
+        const savedPersonnel = await newPersonnel.save();
+
+        res.status(201).json(savedPersonnel);
+    }),
+
+    updatePersonnel: asyncErrorHandler(async (req, res, next) => {
+        const {firstName, lastName, gender, phone, role, email, address, picture, restaurant_id} =
+            req.body;
+        const personnelId = req.params.id;
+
+        // Find the personnel by ID
+        const personnel = await Personnel.findById(personnelId);
+
+        if (personnel === null || (Array.isArray(personnel) && personnel.length === 0)) {
+            const err = new NotFoundError('Personnel with that ID is not found!');
+            return next(err);
+        }
+
+        //Take a restaurant id from the request body and check if it matches the rest id of the personnel
+        if (personnel.restaurant_id.toString() !== restaurant_id) {
+            console.log(personnel.restaurant_id.toString());
+            console.log(restaurant_id);
+            const err = new AuthorizationError();
+            return next(err);
+        }
+
+        // Update the personnel data
+        personnel.name = `${firstName} ${lastName}`;
+        personnel.gender = gender;
+        personnel.phone = phone;
+        personnel.role = role;
+        personnel.email = email;
+        personnel.address = address;
+        personnel.picture = picture;
+
+        // Save the updated personnel data to the database
+        const updatedPersonnel = await personnel.save();
+
+        res.status(200).json(updatedPersonnel);
+    }),
+
+    deletePersonnel: asyncErrorHandler(async (req, res, next) => {
+        const personnelId = req.params.id;
+
+        // Find the personnel by ID
+        const personnel = await Personnel.findById(personnelId);
+
+        if (personnel === null || (Array.isArray(personnel) && personnel.length === 0)) {
+            const err = new NotFoundError('Personnel with that ID is not found!');
+            return next(err);
+        }
+
+        //Take a restaurant id from the request body and check if it matches the rest id of the personnel
+        if (personnel.restaurant_id.toString() !== req.body.restaurant_id) {
+            console.log(personnel.restaurant_id.toString());
+            console.log(req.body.restaurant_id);
+            const err = new AuthorizationError();
+            return next(err);
+        }
+
+        // Delete the personnel from the database
+        await personnel.deleteOne();
+
+        res.status(200).json({message: 'Personnel deleted successfully'});
+    }),
 };
 
 module.exports = personnelController;
