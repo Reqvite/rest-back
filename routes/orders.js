@@ -1,12 +1,18 @@
-const express = require("express");
+const express = require('express');
 const router = express.Router();
-const { orders } = require("../controllers");
+const { orders } = require('../controllers');
+const { validateBody } = require('../utils/validation/additionalValidation');
+const {
+  createOrderJoiSchema,
+  updateOrderStatusJoiSchema,
+  updateDishStatusJoiSchema,
+} = require('../utils/validation/joiSchemas/ordersJoiSchemas');
 
-router.get("/:orderId", orders.getOrderById);
-router.get("/:tableId", orders.getOrderByTableId);
-router.post("/", orders.createOrder);
-router.patch("/:orderId", orders.updateOrderStatus);
-router.patch("/:orderId/:dishId", orders.updateDishStatus);
+router.get('/:orderId', orders.getOrderById);
+router.get('/:tableId', orders.getOrderByTableId);
+router.post('/', validateBody(createOrderJoiSchema), orders.createOrder);
+router.patch('/:orderId', validateBody(updateOrderStatusJoiSchema), orders.updateOrderStatus);
+router.patch('/:orderId/:dishId', validateBody(updateDishStatusJoiSchema), orders.updateDishStatus);
 
 module.exports = router;
 

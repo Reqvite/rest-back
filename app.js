@@ -9,6 +9,8 @@ const connectDB = require("./db");
 const cors = require("cors");
 
 require("dotenv").config();
+const globalErrorHandler = require("./utils/errors/globalErrorHandler");
+const { NotFoundError } = require("./utils/errors/CustomErrors");
 
 //routes
 const routes = require("./routes");
@@ -48,16 +50,25 @@ app.use("/api", routes.upload);
 
 routes.personnel.use("/:id/tokens", userIdValidator, routes.tokens);
 
+app.all("*", (req, _, next) => {
+  const err = new NotFoundError(`Cant find ${req.originalUrl} on the server`)
+  next(err);
+})
+
+app.use(globalErrorHandler)
+
+// Have not tested these below middlewares yet
+
 // catch 404 and forward to error handler
-app.use(function (req, res, next) {
-  next(createError(404));
-});
+// app.use(function (req, res, next) {
+//   next(createError(404));
+// });
 
 // catch 500
-app.use(function (err, req, res, next) {
-  const { status = 500, message = "Server error" } = err;
-  res.status(status).json({ message });
-});
+// app.use(function (err, req, res, next) {
+//   const { status = 500, message = "Server error" } = err;
+//   res.status(status).json({ message });
+// });
 
 app.listen(3001, () => console.log("Example app listening on port 3001!"));
 

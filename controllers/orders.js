@@ -1,4 +1,6 @@
-const getOrderById = async (req, res) => {
+const asyncErrorHandler = require('../utils/errors/asyncErrorHandler');
+
+const getOrderById = asyncErrorHandler(async (req, res) => {
   const { orderId } = req.params;
 
   return res.json({
@@ -8,9 +10,9 @@ const getOrderById = async (req, res) => {
       orderId,
     },
   });
-};
+});
 
-const getOrderByTableId = async (req, res) => {
+const getOrderByTableId = asyncErrorHandler(async (req, res) => {
   const { tableId } = req.params;
   return res.json({
     status: "success",
@@ -19,9 +21,9 @@ const getOrderByTableId = async (req, res) => {
       tableId,
     },
   });
-};
+});
 
-const createOrder = async (req, res) => {
+const createOrder = asyncErrorHandler(async (req, res) => {
   const { restaurantId } = req.params;
   const { data } = req.body;
   res.json({
@@ -32,9 +34,9 @@ const createOrder = async (req, res) => {
       data,
     },
   });
-};
+});
 
-const updateOrderStatus = async (req, res) => {
+const updateOrderStatus = asyncErrorHandler(async (req, res) => {
   const { orderId } = req.params;
   return res.json({
     code: 200,
@@ -43,9 +45,9 @@ const updateOrderStatus = async (req, res) => {
       orderId,
     },
   });
-};
+});
 
-const updateDishStatus = async (req, res) => {
+const updateDishStatus = asyncErrorHandler(async (req, res) => {
   const orderId = req.params.orderId;
   const dishId = req.params.dishId;
   return res.json({
@@ -56,7 +58,7 @@ const updateDishStatus = async (req, res) => {
       dishId,
     },
   });
-};
+});
 
 module.exports = {
   getOrderById,
