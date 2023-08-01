@@ -4,15 +4,15 @@ const router = express.Router();
 
 //Тимчасово поки не зроблять загальний ErrorHandler
 
-const ctrlWrapper = (ctrl) => {
-  return async (req, res, next) => {
-    try {
-      await ctrl(req, res, next);
-    } catch (error) {
-      next(error);
-    }
-  };
-};
+// const ctrlWrapper = (ctrl) => {
+//   return async (req, res, next) => {
+//     try {
+//       await ctrl(req, res, next);
+//     } catch (error) {
+//       next(error);
+//     }
+//   };
+// };
 
 /**
  * @openapi
@@ -32,6 +32,6 @@ const ctrlWrapper = (ctrl) => {
  *                 items:
  *                   $ref: '#/components/schemas/Ingredient'
  */
-router.get("/", ctrlWrapper(IngredientsController.getAllIngredients));
+router.get("/",  IngredientsController.getAllIngredients);
 
 module.exports = router;

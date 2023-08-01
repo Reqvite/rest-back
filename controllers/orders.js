@@ -1,149 +1,115 @@
-const { Order, Table, Dish } = require("../models");
+const { Order, Table, Dish } = require('../models');
+const { NotFoundError } = require('../utils/errors/CustomErrors');
+const asyncErrorHandler = require('../utils/errors/asyncErrorHandler');
 
-const getOrderById = async (req, res) => {
+const getOrderById = asyncErrorHandler(async (req, res, next) => {
   const { restId, orderId } = req.params;
 
-  try {
-    const order = await Order.findOne({
-      _id: orderId,
-      rest_id: restId,
-    })
-      .populate({ path: "orderItems.dish", select: "name picture price" })
-      .exec();
+  const order = await Order.findOne({
+    _id: orderId,
+    rest_id: restId,
+  })
+    .populate({ path: 'orderItems.dish', select: 'name picture price' })
+    .exec();
 
-    if (!order) {
-      return res.status(404).json({
-        message: "Order not found",
-      });
-    }
-    return res.json({
-      status: "success",
-      code: 200,
-      data: {
-        order,
-      },
-    });
-  } catch (error) {
-    console.log(error);
-    //add error
+  if (!order) {
+    next(new NotFoundError('Order not found'));
   }
-};
+  res.json({
+    status: 'success',
+    code: 200,
+    data: {
+      order,
+    },
+  });
+});
 
-const getOrdersByTableId = async (req, res) => {
+const getOrdersByTableId = asyncErrorHandler(async (req, res, next) => {
   const { restId, tableId } = req.params;
 
-  try {
-    const orders = await Order.find({ rest_id: restId, table_id: tableId })
-      .populate({ path: "orderItems.dish", select: "name picture price" })
-      .exec();
-    if (!orders) {
-      return res.status(404).json({
-        message: "Orders not found",
-      });
-    }
-    return res.json({
-      status: "success",
-      code: 200,
-      data: {
-        orders,
-      },
-    });
-  } catch (error) {
-    console.log(error);
-    //add error
+  const table = await Table.exists({ restaurant_id: restId, _id: tableId });
+  if (!table) {
+    next(new NotFoundError('No table with this id was found in this restaurant'));
   }
-};
+  const orders = await Order.find({ rest_id: restId, table_id: tableId })
+    .populate({ path: 'orderItems.dish', select: 'name picture price' })
+    .exec();
 
-const createOrder = async (req, res) => {
+  res.json({
+    status: 'success',
+    code: 200,
+    data: {
+      orders,
+    },
+  });
+});
+
+const createOrder = asyncErrorHandler(async (req, res, next) => {
   const restId = req.params.restId;
   const orderData = req.body;
   const { table_id } = orderData;
 
   const table = await Table.findOne({ _id: table_id, restaurant_id: restId });
   if (!table) {
-    return res.status(404).json({
-      message: "Table not found",
-    });
+    next(new NotFoundError('Table not found'));
   }
   const data = {
     ...orderData,
     rest_id: restId,
   };
-  try {
-    const order = await Order.create(data);
-    res.status(201).json({
-      message: "Created",
-      data: {
-        order,
-      },
-    });
-  } catch (error) {
-    console.log(error);
-    //add error
-  }
-};
 
-const updateOrderStatus = async (req, res) => {
+  const order = await Order.create(data);
+  res.status(201).json({
+    message: 'Created',
+    data: {
+      order,
+    },
+  });
+});
+
+const updateOrderStatus = asyncErrorHandler(async (req, res, next) => {
   const { restId, orderId } = req.params;
   const { status } = req.body;
 
-  try {
-    const order = await Order.findOneAndUpdate(
-      { _id: orderId, rest_id: restId },
-      { status },
-      { new: true }
-    );
-    if (!order) {
-      return res.status(404).json({
-        code: 404,
-        status: "error",
-        message: "Order not found",
-      });
-    }
-    return res.json({
-      code: 200,
-      status: "success",
-      data: {
-        order,
-      },
-    });
-  } catch (error) {
-    console.log(error);
-    //add error
+  const order = await Order.findOneAndUpdate(
+    { _id: orderId, rest_id: restId },
+    { status },
+    { new: true }
+  );
+  if (!order) {
+    next(new NotFoundError('Order not found'));
   }
-};
+  res.json({
+    code: 200,
+    status: 'success',
+    data: {
+      order,
+    },
+  });
+});
 
-const updateDishStatus = async (req, res) => {
+const updateDishStatus = asyncErrorHandler(async (req, res, next) => {
   const { restId, orderId, dishId } = req.params;
-
   const { status } = req.body;
-  try {
-    const order = await Order.findOneAndUpdate(
-      { _id: orderId, rest_id: restId, "orderItems.dish": dishId },
-      {
-        $set: { "orderItems.$.status": status },
-      },
-      { new: true }
-    );
-    if (!order) {
-      return res.status(404).json({
-        code: 404,
-        status: "error",
-        message: "Order or Dish not found",
-      });
-    }
-    return res.json({
-      code: 200,
-      status: "success",
-      data: {
-        order,
-      },
-    });
-  } catch (error) {
-    console.log(error);
-    //add error
+
+  const order = await Order.findOneAndUpdate(
+    { _id: orderId, rest_id: restId, 'orderItems.dish': dishId },
+    {
+      $set: { 'orderItems.$.status': status },
+    },
+    { new: true }
+  );
+  if (!order) {
+    next(new NotFoundError('Order or Dish not found'));
   }
-};
+  res.json({
+    code: 200,
+    status: 'success',
+    data: {
+      order,
+    },
+  });
+});
 
 module.exports = {
   getOrderById,

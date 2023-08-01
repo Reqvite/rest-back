@@ -8,9 +8,12 @@ const swaggerSpecs = require("./utils/swagger");
 const connectDB = require("./db");
 const cors = require("cors");
 require("dotenv").config();
+const globalErrorHandler = require("./utils/errors/globalErrorHandler");
+const { NotFoundError } = require("./utils/errors/CustomErrors");
 
 //routes
 const routes = require("./routes");
+const { userIdValidator } = require("./utils/validation/additionalValidation");
 
 let app = express();
 
@@ -34,26 +37,37 @@ app.get("/api-docs", swaggerUi.setup(swaggerSpecs));
 app.use("/healthcheck", routes.healthcheck);
 
 app.use(`/restaurants`, routes.restaurants);
-app.use(`/administrators`, routes.administrators);
+app.use(`/personnel`, routes.personnel);
 app.use(`/waiters`, routes.waiters);
 app.use(`/transactions`, routes.transactions);
 app.use("/orders", routes.orders);
-app.use("/users", routes.users);
 app.use("/ingredients", routes.ingredients);
 app.use("/tables", routes.tables);
 app.use(`/dishes`, routes.dishes);
+app.use(`/login`, routes.login);
 app.use("/api", routes.upload);
 
+routes.personnel.use("/:id/tokens", userIdValidator, routes.tokens);
+
+app.all("*", (req, _, next) => {
+  const err = new NotFoundError(`Cant find ${req.originalUrl} on the server`)
+  next(err);
+})
+
+app.use(globalErrorHandler)
+
+// Have not tested these below middlewares yet
+
 // catch 404 and forward to error handler
-app.use(function (req, res, next) {
-  next(createError(404));
-});
+// app.use(function (req, res, next) {
+//   next(createError(404));
+// });
 
 // catch 500
-app.use(function (err, req, res, next) {
-  const { status = 500, message = "Server error" } = err;
-  res.status(status).json({ message });
-});
+// app.use(function (err, req, res, next) {
+//   const { status = 500, message = "Server error" } = err;
+//   res.status(status).json({ message });
+// });
 
 app.listen(3001, () => console.log("Example app listening on port 3001!"));
 

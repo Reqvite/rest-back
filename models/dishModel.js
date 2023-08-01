@@ -1,4 +1,4 @@
-const mongoose = require("mongoose");
+const mongoose = require('mongoose');
 
 const DishSchema = new mongoose.Schema({
   name: {
@@ -8,7 +8,7 @@ const DishSchema = new mongoose.Schema({
   ingridients: [
     {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "Ingredient",
+      ref: 'Ingredient',
     },
   ],
   picture: {
@@ -46,6 +46,6 @@ const DishSchema = new mongoose.Schema({
   },
 });
 
-const Dish = mongoose.model("Dish", DishSchema);
+const Dish = mongoose.model('Dish', DishSchema);
 
 module.exports = Dish;

@@ -1,11 +1,19 @@
-const express = require("express");
-const tableController = require("../controllers/TablesControllers");
+const express = require('express');
 const router = express.Router();
+const { tables } = require('../controllers');
+const { updateTableJoiSchema } = require('../utils/validation/joiSchemas/tableJoiSchemas');
+const {
+  validateObjectId,
+  validateBody
+  // checkSeatsNumber,
+  // checkTableNumber,
+  // checkExistingTable,
+} = require('../utils/validation/additionalValidation');
 
 /**
  * @openapi
  * paths:
- *   /table/restaurant/{restaurantId}:
+ *   /tables/restaurant/{restaurantId}:
  *     get:
  *       tags:
  *         - Tables
@@ -26,7 +34,7 @@ const router = express.Router();
  *                 type: array
  *                 items:
  *                   $ref: '#/components/schemas/Table'
- *   /table/{tableId}:
+ *   /tables/{tableId}:
  *     get:
  *       tags:
  *         - Tables
@@ -59,10 +67,26 @@ const router = express.Router();
  *             $ref: '#/components/schemas/Table'
  */
 
-router.get("/restaurant/:id", tableController.getTablesByRestaurantId);
+// const ctrlWrapper = (ctrl) => {
+//   return async (req, res, next) => {
+//     try {
+//       await ctrl(req, res, next);
+//     } catch (error) {
+//       next(error);
+//     }
+//   };
+// };
 
-router.get("/:id", tableController.getTable);
-
-router.patch("/:id", tableController.updateTable);
+router.get('/:id', validateObjectId, tables.getTable);
+router.get('/restaurant/:id', validateObjectId, tables.getTablesByRestaurantId);
+router.patch(
+  '/:id',
+  validateObjectId,
+  // checkSeatsNumber,
+  // checkTableNumber,
+  // checkExistingTable,
+  validateBody(updateTableJoiSchema),
+  tables.updateTable
+);
 
 module.exports = router;

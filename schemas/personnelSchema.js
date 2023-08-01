@@ -10,6 +10,7 @@
  *         - password
  *         - restaurant_id
  *         - gender
+ *         - role
  *         - phone
  *         - email
  *         - address
@@ -22,18 +23,28 @@
  *           type: string
  *           description: The name of the cook.
  *         password:
- *           type: integer
- *           description: The password for the cook's account.
+ *           type: string
+ *           description: The password for the personnel's account (crypted).
  *         restaurant_id:
- *           type: integer
- *           description: The unique ID of the restaurant where the cook works.
+ *           type: string ( ObjectId )
+ *           RegExp: /^[0-9a-fA-F]{24}$/
+ *           description: The unique ID of the restaurant where the person works.
+ *         gender:
+ *           type: string
+ *           description: The gender of the person.
+ *         role:
+ *           type: string
+ *           description: Administrator/Cook/Waiter.
  *         phone:
  *           type: string
- *           description: The phone number of the cook.
+ *           description: The phone number of the person.
  *         email:
  *           type: string
- *           description: The email address of the cook.
+ *           description: The email address of the person.
  *         address:
  *           type: string
- *           description: The address of the cook.
+ *           description: The address of the person.
+ *         picture:
+ *           type: string
+ *           description: The picture of the person (just a name in the s3 bucket).
  */

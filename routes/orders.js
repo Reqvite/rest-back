@@ -1,14 +1,36 @@
-const express = require("express");
+const express = require('express');
 const router = express.Router();
 
-const { orders } = require("../controllers");
-const checkRestId = require("../middleware/checkRestId");
+const { orders } = require('../controllers');
+const checkRestId = require('../middleware/checkRestId');
+const { validateBody, validateObjectId } = require('../utils/validation/additionalValidation');
+const {
+  createOrderJoiSchema,
+  updateOrderStatusJoiSchema,
+  updateDishStatusJoiSchema,
+} = require('../utils/validation/joiSchemas/ordersJoiSchemas');
 
-router.get("/:restId/table/:tableId", checkRestId, orders.getOrdersByTableId);
-router.get("/:restId/:orderId", checkRestId, orders.getOrderById);
-router.post("/:restId", checkRestId, orders.createOrder);
-router.patch("/:restId/:orderId", checkRestId, orders.updateOrderStatus);
-router.patch("/:restId/:orderId/:dishId", checkRestId, orders.updateDishStatus);
+router.get('/:restId/table/:tableId', checkRestId, orders.getOrdersByTableId);
+router.get('/:restId/:orderId', checkRestId, orders.getOrderById);
+router.post(
+  '/:restId',
+  // validateObjectId,
+  checkRestId,
+  validateBody(createOrderJoiSchema),
+  orders.createOrder
+);
+router.patch(
+  '/:restId/:orderId',
+  checkRestId,
+  validateBody(updateOrderStatusJoiSchema),
+  orders.updateOrderStatus
+);
+router.patch(
+  '/:restId/:orderId/:dishId',
+  checkRestId,
+  validateBody(updateDishStatusJoiSchema),
+  orders.updateDishStatus
+);
 
 module.exports = router;
 
@@ -256,6 +278,7 @@ module.exports = router;
  *                         example: 64c4fdea4055a7111092df32
  *                       quantity:
  *                         type: integer
+ *                         required: true
  *                         example: 3
  *                       status:
  *                         type: string
