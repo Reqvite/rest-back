@@ -20,18 +20,11 @@ const TransactionsController = {
       });
     }
 
-    console.log(
-      `https://www.liqpay.ua/api/3/checkout?data=${paymentInfo.data}&signature=${paymentInfo.signature}`
-    );
-
     res.status(201).json({ status: "succes", code: 201, paymentInfo });
   },
   updateStatus: async (req, res) => {
     const { data, signature } = req.body;
-    const { order_id, status, info } = LiqPayService.getPaymentStatus(
-      data,
-      signature
-    );
+    const { status, info } = LiqPayService.getPaymentStatus(data, signature);
 
     const updatedOrders = await Order.updateMany(
       { _id: { $in: info.split(",") } },
@@ -39,7 +32,7 @@ const TransactionsController = {
       { new: true }
     );
 
-    return res.json({
+    return res.status(200).json({
       code: 200,
       status: "success",
       data: {

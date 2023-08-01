@@ -3,15 +3,15 @@ const { PUBLIC_LIQPAY_KEY, PRIVATE_LIQPAY_KEY, BASE_URL, BASE_URL_FRONT } =
   process.env;
 const liqpay = new LiqPay(PUBLIC_LIQPAY_KEY, PRIVATE_LIQPAY_KEY);
 
-const apiUrl =
+const API_URL =
   process.env.NODE_ENV === "development"
     ? "http://localhost:3001/transactions/status"
-    : `https://et-back-23.vercel.app/transactions/status`;
+    : `${BASE_URL}/transactions/status`;
 
-const frontUrl =
+const FRONT_URL =
   process.env.NODE_ENV === "development"
-    ? "https://www.youtube.com/"
-    : `http://localhost:3000/test`;
+    ? `http://localhost:3000`
+    : `${BASE_URL_FRONT}`;
 
 const LiqPayService = {
   getLiqPayPaymentData: (amount, order_id, info) => {
@@ -22,12 +22,12 @@ const LiqPayService = {
       version: 3,
       action: "pay",
       amount,
-      currency: "UAH",
+      currency: "USD",
       description,
       order_id,
       info,
-      result_url: frontUrl,
-      server_url: apiUrl,
+      result_url: FRONT_URL,
+      server_url: API_URL,
     };
 
     return liqpay.cnbObject(dataParams);

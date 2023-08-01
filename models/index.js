@@ -3,5 +3,5 @@ module.exports = {
   Table: require("./tableModel"),
   Restaurant: require("./restaurantModel"),
   Ingredient: require("./ingredientModel"),
-  Transaction: require("./TransactionsModel"),
+  Transaction: require("./transactionsModel"),
 };
