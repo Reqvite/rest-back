@@ -3,25 +3,31 @@ const Restaurant = require('../models/restaurantModel')
 const Ingredient = require('../models/ingredientModel');
 
 const DishController = {
+     // request example GET /dishes/restaurant/64c63ab344d6a7657d7a49d5?type=Burgers
     getAllDishes: async (req,res)=>{
         const restaurantId = req.params.id;
+        const { type } = req.query;
+    
         let dish;
+
         try{
             dish = await Restaurant.findById(restaurantId).populate({
                 path: 'dishes_ids',
                 select: 'name picture portionWeight price ingredients',
+                match: { type: type },
                 populate: {
                   path: 'ingredients',
                   model: Ingredient,
                   select: 'name'
                 },
             })
+
         }catch(e){
             if(!dish){
                 return res.status(404).json({message:"No dish was found"})
             }
         }
-        res.send(dish.dishes_ids);
+        res.send(dish);
     },
 
 
