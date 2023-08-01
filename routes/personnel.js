@@ -1,6 +1,11 @@
-const express = require("express");
-const personnelController = require("../controllers/PersonnelController");
+const express = require('express');
+const personnelController = require('../controllers/PersonnelController');
 const router = express.Router();
+const {
+  personnelJoiSchema,
+  personnelJoiSchemaDelete,
+} = require('../utils/validation/joiSchemas/personnelJoiSchemas');
+const { validateBody, validateObjectId } = require('../utils/validation/additionalValidation');
 
 /**
  * @openapi
@@ -136,14 +141,20 @@ const router = express.Router();
  *           description: Internal Server Error - Something went wrong on the server
  */
 
-
-router.get(
-    "/restaurant/:id",
-    personnelController.getPersonnelByRestaurantId
+router.get('/restaurant/:id', validateObjectId, personnelController.getPersonnelByRestaurantId);
+router.get('/:id', validateObjectId, personnelController.getPersonnelById);
+router.post('/', validateBody(personnelJoiSchema), personnelController.addPersonnel);
+router.patch(
+  '/:id',
+  validateObjectId,
+  validateBody(personnelJoiSchema),
+  personnelController.updatePersonnel
 );
-router.get("/:id", personnelController.getPersonnelById);
-router.post("/", personnelController.addPersonnel);
-router.patch("/:id", personnelController.updatePersonnel);
-router.delete("/:id", personnelController.deletePersonnel);
+router.delete(
+  '/:id',
+  validateObjectId,
+  validateBody(personnelJoiSchemaDelete),
+  personnelController.deletePersonnel
+);
 
 module.exports = router;

@@ -6,6 +6,7 @@ const restaurantSchema = new Schema({
     type: String,
     required: true,
     maxlength: 100,
+    unique: true,
   },
   description: {
     type: String,

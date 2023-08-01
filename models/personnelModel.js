@@ -27,6 +27,7 @@ const personnelSchema = new Schema({
     phone: {
         type: String,
         required: [true, "Phone is required"],
+        unique: true
     },
     email: {
         type: String,
@@ -40,11 +41,8 @@ const personnelSchema = new Schema({
     picture: {
         type: String,
     }
-
 })
 
 const Personnel = model('Personnel', personnelSchema)
 
-module.exports = {
-    Personnel,
-  };
+module.exports = Personnel;

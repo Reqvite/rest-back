@@ -1,10 +1,10 @@
-const DB = require("../models/personnelModel");
+const Personnel = require("../models/personnelModel");
 const tokenController = require("./TokenController");
 const bcrypt = require("bcrypt");
 
 const loginController = {
   getUserByEmail: async email => {
-    const user = await DB.Personnel.findOne({ email });
+    const user = await Personnel.findOne({ email });
     if (!user) {
       throw new Error(`Couldn't find a user with this email - ${email}`);
     }
