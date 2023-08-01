@@ -41,6 +41,8 @@ const router = express.Router();
  *                     type: string
  *                   userId:
  *                     type: string
+ *                   restaurantId:
+ *                     type: string
  *                   name:
  *                     type: string
  *                   role:
