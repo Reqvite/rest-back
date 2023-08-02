@@ -1,4 +1,4 @@
-const { Order, Transaction } = require('../models');
+const { Transaction, Order } = require('../models');
 const LiqPayService = require('../services/liqpay/liqpayService');
 const asyncErrorHandler = require('../utils/errors/asyncErrorHandler');
 

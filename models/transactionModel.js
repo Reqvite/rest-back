@@ -1,5 +1,5 @@
-const mongoose = require("mongoose");
-const { ObjectId } = require("mongodb");
+const mongoose = require('mongoose');
+const { ObjectId } = require('mongodb');
 const { Schema } = mongoose;
 
 const transactionSchema = new Schema({
@@ -13,7 +13,7 @@ const transactionSchema = new Schema({
       },
       message: (props) => `${props.value} is not a valid payment amount!`,
     },
-    description: "The amount of the payment transaction.",
+    description: 'The amount of the payment transaction.',
   },
   paymentDate: {
     type: Date,
@@ -24,28 +24,25 @@ const transactionSchema = new Schema({
       },
       message: (props) => `${props.value} is not a valid date!`,
     },
-    description: "The date of the payment transaction.",
+    description: 'The date of the payment transaction.',
   },
   liqPayOrder_id: {
     type: ObjectId,
-    ref: "Order",
-    required: [
-      true,
-      "The unique ID for LiqPay associated with the transaction.",
-    ],
+    ref: 'Order',
+    required: [true, 'The unique ID for LiqPay associated with the transaction.'],
   },
   restaurantOrder_id: {
     type: Array,
-    required: [true, "Id or Ids of the order associated with the transaction."],
+    required: [true, 'Id or Ids of the order associated with the transaction.'],
   },
   type: {
     type: String,
-    enum: ["cash", "POS", "online"],
+    enum: ['cash', 'POS', 'online'],
     required: true,
-    description: "The type of transaction.",
+    description: 'The type of transaction.',
   },
 });
 
-const Transaction = mongoose.model("Transaction", transactionSchema);
+const Transaction = mongoose.model('Transaction', transactionSchema);
 
 module.exports = Transaction;
