@@ -1,7 +1,7 @@
 const Joi = require('joi');
 
 const orderItemSchema = Joi.object({
-  dish_id: Joi.string()
+  dish: Joi.string()
     .pattern(/^[0-9a-fA-F]{24}$/)
     .required(),
   quantity: Joi.number().integer().min(1).required(),
@@ -9,7 +9,7 @@ const orderItemSchema = Joi.object({
 });
 
 const createOrderJoiSchema = Joi.object({
-  status: Joi.string().valid('Open', 'Paid', 'Canceled').optional(),
+  status: Joi.string().valid('Open', 'Paid', 'Canceled', 'Closed').optional(),
   table_id: Joi.string()
     .pattern(/^[0-9a-fA-F]{24}$/)
     .required(),
@@ -17,12 +17,12 @@ const createOrderJoiSchema = Joi.object({
 }).options({ abortEarly: false, allowUnknown: false });
 
 const updateOrderStatusJoiSchema = Joi.object({
-  status: Joi.string().valid('Open', 'Paid', 'Canceled').required(),
-}).options({ abortEarly: false, allowUnknown: false });;
+  status: Joi.string().valid('Open', 'Paid', 'Canceled', 'Closed').required(),
+}).options({ abortEarly: false, allowUnknown: false });
 
 const updateDishStatusJoiSchema = Joi.object({
   status: Joi.string().valid('Ordered', 'In progress', 'Ready', 'Served').required(),
-}).options({ abortEarly: false, allowUnknown: false });;
+}).options({ abortEarly: false, allowUnknown: false });
 
 module.exports = {
   createOrderJoiSchema,
