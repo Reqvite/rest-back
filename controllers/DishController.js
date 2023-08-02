@@ -3,19 +3,26 @@ const Restaurant = require('../models/restaurantModel')
 const Ingredient = require('../models/ingredientModel');
 
 const DishController = {
-    getAllDishes: async (req,res)=>{
+     // request example GET /dishes/restaurant/64c63ab344d6a7657d7a49d5?type=Burgers
+ getAllDishes: async (req,res)=>{
         const restaurantId = req.params.id;
+        const { type } = req.query;
+    
         let dish;
+
         try{
+            const matchQuery = type ? { type: type } : {};
             dish = await Restaurant.findById(restaurantId).populate({
                 path: 'dishes_ids',
                 select: 'name picture portionWeight price ingredients',
+                match: matchQuery,
                 populate: {
                   path: 'ingredients',
                   model: Ingredient,
                   select: 'name'
                 },
             })
+
         }catch(e){
             if(!dish){
                 return res.status(404).json({message:"No dish was found"})
@@ -68,13 +75,14 @@ const DishController = {
     },
 
 
+
     editDishById: async (req,res)=>{
         const dishId = req.params.id;
         let dish;
         try{
             dish = await Dish.findByIdAndUpdate(dishId, {
                 name: req.body.name,
-                ingridients: req.body.ingridients,
+                ingredients: req.body.ingredients,
                 picture: req.body.picture,
                 type: req.body.type,
                 spicy: req.body.spicy,
@@ -82,7 +90,7 @@ const DishController = {
                 pescatarian: req.body.pescatarian,
                 portionWeight: req.body.portionWeight,
                 price: req.body.price,
-                updatedAt: req.body.updatedAt.toLocaleString(),
+                updatedAt: new Date(),
             })
         } catch(e){
             console.log(e)
@@ -92,6 +100,7 @@ const DishController = {
         }
         res.send('Dish id# is edited')
     },
+
 
     
     deleteDishById: async (req,res)=>{

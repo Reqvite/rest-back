@@ -7,7 +7,6 @@ const swaggerUi = require("swagger-ui-express");
 const swaggerSpecs = require("./utils/swagger");
 const connectDB = require("./db");
 const cors = require("cors");
-
 require("dotenv").config();
 const globalErrorHandler = require("./utils/errors/globalErrorHandler");
 const { NotFoundError } = require("./utils/errors/CustomErrors");
