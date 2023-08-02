@@ -8,7 +8,7 @@ const personnelJoiSchema = Joi.object({
     .pattern(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{8,30}$/)
     .required(),
   gender: Joi.string().valid('Male', 'Female').required(),
-  role: Joi.string().valid('Waiter', 'Cook', 'Admin').required(),
+  role: Joi.string().valid('waiter', 'cook', 'admin').required(),
   restaurant_id: Joi.string()
     .pattern(/^[0-9a-fA-F]{24}$/)
     .required(),
@@ -28,5 +28,5 @@ const personnelJoiSchemaDelete = Joi.object({
 
 module.exports = {
   personnelJoiSchema,
-  personnelJoiSchemaDelete
+  personnelJoiSchemaDelete,
 };
