@@ -28,7 +28,7 @@ const DishController = {
                 return res.status(404).json({message:"No dish was found"})
             }
         }
-        res.send(dish);
+        res.send(dish.dishes_ids);
     },
 
 
