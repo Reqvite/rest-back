@@ -1,4 +1,3 @@
-const DB = require("../models/personnelModel");
 const bcrypt = require("bcrypt");
 const s3 = require("@aws-sdk/client-s3");
 const presigner = require("@aws-sdk/s3-request-presigner");
@@ -18,7 +17,12 @@ const personnelController = {
     getPersonnelByRestaurantId: asyncErrorHandler(async (req, res, next) => {
         const personnel = await Personnel.find({restaurant_id: req.params.id});
 
-        for (const person of personnel) {
+        if (personnel === null || (Array.isArray(personnel) && personnel.length === 0)) {
+            const err = new NotFoundError('No personnel records found for the given restaurant ID!');
+            return next(err);
+        }
+
+        /*for (const person of personnel) {
             if (!person.picture) {
                 person.picture = "RESTio.png"
             }
@@ -28,12 +32,7 @@ const personnelController = {
             }
             const command = new s3.GetObjectCommand(getObjectParams);
             person.picture = await presigner.getSignedUrl(s3Client, command, {expiresIn: 3600});
-        }
-
-        if (personnel === null || (Array.isArray(personnel) && personnel.length === 0)) {
-            const err = new NotFoundError('No personnel records found for the given restaurant ID!');
-            return next(err);
-        }
+        }*/
 
         res.status(200).json(personnel);
     }),
@@ -42,7 +41,12 @@ const personnelController = {
         const personnel = await Personnel.findById(req.params.id);
         console.log(personnel);
 
-        if (!personnel.picture) {
+        if ((Array.isArray(personnel) && personnel.length === 0)) {
+            const err = new NotFoundError('Personnel with that ID is not found!');
+            return next(err);
+        }
+
+       /* if (!personnel.picture) {
             personnel.picture = "RESTio.png"
         }
         const getObjectParams = {
@@ -50,12 +54,9 @@ const personnelController = {
             Key: personnel.picture,
         }
         const command = new s3.GetObjectCommand(getObjectParams);
-        personnel.picture = await presigner.getSignedUrl(s3Client, command, {expiresIn: 3600});
+        personnel.picture = await presigner.getSignedUrl(s3Client, command, {expiresIn: 3600});*/
 
-        if ((Array.isArray(personnel) && personnel.length === 0)) {
-            const err = new NotFoundError('Personnel with that ID is not found!');
-            return next(err);
-        }
+        personnel.password = "";
 
         res.status(200).json(personnel);
     }),
@@ -98,7 +99,7 @@ const personnelController = {
     }),
 
     updatePersonnel: asyncErrorHandler(async (req, res, next) => {
-        const {firstName, lastName, gender, phone, role, email, address, picture, restaurant_id} =
+        const {firstName, lastName, gender, password, phone, role, email, address, picture, restaurant_id} =
             req.body;
         const personnelId = req.params.id;
 
@@ -118,11 +119,15 @@ const personnelController = {
             return next(err);
         }
 
+        // Hash the password using bcrypt
+        const hashedPassword = await bcrypt.hash(password, 13);
+
         // Update the personnel data
         personnel.name = `${firstName} ${lastName}`;
         personnel.gender = gender;
         personnel.phone = phone;
         personnel.role = role;
+        personnel.password = hashedPassword;
         personnel.email = email;
         personnel.address = address;
         personnel.picture = picture;
