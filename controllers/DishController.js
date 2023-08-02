@@ -74,13 +74,14 @@ const DishController = {
     },
 
 
+
     editDishById: async (req,res)=>{
         const dishId = req.params.id;
         let dish;
         try{
             dish = await Dish.findByIdAndUpdate(dishId, {
                 name: req.body.name,
-                ingridients: req.body.ingridients,
+                ingredients: req.body.ingredients,
                 picture: req.body.picture,
                 type: req.body.type,
                 spicy: req.body.spicy,
@@ -88,7 +89,7 @@ const DishController = {
                 pescatarian: req.body.pescatarian,
                 portionWeight: req.body.portionWeight,
                 price: req.body.price,
-                updatedAt: req.body.updatedAt.toLocaleString(),
+                updatedAt: new Date(),
             })
         } catch(e){
             console.log(e)
@@ -98,6 +99,7 @@ const DishController = {
         }
         res.send('Dish id# is edited')
     },
+
 
     
     deleteDishById: async (req,res)=>{
