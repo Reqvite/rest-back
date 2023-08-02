@@ -13,7 +13,7 @@ const getOrderById = asyncErrorHandler(async (req, res, next) => {
     .exec();
 
   if (!order) {
-    next(new NotFoundError('Order not found'));
+    return next(new NotFoundError('Order not found'));
   }
   res.json({
     status: 'success',
@@ -29,7 +29,7 @@ const getOrdersByTableId = asyncErrorHandler(async (req, res, next) => {
 
   const table = await Table.exists({ restaurant_id: restId, _id: tableId });
   if (!table) {
-    next(new NotFoundError('No table with this id was found in this restaurant'));
+    return next(new NotFoundError('No table with this id was found in this restaurant'));
   }
   const orders = await Order.find({ rest_id: restId, table_id: tableId })
     .populate({ path: 'orderItems.dish', select: 'name picture price' })
@@ -51,7 +51,7 @@ const createOrder = asyncErrorHandler(async (req, res, next) => {
 
   const table = await Table.findOne({ _id: table_id, restaurant_id: restId });
   if (!table) {
-    next(new NotFoundError('Table not found'));
+    return next(new NotFoundError('Table not found'));
   }
   const data = {
     ...orderData,
@@ -77,7 +77,7 @@ const updateOrderStatus = asyncErrorHandler(async (req, res, next) => {
     { new: true }
   );
   if (!order) {
-    next(new NotFoundError('Order not found'));
+    return next(new NotFoundError('Order not found'));
   }
   res.json({
     code: 200,
@@ -100,7 +100,7 @@ const updateDishStatus = asyncErrorHandler(async (req, res, next) => {
     { new: true }
   );
   if (!order) {
-    next(new NotFoundError('Order or Dish not found'));
+    return next(new NotFoundError('Order or Dish not found'));
   }
   res.json({
     code: 200,

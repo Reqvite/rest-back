@@ -6,7 +6,7 @@ const checkRestId = async (req, res, next) => {
   try {
     const restaurant = await Restaurant.findById(restId);
     if (!restaurant) {
-      next(new NotFoundError('Restaurant not found'));
+      return next(new NotFoundError('Restaurant not found'));
     }
     next();
   } catch (error) {

@@ -3,7 +3,7 @@ const router = express.Router();
 
 const { orders } = require('../controllers');
 const checkRestId = require('../middleware/checkRestId');
-const { validateBody, validateObjectId } = require('../utils/validation/additionalValidation');
+const { validateBody } = require('../utils/validation/additionalValidation');
 const {
   createOrderJoiSchema,
   updateOrderStatusJoiSchema,
@@ -12,13 +12,7 @@ const {
 
 router.get('/:restId/table/:tableId', checkRestId, orders.getOrdersByTableId);
 router.get('/:restId/:orderId', checkRestId, orders.getOrderById);
-router.post(
-  '/:restId',
-  // validateObjectId,
-  checkRestId,
-  validateBody(createOrderJoiSchema),
-  orders.createOrder
-);
+router.post('/:restId', checkRestId, validateBody(createOrderJoiSchema), orders.createOrder);
 router.patch(
   '/:restId/:orderId',
   checkRestId,
