@@ -4,17 +4,18 @@ const Ingredient = require('../models/ingredientModel');
 
 const DishController = {
      // request example GET /dishes/restaurant/64c63ab344d6a7657d7a49d5?type=Burgers
-    getAllDishes: async (req,res)=>{
+ getAllDishes: async (req,res)=>{
         const restaurantId = req.params.id;
         const { type } = req.query;
     
         let dish;
 
         try{
+            const matchQuery = type ? { type: type } : {};
             dish = await Restaurant.findById(restaurantId).populate({
                 path: 'dishes_ids',
                 select: 'name picture portionWeight price ingredients',
-                match: { type: type },
+                match: matchQuery,
                 populate: {
                   path: 'ingredients',
                   model: Ingredient,
