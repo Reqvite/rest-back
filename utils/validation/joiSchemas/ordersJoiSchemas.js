@@ -1,8 +1,9 @@
 const Joi = require('joi');
+const { validateIdInJoiSchema } = require('../additionalValidation');
 
 const orderItemSchema = Joi.object({
   dish_id: Joi.string()
-    .pattern(/^[0-9a-fA-F]{24}$/)
+    .custom((value, helpers) => validateIdInJoiSchema(value, helpers))
     .required(),
   quantity: Joi.number().integer().min(1).required(),
   status: Joi.string().valid('Ordered', 'In progress', 'Ready', 'Served').optional(),
@@ -11,18 +12,18 @@ const orderItemSchema = Joi.object({
 const createOrderJoiSchema = Joi.object({
   status: Joi.string().valid('Open', 'Paid', 'Canceled').optional(),
   table_id: Joi.string()
-    .pattern(/^[0-9a-fA-F]{24}$/)
+    .custom((value, helpers) => validateIdInJoiSchema(value, helpers))
     .required(),
   orderItems: Joi.array().items(orderItemSchema).required(),
 }).options({ abortEarly: false, allowUnknown: false });
 
 const updateOrderStatusJoiSchema = Joi.object({
   status: Joi.string().valid('Open', 'Paid', 'Canceled').required(),
-}).options({ abortEarly: false, allowUnknown: false });;
+}).options({ abortEarly: false, allowUnknown: false });
 
 const updateDishStatusJoiSchema = Joi.object({
   status: Joi.string().valid('Ordered', 'In progress', 'Ready', 'Served').required(),
-}).options({ abortEarly: false, allowUnknown: false });;
+}).options({ abortEarly: false, allowUnknown: false });
 
 module.exports = {
   createOrderJoiSchema,
