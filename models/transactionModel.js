@@ -30,6 +30,7 @@ const transactionSchema = new Schema({
     type: ObjectId,
     ref: 'Order',
     required: [true, 'The unique ID for LiqPay associated with the transaction.'],
+    unique: true,
   },
   restaurantOrders_id: {
     type: Array,
