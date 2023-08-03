@@ -1,5 +1,5 @@
 const Joi = require('joi');
-const { validateIdInJoiSchema } = require('../additionalValidation');
+const { validateIdInJoiSchema } = require('../validations');
 
 const personnelJoiSchema = Joi.object({
   firstName: Joi.string().min(2).max(30).required(),

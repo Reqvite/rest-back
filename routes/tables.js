@@ -1,14 +1,14 @@
 const express = require('express');
 const router = express.Router();
 const { tables } = require('../controllers');
-const { updateTableJoiSchema } = require('../utils/validation/joiSchemas/tableJoiSchemas');
+const { updateTableJoiSchema } = require('../middleware/joiSchemas/tableJoiSchemas');
 const {
   validateObjectId,
   validateBody
   // checkSeatsNumber,
   // checkTableNumber,
   // checkExistingTable,
-} = require('../utils/validation/additionalValidation');
+} = require('../middleware/validations');
 
 /**
  * @openapi

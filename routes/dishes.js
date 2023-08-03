@@ -1,8 +1,8 @@
 const express = require('express');
 const router = express.Router();
 const dishController = require('../controllers/DishController');
-const { validateBody, validateObjectId } = require('../utils/validation/additionalValidation');
-const { dishJoiSchema } = require('../utils/validation/joiSchemas/dishJoiSchemas');
+const { validateBody, validateObjectId } = require('../middleware/validations');
+const { dishJoiSchema } = require('../middleware/joiSchemas/dishJoiSchemas');
 
 /**
  * @openapi

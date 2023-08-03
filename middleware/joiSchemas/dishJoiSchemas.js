@@ -1,6 +1,6 @@
 const Joi = require('joi');
-const { validateIdInJoiSchema } = require('../additionalValidation');
-const { dishCategories } = require('../../../constants/constants');
+const { validateIdInJoiSchema } = require('../validations');
+const { dishCategories } = require('../../constants/constants');
 
 const dishJoiSchema = Joi.object({
   name: Joi.string().min(2).max(30).required(),

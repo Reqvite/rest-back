@@ -1,4 +1,4 @@
-const handleError =  (error, req, res, next) => {
+const handleError =  (error, _, res, next) => {
   error.statusCode = error.statusCode || 500;
   error.status = error.status || 'error';
   res.status(error.statusCode).json({
