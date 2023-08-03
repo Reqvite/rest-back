@@ -7,7 +7,7 @@ const { dishJoiSchema } = require('../utils/validation/joiSchemas/dishJoiSchemas
 /**
  * @openapi
  * paths:
- *   /restaurant/{Id}:
+ *   /dishes/restaurant/{id}:
  *     get:
  *       tags:
  *         - Dishes
@@ -21,8 +21,8 @@ const { dishJoiSchema } = require('../utils/validation/joiSchemas/dishJoiSchemas
  *                 type: array
  *                 items:
  *                   $ref: '#/components/schemas/Dish'
- *
- *   /dish/restaurant/{Id}:
+ * 
+ *   /dishes/restaurant/{Id}:
  *     post:
  *       tags:
  *         - Dishes
@@ -41,7 +41,7 @@ const { dishJoiSchema } = require('../utils/validation/joiSchemas/dishJoiSchemas
  *                 type: array
  *                 items:
  *                   $ref: '#/components/schemas/Dish'
- *   /dish/{id}:
+ *   /dishes/{id}:
  *     get:
  *       tags:
  *         - Dishes
@@ -72,9 +72,9 @@ const { dishJoiSchema } = require('../utils/validation/joiSchemas/dishJoiSchemas
  *       responses:
  *          '204':
  *           description: Dish edited.
- *
- *
- *   /dish/{id}/restaurant/{Id}:
+ * 
+ * 
+ *   /dishes/{id}/restaurant/{Id}: 
  *     delete:
  *       tags:
  *         - Dishes
@@ -92,19 +92,13 @@ const { dishJoiSchema } = require('../utils/validation/joiSchemas/dishJoiSchemas
 // .dishes/
 router.get('/restaurant/:id', validateObjectId, dishController.getAllDishes);
 router.post(
-  '/dish/restaurant/:id',
+  '/restaurant/:id',
   validateObjectId,
   validateBody(dishJoiSchema),
   dishController.addDish
 );
-
-router.get('/dish/:id', validateObjectId, dishController.getDishesById);
-router.patch(
-  '/dish/:id',
-  validateObjectId,
-  validateBody(dishJoiSchema),
-  dishController.editDishById
-);
-router.delete('/dish/:id/restaurant/:rest_id', validateObjectId, dishController.deleteDishById);
+router.get('/:id', validateObjectId, dishController.getDishesById);
+router.patch('/:id', validateObjectId, validateBody(dishJoiSchema), dishController.editDishById);
+router.delete('/:id/restaurant/:rest_id', validateObjectId, dishController.deleteDishById);
 
 module.exports = router;
