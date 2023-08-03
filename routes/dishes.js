@@ -1,13 +1,13 @@
 const express = require('express');
 const router = express.Router();
-const dishController = require ('../controllers/DishController')
-
-
+const dishController = require('../controllers/DishController');
+const { validateBody, validateObjectId } = require('../utils/validation/additionalValidation');
+const { dishJoiSchema } = require('../utils/validation/joiSchemas/dishJoiSchemas');
 
 /**
  * @openapi
  * paths:
- *   /restaurant/{Id}:
+ *   /dishes/restaurant/{id}:
  *     get:
  *       tags:
  *         - Dishes
@@ -22,16 +22,16 @@ const dishController = require ('../controllers/DishController')
  *                 items:
  *                   $ref: '#/components/schemas/Dish'
  * 
-  *   /dish/restaurant/{Id}:
+ *   /dishes/restaurant/{Id}:
  *     post:
  *       tags:
  *         - Dishes
  *       summary: Add dish to the collection and update restaurant dishes.
  *       parameters:
-*          - in: path
-*            name: restaurant_id
-*            required: true
-*            type: string
+ *          - in: path
+ *            name: restaurant_id
+ *            required: true
+ *            type: string
  *       responses:
  *         200:
  *           description: Returns a list of dishes.
@@ -41,16 +41,16 @@ const dishController = require ('../controllers/DishController')
  *                 type: array
  *                 items:
  *                   $ref: '#/components/schemas/Dish'
- *   /dish/{id}:
+ *   /dishes/{id}:
  *     get:
  *       tags:
  *         - Dishes
  *       summary: Get dish by id.
  *       parameters:
-*          - in: path
-*            name: dish_id
-*            required: true
-*            type: string
+ *          - in: path
+ *            name: dish_id
+ *            required: true
+ *            type: string
  *       responses:
  *         200:
  *           description: Returns a list of dishes.
@@ -74,7 +74,7 @@ const dishController = require ('../controllers/DishController')
  *           description: Dish edited.
  * 
  * 
- *   /dish/{id}/restaurant/{Id}: 
+ *   /dishes/{id}/restaurant/{Id}: 
  *     delete:
  *       tags:
  *         - Dishes
@@ -89,13 +89,16 @@ const dishController = require ('../controllers/DishController')
  *           description: Dish deleted.
  */
 
-
 // .dishes/
-router.get('/restaurant/:id', dishController.getAllDishes)
-router.post('/dish/restaurant/:id', dishController.addDish)
-
-router.get('/dish/:id', dishController.getDishesById)
-router.patch('/dish/:id', dishController.editDishById)
-router.delete('/dish/:id/restaurant/:rest_id', dishController.deleteDishById)
+router.get('/restaurant/:id', validateObjectId, dishController.getAllDishes);
+router.post(
+  '/restaurant/:id',
+  validateObjectId,
+  validateBody(dishJoiSchema),
+  dishController.addDish
+);
+router.get('/:id', validateObjectId, dishController.getDishesById);
+router.patch('/:id', validateObjectId, validateBody(dishJoiSchema), dishController.editDishById);
+router.delete('/:id/restaurant/:rest_id', validateObjectId, dishController.deleteDishById);
 
 module.exports = router;

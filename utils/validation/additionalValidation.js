@@ -2,17 +2,29 @@
 const mongoose = require('mongoose');
 const { BadRequestError } = require('../errors/CustomErrors');
 const { StatusCodes } = require('http-status-codes');
-const { BAD_REQUEST } = StatusCodes;
+const { BAD_REQUEST, FORBIDDEN } = StatusCodes;
 
 const isValidObjectId = (id) => mongoose.Types.ObjectId.isValid(id);
 
 const validateObjectId = (req, _, next) => {
-  const { id } = req.params;
-  if (!isValidObjectId(id)) {
-    const err = new BadRequestError('Invalid ObjectId in request params')
-    return next(err)
+  const invalidValues = Object.keys(req.params)
+    .filter(param => !isValidObjectId(req.params[param]))
+    .map(param => req.params[param]);
+
+  if (invalidValues.length > 0) {
+    const errMessage = `Invalid ObjectId(s) in request params: ${invalidValues.join(', ')}`;
+    const err = new BadRequestError(errMessage);
+    return next(err);
   }
+
   next();
+};
+
+const validateIdInJoiSchema = (value, helpers) => {
+  if (!isValidObjectId(value)) {
+    return helpers.error('any.invalid');
+  }
+  return value;
 };
 
 // const checkSeatsNumber = (req, res, next) => {
@@ -55,7 +67,7 @@ const validateObjectId = (req, _, next) => {
 
 const userIdValidator = (req, res, next) => {
   if (req.userId !== req.params.id) {
-    res.sendStatus(403);
+    res.sendStatus(FORBIDDEN);
   } else {
     return next();
   }
@@ -78,6 +90,7 @@ module.exports = {
   // checkTableNumber,
   // checkExistingTable,
   validateObjectId,
+  validateIdInJoiSchema,
   userIdValidator,
   validateBody,
 };
