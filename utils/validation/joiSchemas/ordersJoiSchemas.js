@@ -1,4 +1,5 @@
 const Joi = require('joi');
+const { validateIdInJoiSchema } = require('../additionalValidation');
 
 const orderItemSchema = Joi.object({
   dish: Joi.string()
@@ -11,7 +12,7 @@ const orderItemSchema = Joi.object({
 const createOrderJoiSchema = Joi.object({
   status: Joi.string().valid('Open', 'Paid', 'Canceled', 'Closed').optional(),
   table_id: Joi.string()
-    .pattern(/^[0-9a-fA-F]{24}$/)
+    .custom((value, helpers) => validateIdInJoiSchema(value, helpers))
     .required(),
   orderItems: Joi.array().items(orderItemSchema).required(),
 }).options({ abortEarly: false, allowUnknown: false });

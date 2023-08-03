@@ -1,4 +1,4 @@
-const { StatusCodes, getStatusText } = require('http-status-codes');
+const { StatusCodes, getReasonPhrase } = require('http-status-codes');
 const { NOT_FOUND, UNAUTHORIZED, FORBIDDEN, BAD_REQUEST } =
   StatusCodes;
 
@@ -14,25 +14,25 @@ class CustomError extends Error {
 
 class BadRequestError extends CustomError {
   constructor(message) {
-    super(message || getStatusText(BAD_REQUEST), BAD_REQUEST);
+    super(message || getReasonPhrase(BAD_REQUEST), BAD_REQUEST);
   }
 }
 
 class NotFoundError extends CustomError {
   constructor(message) {
-    super(message || getStatusText(NOT_FOUND), NOT_FOUND);
+    super(message || getReasonPhrase(NOT_FOUND), NOT_FOUND);
   }
 }
 
 class AuthorizationError extends CustomError {
   constructor(message) {
-    super(message || getStatusText(UNAUTHORIZED), UNAUTHORIZED);
+    super(message || getReasonPhrase(UNAUTHORIZED), UNAUTHORIZED);
   }
 }
 
 class AuthenticationError extends CustomError {
   constructor(message) {
-    super(message || getStatusText(FORBIDDEN), FORBIDDEN);
+    super(message || getReasonPhrase(FORBIDDEN), FORBIDDEN);
   }
 }
 

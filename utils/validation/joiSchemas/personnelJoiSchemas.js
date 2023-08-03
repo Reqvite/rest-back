@@ -1,4 +1,5 @@
 const Joi = require('joi');
+const { validateIdInJoiSchema } = require('../additionalValidation');
 
 const personnelJoiSchema = Joi.object({
   firstName: Joi.string().min(2).max(30).required(),
@@ -10,7 +11,7 @@ const personnelJoiSchema = Joi.object({
   gender: Joi.string().valid('Male', 'Female').required(),
   role: Joi.string().valid('waiter', 'cook', 'admin').required(),
   restaurant_id: Joi.string()
-    .pattern(/^[0-9a-fA-F]{24}$/)
+    .custom((value, helpers) => validateIdInJoiSchema(value, helpers))
     .required(),
   phone: Joi.string()
     .pattern(/^(\+?380)?\d{9}$/)
@@ -22,7 +23,7 @@ const personnelJoiSchema = Joi.object({
 
 const personnelJoiSchemaDelete = Joi.object({
   restaurant_id: Joi.string()
-    .pattern(/^[0-9a-fA-F]{24}$/)
+    .custom((value, helpers) => validateIdInJoiSchema(value, helpers))
     .required(),
 }).options({ abortEarly: false, allowUnknown: false });
 

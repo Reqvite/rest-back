@@ -1,30 +1,32 @@
 const { Table } = require('../models');
 const asyncErrorHandler = require('../utils/errors/asyncErrorHandler');
-const { NotFoundError, AuthorizationError } = require('../utils/errors/CustomErrors');
+const { NotFoundError, AuthorizationError, BadRequestError } = require('../utils/errors/CustomErrors');
+const { StatusCodes } = require('http-status-codes');
+const { OK } = StatusCodes;
 
 const tableController = {
   getTable: asyncErrorHandler(async (req, res, next) => {
     const { id } = req.params;
     const table = await Table.findById(id);
 
-    if (table === null || (Array.isArray(table) && table.length === 0)) {
+    if (!table) {
       const err = new NotFoundError('Table not found for the given table ID!');
       return next(err);
     }
 
-    res.status(200).json(table);
+    res.status(OK).json(table);
   }),
 
   getTablesByRestaurantId: asyncErrorHandler(async (req, res, next) => {
     const { id } = req.params;
     const tables = await Table.find({ restaurant_id: id });
 
-    if (tables === null || (Array.isArray(tables) && tables.length === 0)) {
-      const err = new NotFoundError('Table not found for the given table ID!');
+    if (!tables) {
+      const err = new BadRequestError();
       return next(err);
     }
 
-    res.status(200).json(tables);
+    res.status(OK).json(tables);
   }),
 
   updateTable: asyncErrorHandler(async (req, res, next) => {
@@ -33,7 +35,7 @@ const tableController = {
 
     const table = await Table.findById(id);
 
-    if (table === null || (Array.isArray(table) && table.length === 0)) {
+    if (!table) {
       const err = new NotFoundError('Table not found for the given table ID!');
       return next(err);
     }
@@ -52,7 +54,7 @@ const tableController = {
     // Save the updated status to the database
     const updatedTable = await table.save();
 
-    res.status(200).json(updatedTable);
+    res.status(OK).json(updatedTable);
   }),
 
   // updateTable: async (req, res) => {
