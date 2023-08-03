@@ -9,7 +9,7 @@ const personnelJoiSchema = Joi.object({
     .pattern(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{8,30}$/)
     .required(),
   gender: Joi.string().valid('Male', 'Female').required(),
-  role: Joi.string().valid('Waiter', 'Cook', 'Admin').required(),
+  role: Joi.string().valid('waiter', 'cook', 'admin').required(),
   restaurant_id: Joi.string()
     .custom((value, helpers) => validateIdInJoiSchema(value, helpers))
     .required(),

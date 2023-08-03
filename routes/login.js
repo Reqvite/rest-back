@@ -1,5 +1,5 @@
-const express = require("express");
-const loginController = require("../controllers/LoginController");
+const express = require('express');
+const loginController = require('../controllers/LoginController');
 const router = express.Router();
 
 /**
@@ -47,7 +47,7 @@ const router = express.Router();
  *                     type: string
  *                   role:
  *                     type: string
- *                     enum: ['Admin', 'Cook', 'Waiter']
+ *                     enum: ['admin', 'cook', 'waiter']
  *         500:
  *           description: Something went wrong
  *           content:
@@ -59,6 +59,6 @@ const router = express.Router();
  *                     type: string
  */
 
-router.post("/", loginController.loginUser);
+router.post('/', loginController.loginUser);
 
 module.exports = router;
