@@ -31,7 +31,7 @@ const transactionSchema = new Schema({
     ref: 'Order',
     required: [true, 'The unique ID for LiqPay associated with the transaction.'],
   },
-  restaurantOrder_id: {
+  restaurantOrders_id: {
     type: Array,
     required: [true, 'Id or Ids of the order associated with the transaction.'],
   },

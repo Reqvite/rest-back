@@ -14,7 +14,7 @@ const TransactionsController = {
         paymentAmount: amount,
         liqPayOrder_id: order_id,
         type,
-        restaurantOrder_id: info,
+        restaurantOrders_id: info,
       });
     }
 
@@ -25,7 +25,7 @@ const TransactionsController = {
     const { status, info } = LiqPayService.getPaymentStatus(data, signature);
 
     if (status === 'success') {
-      await Order.updateMany({ _id: { $in: info.split(',') } }, { status: 'Paid' }, { new: true });
+      await Order.updateMany({ _id: { $in: info.split(',') } }, { status: 'Paid' });
     }
 
     return res.status(200).json({
