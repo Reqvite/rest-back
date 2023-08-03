@@ -7,13 +7,8 @@ const API_URL =
     ? 'http://localhost:3001/transactions/status'
     : `${BASE_URL}/transactions/status`;
 
-const FRONT_URL =
-  process.env.NODE_ENV === 'development'
-    ? `http://localhost:3000/customer/:restId/:tableId/orders`
-    : `${BASE_URL_FRONT}/customer/:restId/:tableId/orders`;
-
 const LiqPayService = {
-  getLiqPayPaymentData: (amount, order_id, info) => {
+  getLiqPayPaymentData: (amount, order_id, info, frontLink) => {
     const description = `Payment for the restaurant bill according to order №${order_id}`;
 
     const dataParams = {
@@ -25,7 +20,7 @@ const LiqPayService = {
       description,
       order_id,
       info,
-      result_url: FRONT_URL,
+      result_url: frontLink,
       server_url: API_URL,
     };
 

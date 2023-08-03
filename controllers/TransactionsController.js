@@ -1,14 +1,15 @@
-const { Transaction, Order } = require('../models');
+const { Order, Transaction } = require('../models');
 const LiqPayService = require('../services/liqpay/liqpayService');
 const asyncErrorHandler = require('../utils/errors/asyncErrorHandler');
 
 const TransactionsController = {
   create: asyncErrorHandler(async (req, res) => {
-    const { amount, order_id, type, info } = req.body;
+    const { amount, order_id, type, info, frontLink } = req.body;
 
-    const paymentInfo = LiqPayService.getLiqPayPaymentData(amount, order_id, info);
+    const paymentInfo = LiqPayService.getLiqPayPaymentData(amount, order_id, info, frontLink);
 
-    if (!(await Transaction.findOne({ order_id }))) {
+    const transaction = await Transaction.findOne({ liqPayOrder_id: order_id });
+    if (!transaction) {
       await Transaction.create({
         paymentAmount: amount,
         liqPayOrder_id: order_id,
@@ -23,18 +24,13 @@ const TransactionsController = {
     const { data, signature } = req.body;
     const { status, info } = LiqPayService.getPaymentStatus(data, signature);
 
-    const updatedOrders = await Order.updateMany(
-      { _id: { $in: info.split(',') } },
-      { status: 'Paid' },
-      { new: true }
-    );
+    if (status === 'success') {
+      await Order.updateMany({ _id: { $in: info.split(',') } }, { status: 'Paid' }, { new: true });
+    }
 
     return res.status(200).json({
-      code: 200,
+      code: 204,
       status: 'success',
-      data: {
-        updatedOrders,
-      },
     });
   }),
 };
