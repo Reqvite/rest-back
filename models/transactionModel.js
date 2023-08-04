@@ -29,6 +29,13 @@ const transactionSchema = new Schema({
     type: Array,
     required: [true, 'Id or Ids of the order associated with the transaction.'],
   },
+  status: {
+    type: String,
+    enum: ['success', 'canceled', 'pending'],
+    required: true,
+    description: 'The type of transaction.',
+    default: 'pending',
+  },
   type: {
     type: String,
     enum: ['cash', 'POS', 'online'],
