@@ -42,6 +42,10 @@ const orderSchema = new Schema(
       ref: 'Restaurant',
       required: [true, 'Restaurant id is required'],
     },
+    created_at: {
+      type: Date,
+      default: Date.now,
+    },
   },
   { versionKey: false }
 );
