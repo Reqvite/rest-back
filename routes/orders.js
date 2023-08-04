@@ -3,24 +3,39 @@ const router = express.Router();
 
 const { orders } = require('../controllers');
 const checkRestId = require('../middleware/checkRestId');
-const { validateBody } = require('../utils/validation/additionalValidation');
+const { validateBody, validateObjectId } = require('../middleware/validations');
 const {
   createOrderJoiSchema,
   updateOrderStatusJoiSchema,
   updateDishStatusJoiSchema,
-} = require('../utils/validation/joiSchemas/ordersJoiSchemas');
+} = require('../middleware/joiSchemas/ordersJoiSchemas');
 
-router.get('/:restId/table/:tableId', checkRestId, orders.getOrdersByTableId);
-router.get('/:restId/:orderId', checkRestId, orders.getOrderById);
-router.post('/:restId', checkRestId, validateBody(createOrderJoiSchema), orders.createOrder);
+router.get('/:restId', validateObjectId, checkRestId, orders.getAllOrders);
+router.get('/:restId/table/:tableId', validateObjectId, checkRestId, orders.getOrdersByTableId);
+router.get('/:restId/:orderId', validateObjectId, checkRestId, orders.getOrderById);
+router.post(
+  '/:restId',
+  validateObjectId,
+  checkRestId,
+  validateBody(createOrderJoiSchema),
+  orders.createOrder
+);
+router.patch(
+  '/:restId/table/:tableId',
+  validateObjectId,
+  checkRestId,
+  orders.updateOrderStatusesToPaid
+);
 router.patch(
   '/:restId/:orderId',
+  validateObjectId,
   checkRestId,
   validateBody(updateOrderStatusJoiSchema),
   orders.updateOrderStatus
 );
 router.patch(
   '/:restId/:orderId/:dishId',
+  validateObjectId,
   checkRestId,
   validateBody(updateDishStatusJoiSchema),
   orders.updateDishStatus
@@ -234,6 +249,99 @@ module.exports = router;
  *           description: Internal server error
  *
  *   /orders/{restId}:
+ *     get:
+ *       tags:
+ *         - Orders
+ *       summary: Get orders by restaurant id
+ *       parameters:
+ *         - in: path
+ *           name: restId
+ *           required: true
+ *           type: string
+ *           format: ObjectId
+ *           example: 64c4fdea4055a7111092df32
+ *       responses:
+ *         '200':
+ *           description: Get orders
+ *           content:
+ *             application/json:
+ *               schema:
+ *                 type: object
+ *                 properties:
+ *                   status:
+ *                     type: string
+ *                     description: response status text
+ *                     example: success
+ *                   code:
+ *                     type: integer
+ *                     description: response status code
+ *                     example: 200
+ *                   data:
+ *                     type: object
+ *                     properties:
+ *                       order:
+ *                         type: object
+ *                         properties:
+ *                           _id:
+ *                             type: string
+ *                             format: ObjectId
+ *                             example: 64c4fdea4055a7111092df32
+ *                           status:
+ *                             type: string
+ *                             enum:
+ *                               - Open
+ *                               - Paid
+ *                               - Canceled
+ *                             default: Open
+ *                             example: Open
+ *                           orderItems:
+ *                             type: array
+ *                             items:
+ *                               type: object
+ *                               properties:
+ *                                 dish:
+ *                                   type: object
+ *                                   properties:
+ *                                     _id:
+ *                                       type: string
+ *                                       format: ObjectId
+ *                                       example: 64c4fdea4055a7111092df32
+ *                                     name:
+ *                                       type: string
+ *                                       example: Pizza
+ *                                     picture:
+ *                                       type: string
+ *                                       example: https://cloudinary/some-img.jpg
+ *                                     price:
+ *                                       type: number
+ *                                       example: 11.99
+ *                                 quantity:
+ *                                   type: integer
+ *                                   example: 3
+ *                                 status:
+ *                                   type: string
+ *                                   enum:
+ *                                     - Ordered
+ *                                     - In progress
+ *                                     - Ready
+ *                                     - Served
+ *                                   default: Ordered
+ *                                   example: In progress
+ *                           table_id:
+ *                             type: string
+ *                             format: ObjectId
+ *                             example: 64c4fdea4055a7111092df32
+ *                           rest_id:
+ *                             type: string
+ *                             format: ObjectId
+ *                             example: 64c4fdea4055a7111092df32
+ *         '400':
+ *           description: Bad request
+ *         '404':
+ *           description: Order not found or Restaurant not found
+ *         '500':
+ *           description: Internal server error
+ *
  *     post:
  *       tags:
  *         - Orders

@@ -1,6 +1,10 @@
 const { Table } = require('../models');
 const asyncErrorHandler = require('../utils/errors/asyncErrorHandler');
-const { NotFoundError, AuthorizationError, BadRequestError } = require('../utils/errors/CustomErrors');
+const {
+  NotFoundError,
+  AuthorizationError,
+  BadRequestError,
+} = require('../utils/errors/CustomErrors');
 const { StatusCodes } = require('http-status-codes');
 const { OK } = StatusCodes;
 
@@ -81,3 +85,34 @@ const tableController = {
 };
 
 module.exports = tableController;
+
+//set orders statuses to closed after table is free
+const changeAllOrdersToClosed = asyncErrorHandler(async (req, res, next) => {
+  const { restId, tableId } = req.params;
+
+  const table = await Table.exists({
+    restaurant_id: restId,
+    _id: tableId,
+  });
+  if (!table) {
+    return next(new NotFoundError('No table with this id was found in this restaurant'));
+  }
+
+  const orders = await Order.updateMany(
+    {
+      rest_id: restId,
+      table_id: tableId,
+      status: { $ne: 'Closed' },
+    },
+    { $set: { status: 'Closed' } }
+  );
+
+  if (orders.modifiedCount === 0) {
+    return next(new NotFoundError('No orders found to update'));
+  }
+  res.json({
+    status: 'success',
+    code: 200,
+    message: `Updated ${orders.modifiedCount} orders to "Closed"`,
+  });
+});
