@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const restaurantsController = require('../controllers/RestaurantsController');
-const { validateObjectId } = require('../utils/validation/additionalValidation');
+const { validateObjectId } = require('../middleware/validations');
 
 /**
  * @openapi

@@ -1,6 +1,5 @@
 const { StatusCodes, getReasonPhrase } = require('http-status-codes');
-const { NOT_FOUND, UNAUTHORIZED, FORBIDDEN, BAD_REQUEST } =
-  StatusCodes;
+const { NOT_FOUND, UNAUTHORIZED, FORBIDDEN, BAD_REQUEST } = StatusCodes;
 
 class CustomError extends Error {
   constructor(message, statusCode) {
@@ -40,6 +39,5 @@ module.exports = {
   NotFoundError,
   BadRequestError,
   AuthorizationError,
-  // AUTHENTICATION_ERROR: AuthenticationError,
-  // ENTITY_EXISTS_ERROR: EntityExistsError
+  AuthenticationError,
 };

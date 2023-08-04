@@ -4,8 +4,8 @@ const router = express.Router();
 const {
   personnelJoiSchema,
   personnelJoiSchemaDelete,
-} = require('../utils/validation/joiSchemas/personnelJoiSchemas');
-const { validateBody, validateObjectId } = require('../utils/validation/additionalValidation');
+} = require('../middleware/joiSchemas/personnelJoiSchemas');
+const { validateBody, validateObjectId } = require('../middleware/validations');
 
 /**
  * @openapi

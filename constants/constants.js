@@ -16,6 +16,9 @@ const dishCategories = [
   'Beer',
 ];
 
+const CHECK_PASSWORD_SCHEMA = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{8,30}$/;
+
 module.exports = {
   dishCategories,
+  CHECK_PASSWORD_SCHEMA
 };

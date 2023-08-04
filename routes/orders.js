@@ -8,7 +8,7 @@ const {
   createOrderJoiSchema,
   updateOrderStatusJoiSchema,
   updateDishStatusJoiSchema,
-} = require('../utils/validation/joiSchemas/ordersJoiSchemas');
+} = require('../middleware/joiSchemas/ordersJoiSchemas');
 
 router.get('/:restId', validateObjectId, checkRestId, orders.getAllOrders);
 router.get('/:restId/table/:tableId', validateObjectId, checkRestId, orders.getOrdersByTableId);
