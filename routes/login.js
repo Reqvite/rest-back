@@ -1,7 +1,10 @@
 const express = require('express');
 const loginController = require('../controllers/LoginController');
 const router = express.Router();
-
+const {
+    loginJoiSchema,
+  } = require('../middleware/joiSchemas/loginJoiSchemas');
+  const { validateBody } = require('../middleware/validations');
 /**
  * @openapi
  * paths:
@@ -59,6 +62,6 @@ const router = express.Router();
  *                     type: string
  */
 
-router.post('/', loginController.loginUser);
+router.post('/', validateBody(loginJoiSchema), loginController.loginUser);
 
 module.exports = router;

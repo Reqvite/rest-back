@@ -1,5 +1,5 @@
 const Joi = require('joi');
-const { validateIdInJoiSchema } = require('../additionalValidation');
+const { validateIdInJoiSchema } = require('../validations');
 
 const orderItemSchema = Joi.object({
   dish: Joi.string()

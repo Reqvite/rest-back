@@ -8,7 +8,7 @@ const asyncErrorHandler = (func) => {
     func(req, res, next).catch((err) => {
 
       // in case error from DB
-      if (err.model) {
+      if (err.name === 'CastError') {
         err.statusCode = BAD_REQUEST;
       }
 

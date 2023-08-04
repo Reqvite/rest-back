@@ -1,12 +1,15 @@
 const Personnel = require('../models/personnelModel');
 const tokenController = require('./TokenController');
 const bcrypt = require('bcrypt');
+const { NotFoundError, AuthenticationError } = require('../utils/errors/CustomErrors');
+const { StatusCodes } = require('http-status-codes');
+const { OK, FORBIDDEN, NOT_FOUND, INTERNAL_SERVER_ERROR } = StatusCodes;
 
 const loginController = {
   getUserByEmail: async (email) => {
     const user = await Personnel.findOne({ email });
     if (!user) {
-      throw new Error(`Couldn't find a user with this email`);
+      throw new NotFoundError(`Couldn't find a user with this email`);
     }
 
     return user;
@@ -17,7 +20,7 @@ const loginController = {
       const userEntity = await loginController.getUserByEmail(user.email);
       const isValidated = await bcrypt.compare(user.password, userEntity.password);
       if (!isValidated) {
-        throw new Error(`Credentials do not match. Access denied.`);
+        throw new AuthenticationError(`Credentials do not match. Access denied.`);
       }
       const tokens = await tokenController.getTokens(userEntity._id);
       return {
@@ -35,17 +38,22 @@ const loginController = {
   loginUser: async (req, res) => {
     try {
       const auth = await loginController.authenticateUser(req.body);
-      res.status(200).json({
+      res.status(OK).json({
         message: 'Authenticated',
         ...auth,
       });
     } catch (error) {
       if (error.message === "Couldn't find a user with this email") {
-        res.status(404).json({ message: 'This email does not exist.' });
+        res.status(NOT_FOUND).json({ message: 'This email does not exist.', status: NOT_FOUND });
       } else if (error.message === 'Credentials do not match. Access denied.') {
-        res.status(403).json({ message: 'Incorrect credentials. Please check your data.' });
+        res
+          .status(FORBIDDEN)
+          .json({ message: 'Incorrect credentials. Please check your data.', status: FORBIDDEN });
       } else {
-        res.status(500).json({ message: 'Internal server error. Please try again later.' });
+        res.status(INTERNAL_SERVER_ERROR).json({
+          message: 'Internal server error. Please try again later.',
+          status: INTERNAL_SERVER_ERROR,
+        });
       }
     }
   },
