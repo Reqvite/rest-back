@@ -6,7 +6,7 @@ const asyncErrorHandler = require('../utils/errors/asyncErrorHandler');
 const TransactionsController = {
   create: asyncErrorHandler(async (req, res) => {
     const { amount, type, info, frontLink } = req.body;
-    const liqPayOrder_id = new mongoose.Types.ObjectId();
+    let liqPayOrder_id = new mongoose.Types.ObjectId();
     const infoIds = info.split(',').map((id) => id.trim());
 
     const existingTransaction = await Transaction.findOne({
@@ -20,6 +20,8 @@ const TransactionsController = {
         type,
         restaurantOrders_id: infoIds,
       });
+    } else {
+      liqPayOrder_id = existingTransaction._id;
     }
 
     const paymentInfo = LiqPayService.getLiqPayPaymentData(amount, liqPayOrder_id, info, frontLink);
