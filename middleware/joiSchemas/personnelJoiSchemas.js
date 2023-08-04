@@ -1,12 +1,13 @@
 const Joi = require('joi');
 const { validateIdInJoiSchema } = require('../validations');
+const { CHECK_PASSWORD_SCHEMA } = require('../../constants/constants');
 
 const personnelJoiSchema = Joi.object({
   firstName: Joi.string().min(2).max(30).required(),
   lastName: Joi.string().min(2).max(30).required(),
   password: Joi.string()
     .min(8)
-    .pattern(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{8,30}$/)
+    .pattern(CHECK_PASSWORD_SCHEMA)
     .required(),
   gender: Joi.string().valid('Male', 'Female').required(),
   role: Joi.string().valid('waiter', 'cook', 'admin').required(),
