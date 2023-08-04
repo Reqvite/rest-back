@@ -27,7 +27,7 @@ const transactionSchema = new Schema({
     description: 'The date of the payment transaction.',
   },
   liqPayOrder_id: {
-    type: ObjectId,
+    type: String,
     ref: 'Order',
     required: [true, 'The unique ID for LiqPay associated with the transaction.'],
     unique: true,

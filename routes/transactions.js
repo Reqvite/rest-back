@@ -1,9 +1,18 @@
-const express = require("express");
-const transactionsController = require("../controllers/TransactionsController");
+const express = require('express');
+const transactionsController = require('../controllers/TransactionsController');
+const {
+  createTransactionSchema,
+  callbackTransactionSchema,
+} = require('../utils/validation/joiSchemas/transactionJoiSchemas');
+const { validateBody } = require('../utils/validation/additionalValidation');
 const router = express.Router();
 
-router.post("/", transactionsController.create);
-router.post("/status", transactionsController.updateStatus);
+router.post('/', validateBody(createTransactionSchema), transactionsController.create);
+router.post(
+  '/status',
+  validateBody(callbackTransactionSchema),
+  transactionsController.updateStatus
+);
 
 module.exports = router;
 
