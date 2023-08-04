@@ -8,15 +8,16 @@ const dishJoiSchema = Joi.object({
     Joi.string().custom((value, helpers) => validateIdInJoiSchema(value, helpers))
   ),
   picture: Joi.string().required(),
-  type: Joi.string().valid(...dishCategories).required(),
+  type: Joi.string()
+    .valid(...dishCategories)
+    .required(),
   spicy: Joi.boolean().required(),
   vegetarian: Joi.boolean().required(),
   pescatarian: Joi.boolean().required(),
-  portionWeight: Joi.number().required(),
-  price: Joi.number().required()
+  portionWeight: Joi.number().greater(0).required(),
+  price: Joi.number().greater(0).required(),
 }).options({ abortEarly: false, allowUnknown: false });
 
 module.exports = {
   dishJoiSchema,
 };
-
