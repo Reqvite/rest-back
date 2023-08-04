@@ -1,6 +1,20 @@
 const express = require('express');
 const transactionsController = require('../controllers/TransactionsController');
+const {
+  createTransactionSchema,
+  callbackTransactionSchema,
+} = require('../middleware/joiSchemas/transactionJoiSchemas');
+const { validateBody } = require('../middleware/validations');
 const router = express.Router();
+
+router.post('/', validateBody(createTransactionSchema), transactionsController.create);
+router.post(
+  '/status',
+  validateBody(callbackTransactionSchema),
+  transactionsController.updateStatus
+);
+
+module.exports = router;
 
 /**
  * @openapi
@@ -10,36 +24,48 @@ const router = express.Router();
  *       tags:
  *         - Transactions
  *       summary: Creates a new transaction
- *       parameters:
- *         - in: body
- *           name: transaction
- *           schema:
- *             $ref: '#/definitions/Transaction'
+ *       requestBody:
+ *         description: Transaction data
+ *         required: true
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Transaction'
  *       responses:
  *         '201':
  *           description: Transaction created
  *
- * definitions:
- *   Transaction:
- *     type: object
- *     properties:
- *       paymentAmount:
- *         type: number
- *         description: The amount of the payment transaction.
- *       paymentDate:
- *         type: string
- *         format: date
- *         description: The date of the payment transaction.
- *       order_id:
- *         type: string
- *         description: The unique ID of the order associated with the transaction.
- *       type:
- *         type: string
- *         enum: ['cash', 'POS', 'online']
- *         description: The type of transaction.
+ *   /transactions/status:
+ *     post:
+ *       tags:
+ *         - Transactions
+ *       summary: Updates payment status for orders
+ *       requestBody:
+ *         description: Payment data and signature
+ *         required: true
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 data:
+ *                   type: string
+ *                   description: The payment data.
+ *                 signature:
+ *                   type: string
+ *                   description: The signature for the payment data.
+ *       responses:
+ *         '204':
+ *           description: No Content.
+ *           content:
+ *             application/json:
+ *               schema:
+ *                 type: object
+ *                 properties:
+ *                   code:
+ *                     type: integer
+ *                     example: 204
+ *                   status:
+ *                     type: string
+ *                     example: success
  */
-
-router.post('/', transactionsController.create);
-
-
-module.exports = router;
