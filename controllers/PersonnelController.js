@@ -123,7 +123,7 @@ const personnelController = {
 
         if (!restaurant) {
             const err = new NotFoundError('Restaurant with that ID is not found!');
-            return res.status(NOT_FOUND).json({error: err.message});
+            return next(err);
         }
 
         //Take a restaurant id from the request body and check if it matches the rest id of the personnel
@@ -169,7 +169,7 @@ const personnelController = {
 
         if (!restaurant) {
             const err = new NotFoundError('Restaurant with that ID is not found!');
-            return res.status(NOT_FOUND).json({error: err.message});
+            return next(err);
         }
 
         //Take a restaurant id from the request body and check if it matches the rest id of the personnel
