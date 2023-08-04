@@ -3,7 +3,7 @@ const router = express.Router();
 
 const { orders } = require('../controllers');
 const checkRestId = require('../middleware/checkRestId');
-const { validateBody, validateObjectId } = require('../utils/validation/additionalValidation');
+const { validateBody, validateObjectId } = require('../middleware/validations');
 const {
   createOrderJoiSchema,
   updateOrderStatusJoiSchema,

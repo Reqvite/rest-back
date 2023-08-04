@@ -9,8 +9,7 @@ const cors = require('cors');
 require('dotenv').config();
 const globalErrorHandler = require('./utils/errors/globalErrorHandler');
 const { NotFoundError } = require('./utils/errors/CustomErrors');
-const { validateObjectId } = require('./middleware/validations');
-const { userIdValidator } = require('./utils/validation/additionalValidation
+const { validateObjectId, userIdValidator } = require('./middleware/validations');
 
 //routes
 const routes = require('./routes');
@@ -48,7 +47,6 @@ app.use(`/login`, routes.login);
 app.use('/api', routes.upload);
 
 routes.personnel.use('/:id/tokens', validateObjectId, userIdValidator, routes.tokens);
-
 
 app.all('*', (req, _, next) => {
   const err = new NotFoundError(`Cant find ${req.originalUrl} on the server`);
