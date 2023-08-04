@@ -21,6 +21,12 @@ router.post(
   orders.createOrder
 );
 router.patch(
+  '/:restId/table/:tableId',
+  validateObjectId,
+  checkRestId,
+  orders.updateOrderStatusesToPaid
+);
+router.patch(
   '/:restId/:orderId',
   validateObjectId,
   checkRestId,

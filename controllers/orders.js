@@ -1,7 +1,7 @@
 const { Order, Table, Dish } = require('../models');
 const { NotFoundError, BadRequestError } = require('../utils/errors/CustomErrors');
 const asyncErrorHandler = require('../utils/errors/asyncErrorHandler');
-const { sendEventToClients } = require('../utils/sse');
+// const { sendEventToClients } = require('../utils/sse');
 
 const getAllOrders = asyncErrorHandler(async (req, res, next) => {
   const { restId } = req.params;
@@ -104,6 +104,33 @@ const createOrder = asyncErrorHandler(async (req, res, next) => {
   });
 });
 
+const updateOrderStatusesToPaid = asyncErrorHandler(async (req, res, next) => {
+  const { restId, tableId } = req.params;
+  const { orders } = req.body;
+  const table = await Table.exists({
+    restaurant_id: restId,
+    _id: tableId,
+  });
+  if (!table) {
+    return next(new NotFoundError('No table with this id was found in this restaurant'));
+  }
+  const updatedOrders = await Order.updateMany(
+    {
+      rest_id: restId,
+      table_id: tableId,
+      _id: { $in: orders },
+    },
+    { $set: { status: 'Paid' } }
+  );
+  if (!updatedOrders) {
+    return next(new NotFoundError('Orders not found'));
+  }
+  res.json({
+    code: 200,
+    status: 'Orders status updated',
+  });
+});
+
 const updateOrderStatus = asyncErrorHandler(async (req, res, next) => {
   const { restId, orderId } = req.params;
   const { status } = req.body;
@@ -140,9 +167,6 @@ const updateDishStatus = asyncErrorHandler(async (req, res, next) => {
     return next(new NotFoundError('Order or Dish not found'));
   }
 
-  const eventMessage = JSON.stringify({ dishId, status });
-  sendEventToClients(eventMessage);
-
   res.json({
     code: 200,
     status: 'success',
@@ -159,4 +183,5 @@ module.exports = {
   createOrder,
   updateOrderStatus,
   updateDishStatus,
+  updateOrderStatusesToPaid,
 };
