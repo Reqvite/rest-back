@@ -3,8 +3,8 @@ const transactionsController = require('../controllers/TransactionsController');
 const {
   createTransactionSchema,
   callbackTransactionSchema,
-} = require('../utils/validation/joiSchemas/transactionJoiSchemas');
-const { validateBody } = require('../utils/validation/additionalValidation');
+} = require('../middleware/joiSchemas/transactionJoiSchemas');
+const { validateBody } = require('../middleware/validations');
 const router = express.Router();
 
 router.post('/', validateBody(createTransactionSchema), transactionsController.create);
