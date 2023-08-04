@@ -80,7 +80,7 @@ const personnelController = {
 
         if (!restaurant) {
             const err = new NotFoundError('Restaurant with that ID is not found!');
-            return res.status(NOT_FOUND).json({error: err.message});
+            return next(err);
         }
 
         // Hash the password using bcrypt
