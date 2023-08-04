@@ -5,10 +5,11 @@
  *     Transaction:
  *       type: object
  *       required:
- *         - _id
  *         - paymentAmount
  *         - paymentDate
- *         - order_id
+ *         - liqPayOrder_id
+ *         - restaurantOrders_id
+ *         - type
  *       properties:
  *         _id:
  *           type: string
@@ -20,11 +21,13 @@
  *           type: string
  *           format: date
  *           description: The date of the payment transaction.
- *         order_id:
- *           type: string
- *           description: The unique ID of the order associated with the transaction.
+ *         restaurantOrders_id:
+ *           type: array
+ *           items:
+ *             type: string
+ *           description: Array of IDs of the orders associated with the transaction.
  *         type:
  *           type: string
- *           enum: ['online', 'POS', 'cash']
+ *           enum: ['cash', 'POS', 'online']
  *           description: The type of transaction.
  */

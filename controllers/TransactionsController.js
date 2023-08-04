@@ -16,7 +16,7 @@ const TransactionsController = {
     if (!existingTransaction) {
       await Transaction.create({
         paymentAmount: amount,
-        liqPayOrder_id: liqPayOrder_id,
+        _id: liqPayOrder_id,
         type,
         restaurantOrders_id: infoIds,
       });

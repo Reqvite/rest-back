@@ -1,5 +1,4 @@
 const mongoose = require('mongoose');
-const { ObjectId } = require('mongodb');
 const { Schema } = mongoose;
 
 const transactionSchema = new Schema({
@@ -25,12 +24,6 @@ const transactionSchema = new Schema({
       message: (props) => `${props.value} is not a valid date!`,
     },
     description: 'The date of the payment transaction.',
-  },
-  liqPayOrder_id: {
-    type: String,
-    ref: 'Order',
-    required: [true, 'The unique ID for LiqPay associated with the transaction.'],
-    unique: true,
   },
   restaurantOrders_id: {
     type: Array,

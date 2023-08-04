@@ -34,6 +34,7 @@ module.exports = router;
  *       responses:
  *         '201':
  *           description: Transaction created
+ *
  *   /transactions/status:
  *     post:
  *       tags:
@@ -54,8 +55,8 @@ module.exports = router;
  *                   type: string
  *                   description: The signature for the payment data.
  *       responses:
- *         '200':
- *           description: Success response with updated orders.
+ *         '204':
+ *           description: No Content.
  *           content:
  *             application/json:
  *               schema:
@@ -63,15 +64,8 @@ module.exports = router;
  *                 properties:
  *                   code:
  *                     type: integer
- *                     example: 200
+ *                     example: 204
  *                   status:
  *                     type: string
  *                     example: success
- *                   data:
- *                     type: object
- *                     properties:
- *                       updatedOrders:
- *                         type: array
- *                         items:
- *                           $ref: '#/components/schemas/Order'
  */
