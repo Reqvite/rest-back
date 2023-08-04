@@ -3,7 +3,7 @@ const personnelController = require('../controllers/PersonnelController');
 const router = express.Router();
 const {
   personnelJoiSchema,
-  personnelJoiSchemaDelete,
+  personnelJoiSchemaDelete, personnelJoiSchemaPatch,
 } = require('../middleware/joiSchemas/personnelJoiSchemas');
 const { validateBody, validateObjectId } = require('../middleware/validations');
 
@@ -147,7 +147,7 @@ router.post('/', validateBody(personnelJoiSchema), personnelController.addPerson
 router.patch(
   '/:id',
   validateObjectId,
-  validateBody(personnelJoiSchema),
+  validateBody(personnelJoiSchemaPatch),
   personnelController.updatePersonnel
 );
 router.delete(
