@@ -1,5 +1,5 @@
 const LiqPay = require('./lib/liqpay');
-const { PUBLIC_LIQPAY_KEY, PRIVATE_LIQPAY_KEY, BASE_URL, BASE_URL_FRONT } = process.env;
+const { PUBLIC_LIQPAY_KEY, PRIVATE_LIQPAY_KEY, BASE_URL } = process.env;
 const liqpay = new LiqPay(PUBLIC_LIQPAY_KEY, PRIVATE_LIQPAY_KEY);
 
 const API_URL =
