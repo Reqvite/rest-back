@@ -1,7 +1,7 @@
 const { Order, Table, Dish } = require('../models');
 const { NotFoundError, BadRequestError } = require('../utils/errors/CustomErrors');
 const asyncErrorHandler = require('../utils/errors/asyncErrorHandler');
-// const { sendEventToClients } = require('../utils/sse');
+const { sendEventToClients } = require('../utils/sse');
 
 const getAllOrders = asyncErrorHandler(async (req, res, next) => {
   const { restId } = req.params;
@@ -165,6 +165,10 @@ const updateDishStatus = asyncErrorHandler(async (req, res, next) => {
   );
   if (!order) {
     return next(new NotFoundError('Order or Dish not found'));
+  }
+  if (status === 'Ready') {
+    const eventMessage = JSON.stringify(`Dish from order ${orderId} is ready`);
+    sendEventToClients(eventMessage);
   }
 
   res.json({
