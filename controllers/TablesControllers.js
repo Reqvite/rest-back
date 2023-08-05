@@ -1,4 +1,4 @@
-const { Table } = require('../models');
+const { Table, Order } = require('../models');
 const asyncErrorHandler = require('../utils/errors/asyncErrorHandler');
 const {
   NotFoundError,
@@ -35,8 +35,8 @@ const tableController = {
 
   updateTable: asyncErrorHandler(async (req, res, next) => {
     const { id } = req.params;
-    const { status } = req.body;
-
+    const { status, restaurant_id } = req.body;
+    let updatedTable;
     const table = await Table.findById(id);
 
     if (!table) {
@@ -44,47 +44,60 @@ const tableController = {
       return next(err);
     }
 
-    //Take a restaurant id from the request body and check if it matches the rest id of the table
-    if (table.restaurant_id.toString() !== req.body.restaurant_id) {
-      console.log(table.restaurant_id.toString());
-      console.log(req.body.restaurant_id);
+    if (table.restaurant_id.toString() !== restaurant_id) {
       const err = new AuthorizationError();
       return next(err);
     }
 
-    // Update status of the table
     table.status = status;
 
-    // Save the updated status to the database
-    const updatedTable = await table.save();
+    if (status !== 'Free') {
+      updatedTable = await table.save();
+      return;
+    }
 
-    res.status(OK).json(updatedTable);
+    if (status === 'Free') {
+      const orders = await Order.find({
+        table_id: id,
+        rest_id: restaurant_id,
+        status: { $ne: 'Closed' },
+      });
+
+      const allOrdersCanBeClosed = orders.every((order) => {
+        return orderCanBeClosed(order);
+      });
+
+      if (!allOrdersCanBeClosed) {
+        const err = new NotFoundError('Not all orders are paid for this table ID!');
+        return next(err);
+      }
+
+      if (allOrdersCanBeClosed) {
+        await Promise.all(orders.map((order) => closeOrder(order)));
+        updatedTable = await table.save();
+      }
+
+      const response = {
+        updatedTable: updatedTable,
+        updatedOrders: orders,
+      };
+
+      res.status(OK).json(response);
+    }
   }),
-
-  // updateTable: async (req, res) => {
-  //   try {
-  //     const { id } = req.params;
-  //     const updates = req.body;
-
-  //     const updatedTable = await Table.findByIdAndUpdate(id, updates, {
-  //       new: true,
-  //       runValidators: true,
-  //     });
-
-  //     if (!updatedTable) {
-  //       return res.status(404).json({ error: 'Table not found' });
-  //     }
-  //     res.status(200).json(updatedTable);
-  //   } catch (error) {
-  //     if (error.name === 'ValidationError') {
-  //       return res.status(400).json({ errors: error.errors });
-  //     }
-  //     res.status(500).json({ error: 'Internal server error' });
-  //   }
-  // },
 };
 
 module.exports = tableController;
+
+async function closeOrder(order) {
+  order.status = 'Closed';
+  await order.save();
+}
+
+// Helper function to check if an order can be closed
+function orderCanBeClosed(order) {
+  return order.status === 'Paid';
+}
 
 //set orders statuses to closed after table is free
 const changeAllOrdersToClosed = asyncErrorHandler(async (req, res, next) => {
