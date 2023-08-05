@@ -36,7 +36,9 @@ const tableController = {
   updateTable: asyncErrorHandler(async (req, res, next) => {
     const { id } = req.params;
     const { status, restaurant_id } = req.body;
-    let updatedTable;
+    let updatedTable = [];
+    let response = {};
+
     const table = await Table.findById(id);
 
     if (!table) {
@@ -53,37 +55,39 @@ const tableController = {
 
     if (status !== 'Free') {
       updatedTable = await table.save();
-      return;
+      response.updatedTable = updatedTable;
     }
 
     if (status === 'Free') {
       const orders = await Order.find({
         table_id: id,
         rest_id: restaurant_id,
-        status: { $ne: 'Closed' },
+        status: { $nin: ['Closed', 'Canceled'] },
       });
 
-      const allOrdersCanBeClosed = orders.every((order) => {
-        return orderCanBeClosed(order);
-      });
-
-      if (!allOrdersCanBeClosed) {
-        const err = new NotFoundError('Not all orders are paid for this table ID!');
-        return next(err);
-      }
-
-      if (allOrdersCanBeClosed) {
-        await Promise.all(orders.map((order) => closeOrder(order)));
+      if (orders.length === 0) {
         updatedTable = await table.save();
+        response.updatedTable = updatedTable;
+      } else {
+        const allOrdersCanBeClosed = orders.every((order) => {
+          return order.status === 'Paid';
+        });
+
+        if (!allOrdersCanBeClosed) {
+          const err = new NotFoundError('Not all orders are paid for this table ID!');
+          return next(err);
+        }
+
+        if (allOrdersCanBeClosed) {
+          await Promise.all(orders.map((order) => closeOrder(order)));
+          updatedTable = await table.save();
+          response.updatedTable = updatedTable;
+          response.updatedOrders = orders;
+        }
       }
-
-      const response = {
-        updatedTable: updatedTable,
-        updatedOrders: orders,
-      };
-
-      res.status(OK).json(response);
     }
+
+    res.status(OK).json(response);
   }),
 };
 
@@ -92,11 +96,6 @@ module.exports = tableController;
 async function closeOrder(order) {
   order.status = 'Closed';
   await order.save();
-}
-
-// Helper function to check if an order can be closed
-function orderCanBeClosed(order) {
-  return order.status === 'Paid';
 }
 
 //set orders statuses to closed after table is free
