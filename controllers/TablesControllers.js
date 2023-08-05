@@ -65,6 +65,17 @@ const tableController = {
         status: { $nin: ['Closed', 'Canceled'] },
       });
 
+      const hasUnservedDishes = orders.some((order) => {
+        return order.orderItems.some((item) => item.status !== 'Served');
+      });
+
+      if (hasUnservedDishes) {
+        const err = new BadRequestError(
+          'Cannot change table status. Some dishes are not served yet.'
+        );
+        return next(err);
+      }
+
       if (orders.length === 0) {
         updatedTable = await table.save();
         response.updatedTable = updatedTable;
@@ -99,32 +110,32 @@ async function closeOrder(order) {
 }
 
 //set orders statuses to closed after table is free
-const changeAllOrdersToClosed = asyncErrorHandler(async (req, res, next) => {
-  const { restId, tableId } = req.params;
+// const changeAllOrdersToClosed = asyncErrorHandler(async (req, res, next) => {
+//   const { restId, tableId } = req.params;
 
-  const table = await Table.exists({
-    restaurant_id: restId,
-    _id: tableId,
-  });
-  if (!table) {
-    return next(new NotFoundError('No table with this id was found in this restaurant'));
-  }
+//   const table = await Table.exists({
+//     restaurant_id: restId,
+//     _id: tableId,
+//   });
+//   if (!table) {
+//     return next(new NotFoundError('No table with this id was found in this restaurant'));
+//   }
 
-  const orders = await Order.updateMany(
-    {
-      rest_id: restId,
-      table_id: tableId,
-      status: { $ne: 'Closed' },
-    },
-    { $set: { status: 'Closed' } }
-  );
+//   const orders = await Order.updateMany(
+//     {
+//       rest_id: restId,
+//       table_id: tableId,
+//       status: { $ne: 'Closed' },
+//     },
+//     { $set: { status: 'Closed' } }
+//   );
 
-  if (orders.modifiedCount === 0) {
-    return next(new NotFoundError('No orders found to update'));
-  }
-  res.json({
-    status: 'success',
-    code: 200,
-    message: `Updated ${orders.modifiedCount} orders to "Closed"`,
-  });
-});
+//   if (orders.modifiedCount === 0) {
+//     return next(new NotFoundError('No orders found to update'));
+//   }
+//   res.json({
+//     status: 'success',
+//     code: 200,
+//     message: `Updated ${orders.modifiedCount} orders to "Closed"`,
+//   });
+// });
