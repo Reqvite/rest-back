@@ -36,7 +36,7 @@ const TransactionsController = {
 
     if (status === 'success') {
       await Order.updateMany({ _id: { $in: infoIds } }, { status: 'Paid' });
-      await Transaction.findOneAndUpdate({ _id: order_id }, { $set: { status: 'sucess' } });
+      await Transaction.findOneAndUpdate({ _id: order_id }, { $set: { status: 'success' } });
     }
 
     return res.status(200).json({
