@@ -3,7 +3,8 @@ const { BadRequestError, AuthenticationError } = require('../utils/errors/Custom
 const { StatusCodes } = require('http-status-codes');
 const { BAD_REQUEST, FORBIDDEN } = StatusCodes;
 
-const isValidObjectId = (id) => mongoose.Types.ObjectId.isValid(id);
+// const isValidObjectId = (id) => mongoose.Types.ObjectId.isValid(id);
+const isValidObjectId = (id) => /^[0-9a-fA-F]{24}$/.test(id);
 
 const validateObjectId = (req, _, next) => {
   const invalidValues = Object.keys(req.params)
@@ -42,7 +43,7 @@ const validateBody = (schema) => async (req, _, next) => {
     return next();
   } catch (error) {
     error.statusCode = BAD_REQUEST;
-    console.log(error);
+
     next(error);
   }
 };
