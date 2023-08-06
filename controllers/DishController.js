@@ -10,8 +10,8 @@ const { StatusCodes } = require('http-status-codes');
 const { OK, CREATED } = StatusCodes;
 
 const DishController = {
-  // request example GET /dishes/restaurant/64c63ab344d6a7657d7a49d5?type=Burgers
-  getAllDishes: asyncErrorHandler(async (req, res) => {
+  // request example GET http://localhost:3001/dishes/restaurant/64c63ab344d6a7657d7a49d5?type=Pizza&isActive=false
+  getAllDishes: asyncErrorHandler(async (req, res, next) => {
     const restaurantId = req.params.id;
     const { type, isActive } = req.query;
 
@@ -20,12 +20,14 @@ const DishController = {
     if (type) {
       matchQuery.type = type;
     }
-  
-    matchQuery.isActive = true;
-   
+
+    if (isActive !== undefined) {
+      matchQuery.isActive = isActive;
+    }
+
     const dish = await Restaurant.findById(restaurantId).populate({
       path: 'dishes_ids',
-      select: 'name picture portionWeight price ingredients',
+      select: 'name picture portionWeight price ingredients isActive',
       match: matchQuery,
       populate: {
         path: 'ingredients',
@@ -40,7 +42,7 @@ const DishController = {
     }
 
     res.status(OK).json(dish.dishes_ids);
-  }),
+}),
 
   getDishesById: asyncErrorHandler(async (req, res) => {
     const dishId = req.params.id;
@@ -108,6 +110,7 @@ const DishController = {
       pescatarian: req.body.pescatarian,
       portionWeight: req.body.portionWeight,
       price: req.body.price,
+      isActive:req.body.isActive,
     });
 
     if (!dish) {
