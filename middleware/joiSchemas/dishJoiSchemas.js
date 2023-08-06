@@ -16,6 +16,7 @@ const dishJoiSchema = Joi.object({
   pescatarian: Joi.boolean().required(),
   portionWeight: Joi.number().greater(0).required(),
   price: Joi.number().greater(0).required(),
+  isActive:Joi.boolean().required(),
 }).options({ abortEarly: false, allowUnknown: false });
 
 module.exports = {

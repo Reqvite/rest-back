@@ -99,6 +99,6 @@ router.post(
 );
 router.get('/:id', validateObjectId, dishController.getDishesById);
 router.patch('/:id', validateObjectId, validateBody(dishJoiSchema), dishController.editDishById);
-router.delete('/:id/restaurant/:rest_id', validateObjectId, dishController.deleteDishById);
+router.patch('/:id/restaurant/:rest_id', validateObjectId, dishController.disableDishById);
 
 module.exports = router;
