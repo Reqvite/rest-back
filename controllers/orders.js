@@ -168,7 +168,7 @@ const updateDishStatus = asyncErrorHandler(async (req, res, next) => {
   }
   if (status === 'Ready') {
     const eventMessage = JSON.stringify(`Dish from order ${orderId} is ready`);
-    sendEventToClients(eventMessage);
+    sendEventToClients(restId, eventMessage);
   }
 
   res.json({

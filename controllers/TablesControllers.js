@@ -99,8 +99,8 @@ const tableController = {
       }
     }
     if (status === 'Requested') {
-      const eventMessage = JSON.stringify(`Table with id ${id} call the waiter`);
-      sendEventToClients(eventMessage);
+      const eventMessage = JSON.stringify(`Table number ${table.table_number} call the waiter`);
+      sendEventToClients(restaurant_id, eventMessage);
     }
     res.status(OK).json(response);
   }),

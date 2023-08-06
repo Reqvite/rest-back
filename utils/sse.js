@@ -1,17 +1,19 @@
 const clients = [];
 
-function sendEventToClients(eventMessage) {
-  clients.forEach((client) => {
-    client.write(`data: ${eventMessage}\n\n`);
-  });
+function sendEventToClients(restId, eventMessage) {
+  clients
+    .filter((client) => client.restId === restId)
+    .forEach((client) => {
+      client.response.write(`data: ${eventMessage}\n\n`);
+    });
 }
 
-function addClient(client) {
-  clients.push(client);
+function addClient(restId, res) {
+  clients.push({ restId, response: res });
 }
 
-function removeClient(client) {
-  const index = clients.indexOf(client);
+function removeClient(restId, res) {
+  const index = clients.findIndex((client) => client.restId === restId);
   if (index !== -1) {
     clients.splice(index, 1);
   }
