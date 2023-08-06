@@ -13,9 +13,16 @@ const DishController = {
   // request example GET /dishes/restaurant/64c63ab344d6a7657d7a49d5?type=Burgers
   getAllDishes: asyncErrorHandler(async (req, res) => {
     const restaurantId = req.params.id;
-    const { type } = req.query;
+    const { type, isActive } = req.query;
 
-    const matchQuery = type ? { type: type } : {};
+    const matchQuery = {};
+
+    if (type) {
+      matchQuery.type = type;
+    }
+  
+    matchQuery.isActive = true;
+   
     const dish = await Restaurant.findById(restaurantId).populate({
       path: 'dishes_ids',
       select: 'name picture portionWeight price ingredients',
@@ -50,6 +57,7 @@ const DishController = {
 
   addDish: asyncErrorHandler(async (req, res, next) => {
     const restaurantId = req.params.id;
+    // console.log(req.body)
 
     const newDish = new Dish({
       name: req.body.name,
@@ -61,7 +69,10 @@ const DishController = {
       pescatarian: req.body.pescatarian,
       portionWeight: req.body.portionWeight,
       price: req.body.price,
+      isActive:req.body.isActive,
     });
+
+    console.log(newDish)
 
     if (!newDish) {
       const err = new BadRequestError('Unable to add dish to database');
@@ -107,7 +118,7 @@ const DishController = {
     res.status(OK).json({ message: 'Dish edited successfully' });
   }),
 
-  deleteDishById: asyncErrorHandler(async (req, res, next) => {
+  disableDishById: asyncErrorHandler(async (req, res, next) => {
     const dishId = req.params.id;
     const restaurantId = req.params.rest_id;
 
@@ -118,18 +129,15 @@ const DishController = {
       return next(err);
     }
 
-    const dish = await Dish.findByIdAndRemove(dishId);
+    const dish = await Dish.findById(dishId);
 
     if (!dish) {
       const err = new NotFoundError('Dish not found for the given dish ID!');
       return next(err);
     }
 
-    await Restaurant.findByIdAndUpdate(
-      restaurantId,
-      { $pull: { dishes_ids: dishId } },
-      { new: true }
-    );
+    dish.isActive = false;
+    await dish.save();
 
     res.status(OK).json({ message: 'Dish deleted successfully' });
   }),
