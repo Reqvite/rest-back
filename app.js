@@ -35,6 +35,7 @@ app.use('/api-docs', swaggerUi.serve);
 app.get('/api-docs', swaggerUi.setup(swaggerSpecs));
 app.use('/healthcheck', routes.healthcheck);
 
+app.use('/sse', routes.sse);
 app.use(`/restaurants`, routes.restaurants);
 app.use(`/personnel`, routes.personnel);
 app.use(`/waiters`, routes.waiters);

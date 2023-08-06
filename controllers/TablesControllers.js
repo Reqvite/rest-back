@@ -6,6 +6,7 @@ const {
   BadRequestError,
 } = require('../utils/errors/CustomErrors');
 const { StatusCodes } = require('http-status-codes');
+const { sendEventToClients } = require('../utils/sse');
 const { OK } = StatusCodes;
 
 const tableController = {
@@ -97,7 +98,10 @@ const tableController = {
         }
       }
     }
-
+    if (status === 'Requested') {
+      const eventMessage = JSON.stringify(`Table number ${table.table_number} call the waiter`);
+      sendEventToClients(restaurant_id, eventMessage);
+    }
     res.status(OK).json(response);
   }),
 };
