@@ -1,5 +1,5 @@
-const express = require("express");
-const tokenController = require("../controllers/TokenController");
+const express = require('express');
+const tokenController = require('../controllers/TokenController');
 const router = express.Router();
 const { validateObjectId } = require('../middleware/validations');
 
@@ -18,12 +18,7 @@ const { validateObjectId } = require('../middleware/validations');
  *           content:
  *             application/json:
  *               schema:
- *                 type: object
- *                 properties:
- *                   token:
- *                     type: string
- *                   refreshToken:
- *                     type: string
+ *                 $ref: '#/components/schemas/Token'
  *         500:
  *           description: Something went wrong
  *           content:
@@ -35,6 +30,6 @@ const { validateObjectId } = require('../middleware/validations');
  *                     type: string
  */
 
-router.get("/", tokenController.getUserToken);
+router.get('/', tokenController.getUserToken);
 
 module.exports = router;
