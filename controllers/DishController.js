@@ -132,17 +132,9 @@ const DishController = {
       return next(err);
     }
 
-    const dish = await Dish.findById(dishId);
+    await Dish.findByIdAndUpdate(dishId, { $set: { isActive: req.body.isActive } });
 
-    if (!dish) {
-      const err = new NotFoundError('Dish not found for the given dish ID!');
-      return next(err);
-    }
-
-    dish.isActive = false;
-    await dish.save();
-
-    res.status(OK).json({ message: 'Dish deleted successfully' });
+    res.status(OK).json({ message: 'Dish status updated successfully' });
   }),
 };
 
