@@ -44,7 +44,7 @@ const DishController = {
     res.status(OK).json(dish.dishes_ids);
 }),
 
-  getDishesById: asyncErrorHandler(async (req, res) => {
+  getDishesById: asyncErrorHandler(async (req, res, next) => {
     const dishId = req.params.id;
 
     const dish = await Dish.findById(dishId).populate({ path: 'ingredients', model: 'Ingredient' });
