@@ -7,6 +7,8 @@ const TokenSchema = new Schema(
       required: true,
     },
     token_id: { type: String, required: true },
+    token: { type: String, required: true },
+    refreshToken: { type: String, required: true },
     expire: { type: Number, required: true },
     restaurant_id: {
       type: Schema.Types.ObjectId,

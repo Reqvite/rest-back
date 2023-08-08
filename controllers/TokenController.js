@@ -21,10 +21,10 @@ const tokenController = {
     return token;
   },
 
-  upsert: async (token) =>
+  upsert: async (tokenData) =>
     Token.findOneAndUpdate(
-      { user_id: token.user_id },
-      { $set: token },
+      { user_id: tokenData.user_id },
+      { $set: tokenData },
       { upsert: true, new: true }
     ),
 
@@ -41,6 +41,8 @@ const tokenController = {
     await tokenController.upsert({
       user_id,
       token_id,
+      token,
+      refreshToken,
       expire: Date.now() + JWT_REFRESH_EXPIRE_TIME * 1000,
       restaurant_id,
       role,
@@ -50,18 +52,39 @@ const tokenController = {
   },
 
   refresh: async (user_id, token_id) => {
-    const token = await tokenController.get(user_id, token_id);
-    if (Date.now() > token.expire) {
-      throw new AuthorizationError('Token is expired');
+    try {
+      const token = await tokenController.get(user_id, token_id);
+
+      if (Date.now() > token.expire) {
+        throw new AuthorizationError('Token is expired');
+      }
+      const tokens = await tokenController.getTokens(user_id, token.restaurant_id, token.role);
+
+      return tokens;
+    } catch (error) {
+      throw new AuthorizationError('Invalid refresh token');
     }
-    return tokenController.getTokens(user_id);
   },
 
   getUserToken: async (req, res) => {
     try {
-      const tokens = await tokenController.refresh(req.user_id, req.token_id);
+      const user_id = req.params.id;
+      console.log(user_id);
+      const authHeader = req.headers['authorization'];
+      if (!authHeader || !authHeader.startsWith('Bearer ')) {
+        throw new AuthorizationError('User authentication failed. Access denied.');
+      }
+      const refreshToken = authHeader.split(' ')[1];
+      const { id: userId, token_id } = jwt.verify(refreshToken, JWT_REFRESH_SECRET_KEY);
+
+      if (userId !== user_id) {
+        throw new AuthorizationError('User authentication failed. Access denied.');
+      }
+
+      const tokens = await tokenController.refresh(user_id, token_id);
+
       res.status(OK).send(tokens);
-    } catch {
+    } catch (error) {
       res.status(INTERNAL_SERVER_ERROR).json({ message: 'Something went wrong' });
     }
   },

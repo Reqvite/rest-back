@@ -1,7 +1,7 @@
 const express = require('express');
 const tokenController = require('../controllers/TokenController');
-const router = express.Router();
 const { validateObjectId } = require('../middleware/validations');
+const router = express.Router();
 
 /**
  * @openapi
@@ -30,6 +30,6 @@ const { validateObjectId } = require('../middleware/validations');
  *                     type: string
  */
 
-router.get('/', tokenController.getUserToken);
+router.get('/:id', validateObjectId, tokenController.getUserToken);
 
 module.exports = router;
