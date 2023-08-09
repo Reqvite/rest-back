@@ -54,6 +54,10 @@ const transactionSchema = new Schema({
     description: 'Who created the transaction.',
     default: 'customer',
   },
+  createdById: {
+    type: Schema.Types.ObjectId,
+    ref: 'Personnel',
+  },
   createdByName: {
     type: String,
     description: 'The name of the person who created the transaction.',

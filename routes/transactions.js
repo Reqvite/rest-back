@@ -3,6 +3,7 @@ const transactionsController = require('../controllers/TransactionsController');
 const {
   createOnlineTransactionSchema,
   callbackTransactionSchema,
+  createOfflineTransactionSchema,
 } = require('../middleware/joiSchemas/transactionJoiSchemas');
 const { validateBody } = require('../middleware/validations');
 const router = express.Router();
@@ -14,7 +15,7 @@ router.post(
 );
 router.post(
   '/manual',
-  // validateBody(callbackTransactionSchema),
+  validateBody(createOfflineTransactionSchema),
   transactionsController.createPayOffline
 );
 router.post(

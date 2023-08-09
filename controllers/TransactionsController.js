@@ -35,9 +35,8 @@ const TransactionsController = {
   createPayOffline: asyncErrorHandler(async (req, res) => {
     const { createdById, amount, info, type } = req.body;
 
-    const user = await Personnel.findOne({ createdById });
+    const user = await Personnel.findOne({ _id: createdById });
 
-    console.log(user);
     if (!user || (user.role !== 'admin' && user.role !== 'waiter')) {
       throw new AuthorizationError('Acces denied.');
     }
