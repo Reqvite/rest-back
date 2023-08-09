@@ -41,7 +41,7 @@ const TransactionsController = {
       throw new AuthorizationError('Acces denied.');
     }
 
-    const transactions = await Transaction.create({
+    await Transaction.create({
       rest_id: user.restaurant_id,
       createdByType: user.role,
       createdByName: user.name,
@@ -51,7 +51,7 @@ const TransactionsController = {
       status: 'success',
     });
 
-    res.status(201).json({ status: 'success', code: 201, transactions });
+    res.status(201).json({ status: 'success', code: 201 });
   }),
 
   updateStatus: asyncErrorHandler(async (req, res) => {
