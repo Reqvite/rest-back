@@ -18,8 +18,35 @@ const s3Client = new s3.S3Client({
 
 const personnelController = {
     getPersonnelByRestaurantId: asyncErrorHandler(async (req, res, next) => {
-        const personnel = await Personnel.find({restaurant_id: req.params.id});
+        const page = parseInt(req.query.page) || 1; // Get the page number from query parameter, default to 1
+        const limit = parseInt(req.query.limit) || 10; // Get the limit from query parameter, default to 10
+        const searchText = req.query.searchText || ''; // Get the search text from query parameter, default to empty string
 
+        const skip = (page - 1) * limit;
+
+        let totalPersonnel;
+
+        if (!searchText) {
+            totalPersonnel = await Personnel.countDocuments({restaurant_id: req.params.id});
+        } else {
+            totalPersonnel = await Personnel.countDocuments({restaurant_id: req.params.id, name: {$regex: searchText, $options: 'i'}});
+        }
+
+        const totalPages = Math.ceil(totalPersonnel / limit); // Calculate total pages
+
+        let personnel;
+
+        console.log(searchText);
+
+        if (!searchText) {
+            personnel = await Personnel.find({restaurant_id: req.params.id})
+                .skip(skip)
+                .limit(limit);
+        } else {
+            personnel = await Personnel.find({restaurant_id: req.params.id, name: {$regex: searchText, $options: 'i'}})
+                .skip(skip)
+                .limit(limit);
+        }
         /*for (const person of personnel) {
           if (!person.picture) {
             person.picture = 'RESTio.png';
@@ -37,10 +64,11 @@ const personnelController = {
             return next(err);
         }
 
-        res.status(OK).json(personnel);
+        res.status(OK).json({personnel, totalPages, page}); // Send paginated data and total pages
     }),
 
-    getPersonnelById: asyncErrorHandler(async (req, res) => {
+
+    getPersonnelById: asyncErrorHandler(async (req, res, next) => {
         const personnel = await Personnel.findById(req.params.id);
         console.log(personnel);
 
