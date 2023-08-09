@@ -36,7 +36,7 @@ const TransactionsController = {
 
     const user = await Personnel.findOne({ createdById });
 
-    if (!user) {
+    if (!user || user.role !== 'admin' || user.role !== 'waiter') {
       throw new AuthorizationError('Acces denied.');
     }
 
