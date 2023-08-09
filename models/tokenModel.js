@@ -1,21 +1,31 @@
-const { Schema, model } = require("mongoose");
+const { Schema, model } = require('mongoose');
 
 const TokenSchema = new Schema(
   {
-    userId: {
+    user_id: {
       type: Schema.Types.ObjectId,
-      required: true
+      required: true,
     },
-    tokenId: { type: String, required: true },
-    expire: { type: Number, required: true }
+    token_id: { type: String, required: true },
+    token: { type: String, required: true },
+    refreshToken: { type: String, required: true },
+    expire: { type: Number, required: true },
+    restaurant_id: {
+      type: Schema.Types.ObjectId,
+      ref: 'Restaurant',
+      required: true,
+    },
+    role: {
+      type: String,
+      required: true,
+      enum: ['admin', 'cook', 'waiter'],
+    },
   },
-  { collection: "tokens" }
+  { collection: 'tokens' }
 );
 
-TokenSchema.index({ userId: 1 }, { unique: true });
+TokenSchema.index({ user_id: 1 }, { unique: true });
 
-const Token = model("Token", TokenSchema);
+const Token = model('Token', TokenSchema);
 
-module.exports = {
-  Token
-};
+module.exports = Token;

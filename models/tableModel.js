@@ -18,7 +18,7 @@ const tableSchema = new Schema(
     status: {
       type: String,
       enum: {
-        values: ["Free", "Taken", "Waiting", "Requested"],
+        values: ["Free", "Taken", "Waiting"],
         message: "{VALUE} is not supported status",
       },
       default: "Free",
