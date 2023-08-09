@@ -1,7 +1,12 @@
 const mongoose = require('mongoose');
-const { Schema } = mongoose;
+const { Schema, ObjectId } = mongoose;
 
 const transactionSchema = new Schema({
+  rest_id: {
+    type: ObjectId,
+    ref: 'Restaurant',
+    required: [true, 'Restaurant id is required'],
+  },
   paymentAmount: {
     type: Number,
     required: true,
@@ -41,6 +46,17 @@ const transactionSchema = new Schema({
     enum: ['cash', 'POS', 'online'],
     required: true,
     description: 'The type of transaction.',
+  },
+  createdByType: {
+    type: String,
+    required: true,
+    enum: ['customer', 'waiter', 'admin'],
+    description: 'Who created the transaction.',
+    default: 'customer',
+  },
+  createdByName: {
+    type: String,
+    description: 'The name of the person who created the transaction.',
   },
 });
 

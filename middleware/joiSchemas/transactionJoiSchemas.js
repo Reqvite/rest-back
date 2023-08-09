@@ -1,6 +1,10 @@
 const Joi = require('joi');
+const { validateIdInJoiSchema } = require('../validations');
 
-const createTransactionSchema = Joi.object({
+const createOnlineTransactionSchema = Joi.object({
+  rest_id: Joi.string()
+    .custom((value, helpers) => validateIdInJoiSchema(value, helpers))
+    .required(),
   amount: Joi.number().positive().greater(0).required(),
   type: Joi.string().valid('online').required(),
   info: Joi.string().required(),
@@ -12,4 +16,4 @@ const callbackTransactionSchema = Joi.object({
   signature: Joi.string().required(),
 }).options({ abortEarly: false, allowUnknown: false });
 
-module.exports = { createTransactionSchema, callbackTransactionSchema };
+module.exports = { createOnlineTransactionSchema, callbackTransactionSchema };

@@ -2,10 +2,11 @@ const { mongoose } = require('mongoose');
 const { Order, Transaction } = require('../models');
 const LiqPayService = require('../services/liqpay/liqpayService');
 const asyncErrorHandler = require('../utils/errors/asyncErrorHandler');
+const Personnel = require('../models/personnelModel');
 
 const TransactionsController = {
-  create: asyncErrorHandler(async (req, res) => {
-    const { amount, type, info, frontLink } = req.body;
+  createPayOnline: asyncErrorHandler(async (req, res) => {
+    const { amount, type, info, frontLink, rest_id } = req.body;
     let liqPayOrder_id = new mongoose.Types.ObjectId();
     const infoIds = info.split(',').map((id) => id.trim());
 
@@ -18,6 +19,7 @@ const TransactionsController = {
     );
 
     await Transaction.create({
+      rest_id,
       paymentAmount: amount,
       _id: liqPayOrder_id,
       type,
@@ -27,6 +29,28 @@ const TransactionsController = {
     const paymentInfo = LiqPayService.getLiqPayPaymentData(amount, liqPayOrder_id, info, frontLink);
 
     res.status(201).json({ status: 'success', code: 201, paymentInfo });
+  }),
+
+  createPayOffline: asyncErrorHandler(async (req, res) => {
+    const { createdById, amount, info, type } = req.body;
+
+    const user = await Personnel.findOne({ createdById });
+
+    if (!user) {
+      throw new AuthorizationError('Acces denied.');
+    }
+
+    const transactions = await Transaction.create({
+      rest_id: user.restaurant_id,
+      createdByType: user.role,
+      createdByName: user.name,
+      paymentAmount: amount,
+      type,
+      restaurantOrders_id: info,
+      status: 'success',
+    });
+
+    res.status(201).json({ status: 'success', code: 201, transactions });
   }),
 
   updateStatus: asyncErrorHandler(async (req, res) => {
