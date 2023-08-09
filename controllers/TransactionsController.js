@@ -3,6 +3,7 @@ const { Order, Transaction } = require('../models');
 const LiqPayService = require('../services/liqpay/liqpayService');
 const asyncErrorHandler = require('../utils/errors/asyncErrorHandler');
 const Personnel = require('../models/personnelModel');
+const { AuthorizationError } = require('../utils/errors/CustomErrors');
 
 const TransactionsController = {
   createPayOnline: asyncErrorHandler(async (req, res) => {
