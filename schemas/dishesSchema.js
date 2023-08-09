@@ -15,7 +15,7 @@
  *         - portion_weight
  *         - price
  *         - quantity
- *         - status
+ *         - isActive
  *       properties:
  *         name:
  *           type: string
@@ -50,7 +50,7 @@
  *         quantity:
  *           type: integer
  *           description: The quantity of the dish in the order.
- *         status:
- *           type: string
+ *         isActive:
+ *           type: boolean
  *           description: The status of the dish in the order.
  */
