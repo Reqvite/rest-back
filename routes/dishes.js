@@ -12,6 +12,24 @@ const { dishJoiSchema } = require('../middleware/joiSchemas/dishJoiSchemas');
  *       tags:
  *         - Dishes
  *       summary: Get all dishes by restaurant id.
+ *       parameters:
+ *          - in: path
+ *            name: Id
+ *            required: true
+ *            schema:
+ *             type: string
+ *          - in: query
+ *            name: type
+ *            required: false
+ *            description: "Filter dish types"
+ *            schema:
+ *             type: string
+ *          - in: query
+ *            name: isActive
+ *            required: false
+ *            description: "Filter dishes by isActive status"
+ *            schema:
+ *            type: boolean
  *       responses:
  *         200:
  *           description: Returns a list of dishes.
@@ -75,10 +93,10 @@ const { dishJoiSchema } = require('../middleware/joiSchemas/dishJoiSchemas');
  * 
  * 
  *   /dishes/{id}/restaurant/{Id}: 
- *     delete:
+ *     patch:
  *       tags:
  *         - Dishes
- *       summary: Delete dish by id.
+ *       summary: Disable dish by id.
  *       parameters:
  *         - in: path
  *           name: dish_id
@@ -86,7 +104,7 @@ const { dishJoiSchema } = require('../middleware/joiSchemas/dishJoiSchemas');
  *           type: string
  *       responses:
  *          '204':
- *           description: Dish deleted.
+ *           description: Dish switched to inactive mode.
  */
 
 // .dishes/
