@@ -22,13 +22,14 @@ const loginController = {
       if (!isValidated) {
         throw new AuthenticationError(`Credentials do not match. Access denied.`);
       }
-      const tokens = await tokenController.getTokens(userEntity._id);
+      const { _id, restaurant_id, role, name } = userEntity;
+      const tokens = await tokenController.getTokens(_id, restaurant_id, role);
       return {
         ...tokens,
-        userId: userEntity._id,
-        name: userEntity.name,
-        role: userEntity.role,
-        restaurantId: userEntity.restaurant_id,
+        userId: _id,
+        name: name,
+        role: role,
+        restaurantId: restaurant_id,
       };
     } catch (err) {
       throw new Error(err.message);

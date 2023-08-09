@@ -1,7 +1,7 @@
-const express = require("express");
-const tokenController = require("../controllers/TokenController");
-const router = express.Router();
+const express = require('express');
+const tokenController = require('../controllers/TokenController');
 const { validateObjectId } = require('../middleware/validations');
+const router = express.Router();
 
 /**
  * @openapi
@@ -18,12 +18,7 @@ const { validateObjectId } = require('../middleware/validations');
  *           content:
  *             application/json:
  *               schema:
- *                 type: object
- *                 properties:
- *                   token:
- *                     type: string
- *                   refreshToken:
- *                     type: string
+ *                 $ref: '#/components/schemas/Token'
  *         500:
  *           description: Something went wrong
  *           content:
@@ -35,6 +30,6 @@ const { validateObjectId } = require('../middleware/validations');
  *                     type: string
  */
 
-router.get("/", tokenController.getUserToken);
+router.get('/:id', validateObjectId, tokenController.getUserToken);
 
 module.exports = router;
