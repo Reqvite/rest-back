@@ -24,6 +24,8 @@ router.post(
   transactionsController.updateStatus
 );
 
+router.get('/:rest_id', transactionsController.getTransactions);
+
 module.exports = router;
 
 /**

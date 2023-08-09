@@ -69,6 +69,28 @@ const TransactionsController = {
       status: 'success',
     });
   }),
+  getTransactions: asyncErrorHandler(async (req, res) => {
+    const { rest_id } = req.params;
+    const { pageIndex, pageSize } = req.query;
+    const perPage = 10;
+
+    const transactions = await Transaction.find({ rest_id })
+      .sort({ createdAt: -1 })
+      .skip(pageIndex * perPage)
+      .limit(perPage);
+
+    const totalTransactions = await Transaction.countDocuments({ rest_id });
+
+    const pageCount = Math.ceil(totalTransactions / perPage);
+
+    const tableTransactions = { transactions, pageCount, currentPageIndex: pageIndex };
+
+    return res.status(200).json({
+      code: 200,
+      status: 'success',
+      tableTransactions,
+    });
+  }),
 };
 
 module.exports = TransactionsController;

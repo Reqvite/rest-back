@@ -8,7 +8,7 @@ const { validateObjectId } = require('../middleware/validations');
  * /restaurants/{id}:
  *   get:
  *     summary: Get restaurant by id
- *     tags: 
+ *     tags:
  *       - Restaurants
  *     operationId: getRestaurantById
  *     parameters:
@@ -27,5 +27,5 @@ const { validateObjectId } = require('../middleware/validations');
  *               $ref: '#/components/schemas/Restaurant'
  */
 router.get('/:id', validateObjectId, restaurantsController.getRestaurantById);
-
+router.get('/:id/statistics', validateObjectId, restaurantsController.getStatisticsByRestuarantId);
 module.exports = router;
