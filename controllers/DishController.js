@@ -10,39 +10,71 @@ const { StatusCodes } = require('http-status-codes');
 const { OK, CREATED } = StatusCodes;
 
 const DishController = {
-  // request example GET http://localhost:3001/dishes/restaurant/64c63ab344d6a7657d7a49d5?type=Pizza&isActive=false
+// request example 
+// GET http://localhost:3001/dishes/restaurant/64c9f7904626278155af5599/?page=1&limit=11&isActive=true&type=Salads&searchText=Oli
+
   getAllDishes: asyncErrorHandler(async (req, res, next) => {
-    const restaurantId = req.params.id;
-    const { type, isActive } = req.query;
 
-    const matchQuery = {};
+      const restaurantId = req.params.id;
+      const { type, isActive } = req.query;
+      const page = parseInt(req.query.page) || 1;
+      const limit = parseInt(req.query.limit) || 5;
+      const searchText = req.query.searchText || '';
+      const skip = (page - 1) * limit;
+  
+      const matchQuery = {};
+  
+      if (type) {
+        matchQuery.type = type;
+      }
+  
+      if (isActive !== undefined) {
+        matchQuery.isActive = isActive;
+      }
+  
+      const dish = await Restaurant.findById(restaurantId).populate({
+        path: 'dishes_ids',
+        select: 'name picture portionWeight price ingredients type isActive',
+        match: matchQuery,
+        populate: {
+          path: 'ingredients',
+          model: Ingredient,
+          select: 'name',
+        }
+      });
 
-    if (type) {
-      matchQuery.type = type;
-    }
+      console.log()
 
-    if (isActive !== undefined) {
-      matchQuery.isActive = isActive;
-    }
+      if (!dish) {
+        const err = new BadRequestError();
+        return next(err);
+      }
+  
+      let filteredDishes;
 
-    const dish = await Restaurant.findById(restaurantId).populate({
-      path: 'dishes_ids',
-      select: 'name picture portionWeight price ingredients isActive',
-      match: matchQuery,
-      populate: {
-        path: 'ingredients',
-        model: Ingredient,
-        select: 'name',
-      },
-    });
+      if (searchText) {
+        var searchTextLower = searchText.toLowerCase(); 
+        filteredDishes = dish.dishes_ids.filter(function(d) {
+          var dishNameLower = d.name.toLowerCase(); 
+          return dishNameLower.includes(searchTextLower);
+        });
+      } else {
+        filteredDishes = dish.dishes_ids;
+      }
+      
+      var paginatedDishes = filteredDishes.slice(skip, skip + limit); 
+      const totalPages = Math.ceil(filteredDishes.length/limit);
+      console.log(totalPages)
+      
+      var response = {
+        dishes: paginatedDishes,
+        totalPages
+      };
+      
+      res.status(OK).json(response);
+    
+  }),
 
-    if (!dish) {
-      const err = new BadRequestError();
-      return next(err);
-    }
-
-    res.status(OK).json(dish.dishes_ids);
-}),
 
   getDishesById: asyncErrorHandler(async (req, res, next) => {
     const dishId = req.params.id;
