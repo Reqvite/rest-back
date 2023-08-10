@@ -72,7 +72,7 @@ const TransactionsController = {
   getTransactions: asyncErrorHandler(async (req, res) => {
     const { rest_id } = req.params;
     const { pageIndex, pageSize } = req.query;
-    const perPage = 10;
+    const perPage = pageSize;
 
     const transactions = await Transaction.find({ rest_id })
       .sort({ createdAt: -1 })
