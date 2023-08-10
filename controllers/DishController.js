@@ -65,9 +65,10 @@ const DishController = {
       const totalPages = Math.ceil(filteredDishes.length/limit);
       console.log(totalPages)
       
-      var response = {
+      let response = {
         dishes: paginatedDishes,
-        totalPages
+        totalPages,
+        page
       };
       
       res.status(OK).json(response);
