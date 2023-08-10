@@ -71,19 +71,47 @@ const TransactionsController = {
   }),
   getTransactions: asyncErrorHandler(async (req, res) => {
     const { rest_id } = req.params;
-    const { pageIndex, pageSize } = req.query;
+    const { pageIndex, pageSize, today, userType = 'all', transactionType = 'all' } = req.query;
     const perPage = pageSize;
+    let newPageIndex = pageIndex;
+    let query = { rest_id, status: 'success' };
 
-    const transactions = await Transaction.find({ rest_id })
+    if (today === 'true') {
+      const currentDate = new Date();
+      const todayStartDate = new Date(
+        currentDate.getFullYear(),
+        currentDate.getMonth(),
+        currentDate.getDate()
+      );
+      const tomorrowStartDate = new Date(
+        currentDate.getFullYear(),
+        currentDate.getMonth(),
+        currentDate.getDate() + 1
+      );
+      newPageIndex = 0;
+      query.createdAt = { $gte: todayStartDate, $lt: tomorrowStartDate };
+    }
+
+    if (userType !== 'all') {
+      newPageIndex = 0;
+      query.createdByType = userType;
+    }
+
+    if (transactionType !== 'all') {
+      newPageIndex = 0;
+      query.type = transactionType;
+    }
+
+    const transactions = await Transaction.find(query)
       .sort({ createdAt: -1 })
-      .skip(pageIndex * perPage)
+      .skip(newPageIndex * perPage)
       .limit(perPage);
 
-    const totalTransactions = await Transaction.countDocuments({ rest_id });
+    const totalTransactions = await Transaction.countDocuments(query);
 
     const pageCount = Math.ceil(totalTransactions / perPage);
 
-    const tableTransactions = { transactions, pageCount, currentPageIndex: pageIndex };
+    const tableTransactions = { transactions, pageCount, currentPageIndex: newPageIndex };
 
     return res.status(200).json({
       code: 200,
