@@ -17,8 +17,8 @@ const DishController = {
 
       const restaurantId = req.params.id;
       const { type, isActive } = req.query;
-      const page = parseInt(req.query.page) || 1;
-      const limit = parseInt(req.query.limit) || 5;
+      const page = parseInt(req.query.page);
+      const limit = parseInt(req.query.limit);
       const searchText = req.query.searchText || '';
       const skip = (page - 1) * limit;
   
@@ -43,15 +43,14 @@ const DishController = {
         }
       });
 
-      console.log()
-
       if (!dish) {
         const err = new BadRequestError();
         return next(err);
       }
   
-      let filteredDishes;
 
+     if (page && limit){
+      let filteredDishes;
       if (searchText) {
         var searchTextLower = searchText.toLowerCase(); 
         filteredDishes = dish.dishes_ids.filter(function(d) {
@@ -61,8 +60,8 @@ const DishController = {
       } else {
         filteredDishes = dish.dishes_ids;
       }
-      
-      var paginatedDishes = filteredDishes.slice(skip, skip + limit); 
+  
+      let paginatedDishes = filteredDishes.slice(skip, skip + limit); 
       const totalPages = Math.ceil(filteredDishes.length/limit);
       console.log(totalPages)
       
@@ -72,8 +71,11 @@ const DishController = {
       };
       
       res.status(OK).json(response);
-    
+     } else{
+      res.status(OK).json(dish.dishes_ids);
+     } 
   }),
+
 
 
   getDishesById: asyncErrorHandler(async (req, res, next) => {
