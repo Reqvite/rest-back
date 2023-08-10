@@ -88,17 +88,15 @@ const TransactionsController = {
         currentDate.getMonth(),
         currentDate.getDate() + 1
       );
-      newPageIndex = 0;
+
       query.createdAt = { $gte: todayStartDate, $lt: tomorrowStartDate };
     }
 
     if (userType !== 'all') {
-      newPageIndex = 0;
       query.createdByType = userType;
     }
 
     if (transactionType !== 'all') {
-      newPageIndex = 0;
       query.type = transactionType;
     }
 
