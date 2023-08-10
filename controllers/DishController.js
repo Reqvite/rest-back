@@ -52,9 +52,9 @@ const DishController = {
      if (page && limit){
       let filteredDishes;
       if (searchText) {
-        var searchTextLower = searchText.toLowerCase(); 
-        filteredDishes = dish.dishes_ids.filter(function(d) {
-          var dishNameLower = d.name.toLowerCase(); 
+        let searchTextLower = searchText.toLowerCase(); 
+        filteredDishes = dish.dishes_ids.filter(d=>{
+          let dishNameLower = d.name.toLowerCase(); 
           return dishNameLower.includes(searchTextLower);
         });
       } else {
