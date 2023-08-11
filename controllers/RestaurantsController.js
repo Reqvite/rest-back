@@ -1,3 +1,4 @@
+const { ObjectId } = require('bson');
 const { monthNames } = require('../constants/constants');
 const { Restaurant, Transaction } = require('../models');
 const asyncErrorHandler = require('../utils/errors/asyncErrorHandler');
@@ -20,34 +21,86 @@ const restaurantsController = {
   getStatisticsByRestuarantId: asyncErrorHandler(async (req, res) => {
     const { id } = req.params;
     const restaurant = await Restaurant.findById(id);
-    let statistics = {};
 
     if (!restaurant) {
       throw new NotFoundError('No restaurant records found for the given restaurant ID!');
     }
 
-    const transactions = await Transaction.find({
-      rest_id: id,
-    });
+    const pipeline = [
+      {
+        $match: {
+          rest_id: new ObjectId(id),
+        },
+      },
+      {
+        $group: {
+          _id: {
+            month: {
+              $month: '$createdAt',
+            },
+          },
+          amount: {
+            $sum: '$paymentAmount',
+          },
+          transactions: {
+            $sum: 1,
+          },
+          online: {
+            $sum: {
+              $cond: [
+                {
+                  $eq: ['$type', 'online'],
+                },
+                1,
+                0,
+              ],
+            },
+          },
+          pos: {
+            $sum: {
+              $cond: [
+                {
+                  $eq: ['$type', 'POS'],
+                },
+                1,
+                0,
+              ],
+            },
+          },
+          cash: {
+            $sum: {
+              $cond: [
+                {
+                  $eq: ['$type', 'cash'],
+                },
+                1,
+                0,
+              ],
+            },
+          },
+        },
+      },
+      {
+        $sort: {
+          '_id.month': 1,
+        },
+      },
+      {
+        $project: {
+          _id: 0,
+          name: {
+            $arrayElemAt: [monthNames, { $subtract: ['$_id.month', 1] }],
+          },
+          amount: 1,
+          transactions: 1,
+          online: 1,
+          pos: 1,
+          cash: 1,
+        },
+      },
+    ];
 
-    const monthlyStatistics = Array.from({ length: 12 }, (_, month) => ({
-      name: monthNames[month],
-      transactions: 0,
-      amount: 0,
-      online: 0,
-      cash: 0,
-      POS: 0,
-    }));
-
-    for (const transaction of transactions) {
-      const month = new Date(transaction.createdAt).getMonth();
-
-      monthlyStatistics[month].transactions++;
-      monthlyStatistics[month].amount += Number(transaction.paymentAmount.toFixed(2));
-      monthlyStatistics[month][transaction.type]++;
-    }
-
-    statistics.monthlyStatistics = monthlyStatistics;
+    const statistics = await Transaction.aggregate(pipeline);
 
     return res.status(200).json({
       code: 200,
