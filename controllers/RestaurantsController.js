@@ -30,6 +30,7 @@ const restaurantsController = {
       {
         $match: {
           rest_id: new ObjectId(id),
+          status: 'success',
         },
       },
       {
