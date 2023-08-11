@@ -1,4 +1,4 @@
-const DB = require('../models/tokenModel');
+const Token = require('../models/tokenModel');
 const jwt = require('jsonwebtoken');
 const { randomUUID } = require('crypto');
 require('dotenv').config();
@@ -8,12 +8,12 @@ const { OK, INTERNAL_SERVER_ERROR } = StatusCodes;
 
 JWT_SECRET_KEY = process.env.JWT_SECRET_KEY;
 JWT_REFRESH_SECRET_KEY = process.env.JWT_REFRESH_SECRET_KEY;
-JWT_EXPIRE_TIME = '4h';
+JWT_EXPIRE_TIME = '1h';
 JWT_REFRESH_EXPIRE_TIME = 4.5 * 60 * 60;
 
 const tokenController = {
-  get: async (userId, tokenId) => {
-    const token = await DB.Token.findOne({ userId, tokenId });
+  get: async (user_id, token_id) => {
+    const token = await Token.findOne({ user_id, token_id });
     if (!token) {
       throw new NotFoundError('Token is not found!');
     }
@@ -21,45 +21,70 @@ const tokenController = {
     return token;
   },
 
-  upsert: async (token) =>
-    DB.Token.findOneAndUpdate(
-      { userId: token.userId },
-      { $set: token },
+  upsert: async (tokenData) =>
+    Token.findOneAndUpdate(
+      { user_id: tokenData.user_id },
+      { $set: tokenData },
       { upsert: true, new: true }
     ),
 
-  getTokens: async (userId) => {
-    const token = jwt.sign({ id: userId }, JWT_SECRET_KEY, {
+  getTokens: async (user_id, restaurant_id, role) => {
+    const token = jwt.sign({ id: user_id }, JWT_SECRET_KEY, {
       expiresIn: JWT_EXPIRE_TIME,
     });
 
-    const tokenId = randomUUID();
-    const refreshToken = jwt.sign({ id: userId, tokenId }, JWT_REFRESH_SECRET_KEY, {
+    const token_id = randomUUID();
+    const refreshToken = jwt.sign({ id: user_id, token_id }, JWT_REFRESH_SECRET_KEY, {
       expiresIn: JWT_REFRESH_EXPIRE_TIME,
     });
 
     await tokenController.upsert({
-      userId,
-      tokenId,
+      user_id,
+      token_id,
+      token,
+      refreshToken,
       expire: Date.now() + JWT_REFRESH_EXPIRE_TIME * 1000,
+      restaurant_id,
+      role,
     });
 
     return { token, refreshToken };
   },
 
-  refresh: async (userId, tokenId) => {
-    const token = await tokenController.get(userId, tokenId);
-    if (Date.now() > token.expire) {
-      throw new AuthorizationError('Token is expired');
+  refresh: async (user_id, token_id) => {
+    try {
+      const token = await tokenController.get(user_id, token_id);
+
+      if (Date.now() > token.expire) {
+        throw new AuthorizationError('Token is expired');
+      }
+      const tokens = await tokenController.getTokens(user_id, token.restaurant_id, token.role);
+
+      return tokens;
+    } catch (error) {
+      throw new AuthorizationError('Invalid refresh token');
     }
-    return tokenController.getTokens(userId);
   },
 
   getUserToken: async (req, res) => {
     try {
-      const tokens = await tokenController.refresh(req.userId, req.tokenId);
+      const user_id = req.params.id;
+      console.log(user_id);
+      const authHeader = req.headers['authorization'];
+      if (!authHeader || !authHeader.startsWith('Bearer ')) {
+        throw new AuthorizationError('User authentication failed. Access denied.');
+      }
+      const refreshToken = authHeader.split(' ')[1];
+      const { id: userId, token_id } = jwt.verify(refreshToken, JWT_REFRESH_SECRET_KEY);
+
+      if (userId !== user_id) {
+        throw new AuthorizationError('User authentication failed. Access denied.');
+      }
+
+      const tokens = await tokenController.refresh(user_id, token_id);
+
       res.status(OK).send(tokens);
-    } catch {
+    } catch (error) {
       res.status(INTERNAL_SERVER_ERROR).json({ message: 'Something went wrong' });
     }
   },

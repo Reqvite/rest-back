@@ -1,15 +1,16 @@
 const mongoose = require('mongoose');
-const { BadRequestError, AuthenticationError } = require('../utils/errors/CustomErrors');
+const { BadRequestError, AuthorizationError } = require('../utils/errors/CustomErrors');
 const { StatusCodes } = require('http-status-codes');
 const { BAD_REQUEST, FORBIDDEN } = StatusCodes;
+const Token = require('../models/tokenModel');
 
 // const isValidObjectId = (id) => mongoose.Types.ObjectId.isValid(id);
 const isValidObjectId = (id) => /^[0-9a-fA-F]{24}$/.test(id);
 
 const validateObjectId = (req, _, next) => {
   const invalidValues = Object.keys(req.params)
-    .filter(param => !isValidObjectId(req.params[param]))
-    .map(param => req.params[param]);
+    .filter((param) => !isValidObjectId(req.params[param]))
+    .map((param) => req.params[param]);
 
   if (invalidValues.length > 0) {
     const errMessage = `Invalid ObjectId(s) in request params: ${invalidValues.join(', ')}`;
@@ -27,15 +28,6 @@ const validateIdInJoiSchema = (value, helpers) => {
   return value;
 };
 
-const userIdValidator = (req, res, next) => {
-  if (req.userId !== req.params.id) {
-    const err = AuthenticationError();
-    return next(err)
-  } else {
-    return next();
-  }
-};
-
 const validateBody = (schema) => async (req, _, next) => {
   const body = req.body;
   try {
@@ -51,6 +43,5 @@ const validateBody = (schema) => async (req, _, next) => {
 module.exports = {
   validateObjectId,
   validateIdInJoiSchema,
-  userIdValidator,
   validateBody,
 };

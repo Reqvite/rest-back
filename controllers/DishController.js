@@ -7,10 +7,16 @@ const { StatusCodes } = require('http-status-codes');
 const { OK, CREATED } = StatusCodes;
 
 const DishController = {
-  // request example GET http://localhost:3001/dishes/restaurant/64c63ab344d6a7657d7a49d5?type=Pizza&isActive=false
+  // request example
+  // GET http://localhost:3001/dishes/restaurant/64c9f7904626278155af5599/?page=1&limit=11&isActive=true&type=Salads&searchText=Oli
+
   getAllDishes: asyncErrorHandler(async (req, res, next) => {
     const restaurantId = req.params.id;
     const { type, isActive } = req.query;
+    const page = parseInt(req.query.page);
+    const limit = parseInt(req.query.limit);
+    const searchText = req.query.searchText || '';
+    const skip = (page - 1) * limit;
 
     const matchQuery = {};
 
@@ -24,7 +30,7 @@ const DishController = {
 
     const dish = await Restaurant.findById(restaurantId).populate({
       path: 'dishes_ids',
-      select: 'name picture portionWeight price ingredients isActive',
+      select: 'name picture portionWeight price ingredients type isActive',
       match: matchQuery,
       populate: {
         path: 'ingredients',
@@ -38,7 +44,32 @@ const DishController = {
       return next(err);
     }
 
-    res.status(OK).json(dish.dishes_ids);
+    if (page && limit) {
+      let filteredDishes;
+      if (searchText) {
+        let searchTextLower = searchText.toLowerCase();
+        filteredDishes = dish.dishes_ids.filter((d) => {
+          let dishNameLower = d.name.toLowerCase();
+          return dishNameLower.includes(searchTextLower);
+        });
+      } else {
+        filteredDishes = dish.dishes_ids;
+      }
+
+      let paginatedDishes = filteredDishes.slice(skip, skip + limit);
+      const totalPages = Math.ceil(filteredDishes.length / limit);
+      console.log(totalPages);
+
+      let response = {
+        dishes: paginatedDishes,
+        totalPages,
+        page,
+      };
+
+      res.status(OK).json(response);
+    } else {
+      res.status(OK).json(dish.dishes_ids);
+    }
   }),
 
   getDishesById: asyncErrorHandler(async (req, res, next) => {
@@ -129,17 +160,9 @@ const DishController = {
       return next(err);
     }
 
-    const dish = await Dish.findById(dishId);
+    await Dish.findByIdAndUpdate(dishId, { $set: { isActive: req.body.isActive } });
 
-    if (!dish) {
-      const err = new NotFoundError('Dish not found for the given dish ID!');
-      return next(err);
-    }
-
-    dish.isActive = false;
-    await dish.save();
-
-    res.status(OK).json({ message: 'Dish deleted successfully' });
+    res.status(OK).json({ message: 'Dish status updated successfully' });
   }),
 };
 
