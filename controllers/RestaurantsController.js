@@ -34,12 +34,17 @@ const restaurantsController = {
       name: monthNames[month],
       transactions: 0,
       amount: 0,
+      online: 0,
+      cash: 0,
+      POS: 0,
     }));
 
     for (const transaction of transactions) {
       const month = new Date(transaction.createdAt).getMonth();
+
       monthlyStatistics[month].transactions++;
-      monthlyStatistics[month].amount += parseFloat(transaction.paymentAmount.toFixed(2));
+      monthlyStatistics[month].amount += Number(transaction.paymentAmount.toFixed(2));
+      monthlyStatistics[month][transaction.type]++;
     }
 
     statistics.monthlyStatistics = monthlyStatistics;
