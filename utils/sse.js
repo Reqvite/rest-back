@@ -1,10 +1,12 @@
 const clients = [];
 
-function sendEventToClients(restId, eventMessage) {
+function sendEventToClients(restId, eventMessage, eventType) {
   clients
     .filter((client) => client.restId === restId)
     .forEach((client) => {
-      client.response.write(`data: ${eventMessage}\n\n`);
+      client.response.write(
+        `event: ${eventType}\ndata: ${JSON.stringify({ message: eventMessage })}\n\n`
+      );
     });
 }
 

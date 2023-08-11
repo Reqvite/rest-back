@@ -8,6 +8,10 @@ const getAllOrders = asyncErrorHandler(async (req, res, next) => {
 
   const orders = await Order.find({ rest_id: restId, status: { $ne: 'Closed' } })
     .populate({ path: 'orderItems.dish', select: 'name picture quantity' })
+    .populate({
+      path: 'table_id',
+      select: 'table_number',
+    })
     .exec();
 
   if (!orders) {
@@ -16,9 +20,7 @@ const getAllOrders = asyncErrorHandler(async (req, res, next) => {
   res.json({
     status: 'success',
     code: 200,
-    data: {
-      orders,
-    },
+    orders,
   });
 });
 
@@ -38,9 +40,7 @@ const getOrderById = asyncErrorHandler(async (req, res, next) => {
   res.json({
     status: 'success',
     code: 200,
-    data: {
-      order,
-    },
+    order,
   });
 });
 
@@ -61,9 +61,7 @@ const getOrdersByTableId = asyncErrorHandler(async (req, res, next) => {
   res.json({
     status: 'success',
     code: 200,
-    data: {
-      orders,
-    },
+    orders,
   });
 });
 
@@ -96,11 +94,14 @@ const createOrder = asyncErrorHandler(async (req, res, next) => {
   };
 
   const order = await Order.create(data);
+
+  const eventMessage = JSON.stringify(`New order`);
+  const eventType = 'New order';
+  sendEventToClients(restId, eventMessage, eventType);
+
   res.status(201).json({
     message: 'Created',
-    data: {
-      order,
-    },
+    order,
   });
 });
 
@@ -146,9 +147,7 @@ const updateOrderStatus = asyncErrorHandler(async (req, res, next) => {
   res.json({
     code: 200,
     status: 'success',
-    data: {
-      order,
-    },
+    order,
   });
 });
 
@@ -167,16 +166,19 @@ const updateDishStatus = asyncErrorHandler(async (req, res, next) => {
     return next(new NotFoundError('Order or Dish not found'));
   }
   if (status === 'Ready') {
-    const eventMessage = JSON.stringify(`Dish from order ${orderId} is ready`);
-    sendEventToClients(restId, eventMessage);
+    const eventMessage = `Dish is ready`;
+    const eventType = 'dish is ready';
+    sendEventToClients(restId, eventMessage, eventType);
   }
+
+  const eventMessage = JSON.stringify('Dish status updated');
+  const eventType = 'dish status';
+  sendEventToClients(restId, eventMessage, eventType);
 
   res.json({
     code: 200,
     status: 'success',
-    data: {
-      order,
-    },
+    order,
   });
 });
 

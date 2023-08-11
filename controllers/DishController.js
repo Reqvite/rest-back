@@ -2,10 +2,7 @@ const Dish = require('../models/dishModel');
 const Restaurant = require('../models/restaurantModel');
 const Ingredient = require('../models/ingredientModel');
 const asyncErrorHandler = require('../utils/errors/asyncErrorHandler');
-const {
-  NotFoundError,
-  BadRequestError,
-} = require('../utils/errors/CustomErrors');
+const { NotFoundError, BadRequestError } = require('../utils/errors/CustomErrors');
 const { StatusCodes } = require('http-status-codes');
 const { OK, CREATED } = StatusCodes;
 
@@ -42,9 +39,9 @@ const DishController = {
     }
 
     res.status(OK).json(dish.dishes_ids);
-}),
+  }),
 
-  getDishesById: asyncErrorHandler(async (req, res) => {
+  getDishesById: asyncErrorHandler(async (req, res, next) => {
     const dishId = req.params.id;
 
     const dish = await Dish.findById(dishId).populate({ path: 'ingredients', model: 'Ingredient' });
@@ -71,10 +68,10 @@ const DishController = {
       pescatarian: req.body.pescatarian,
       portionWeight: req.body.portionWeight,
       price: req.body.price,
-      isActive:req.body.isActive,
+      isActive: req.body.isActive,
     });
 
-    console.log(newDish)
+    console.log(newDish);
 
     if (!newDish) {
       const err = new BadRequestError('Unable to add dish to database');
@@ -110,7 +107,7 @@ const DishController = {
       pescatarian: req.body.pescatarian,
       portionWeight: req.body.portionWeight,
       price: req.body.price,
-      isActive:req.body.isActive,
+      isActive: req.body.isActive,
     });
 
     if (!dish) {
