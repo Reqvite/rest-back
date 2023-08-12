@@ -40,8 +40,21 @@ const validateBody = (schema) => async (req, _, next) => {
   }
 };
 
+const validateQuery = (schema) => async (req, _, next) => {
+  const request = req.query;
+  try {
+    await schema.validateAsync(request);
+    return next();
+  } catch (error) {
+    error.statusCode = BAD_REQUEST;
+
+    next(error);
+  }
+};
+
 module.exports = {
   validateObjectId,
   validateIdInJoiSchema,
   validateBody,
+  validateQuery,
 };
