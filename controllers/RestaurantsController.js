@@ -1,9 +1,8 @@
-const { ObjectId } = require('bson');
-const { monthNames } = require('../constants/constants');
 const { Restaurant, Transaction } = require('../models');
 const asyncErrorHandler = require('../utils/errors/asyncErrorHandler');
 const { NotFoundError } = require('../utils/errors/CustomErrors');
 const { StatusCodes } = require('http-status-codes');
+const statiscticsPipeline = require('../utils/pipelines/statisctics');
 const { OK } = StatusCodes;
 
 const restaurantsController = {
@@ -20,139 +19,31 @@ const restaurantsController = {
   }),
   getStatisticsByRestuarantId: asyncErrorHandler(async (req, res) => {
     const { id } = req.params;
+    const { timestamp = 'year' } = req.query;
     const restaurant = await Restaurant.findById(id);
 
     if (!restaurant) {
       throw new NotFoundError('No restaurant records found for the given restaurant ID!');
     }
 
-    const pipeline = [
-      {
-        $match: {
-          rest_id: new ObjectId(id),
-          status: 'success',
-        },
-      },
-      {
-        $facet: {
-          monthlyData: [
-            {
-              $group: {
-                _id: {
-                  month: {
-                    $month: '$createdAt',
-                  },
-                },
-                amount: {
-                  $sum: '$paymentAmount',
-                },
-                transactions: {
-                  $sum: 1,
-                },
-                online: {
-                  $sum: {
-                    $cond: [
-                      {
-                        $eq: ['$type', 'online'],
-                      },
-                      1,
-                      0,
-                    ],
-                  },
-                },
-                pos: {
-                  $sum: {
-                    $cond: [
-                      {
-                        $eq: ['$type', 'POS'],
-                      },
-                      1,
-                      0,
-                    ],
-                  },
-                },
-                cash: {
-                  $sum: {
-                    $cond: [
-                      {
-                        $eq: ['$type', 'cash'],
-                      },
-                      1,
-                      0,
-                    ],
-                  },
-                },
-              },
-            },
-            {
-              $sort: {
-                '_id.month': 1,
-              },
-            },
-            {
-              $project: {
-                _id: 0,
-                name: {
-                  $arrayElemAt: [monthNames, { $subtract: ['$_id.month', 1] }],
-                },
-                amount: 1,
-                transactions: 1,
-                online: 1,
-                pos: 1,
-                cash: 1,
-              },
-            },
-          ],
-          timeBasedData: [
-            {
-              $group: {
-                _id: null,
-                totalToday: {
-                  $sum: {
-                    $cond: [
-                      { $gte: ['$createdAt', new Date(new Date().setHours(0, 0, 0, 0))] },
-                      '$paymentAmount',
-                      0,
-                    ],
-                  },
-                },
-                totalThisWeek: {
-                  $sum: {
-                    $cond: [
-                      {
-                        $and: [
-                          { $gte: ['$createdAt', new Date(new Date() - 7 * 24 * 60 * 60 * 1000)] },
-                          { $lt: ['$createdAt', new Date()] },
-                        ],
-                      },
-                      '$paymentAmount',
-                      0,
-                    ],
-                  },
-                },
-                totalThisMonth: {
-                  $sum: {
-                    $cond: [
-                      { $gte: ['$createdAt', new Date(new Date().setDate(1))] },
-                      '$paymentAmount',
-                      0,
-                    ],
-                  },
-                },
-              },
-            },
-            {
-              $project: {
-                _id: 0,
-                totalToday: { $round: ['$totalToday', 2] },
-                totalThisWeek: { $round: ['$totalThisWeek', 2] },
-                totalThisMonth: { $round: ['$totalThisMonth', 2] },
-              },
-            },
-          ],
-        },
-      },
-    ];
+    let pipeline;
+    const today = new Date();
+
+    if (timestamp === 'year') {
+      pipeline = statiscticsPipeline.year(id);
+    }
+
+    if (timestamp === 'month') {
+      const firstDayOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+      const lastDayOfMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+      pipeline = statiscticsPipeline.oneMonth(id, firstDayOfMonth, lastDayOfMonth);
+    }
+
+    if (timestamp === 'week') {
+      const oneWeekAgo = new Date(today);
+      oneWeekAgo.setDate(today.getDate() - 7);
+      pipeline = statiscticsPipeline.weekly(id, today, oneWeekAgo);
+    }
 
     const statistics = await Transaction.aggregate(pipeline);
 
