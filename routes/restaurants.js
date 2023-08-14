@@ -5,7 +5,7 @@ const { validateObjectId } = require('../middleware/validations');
 
 /**
  * @openapi
- * /restaurants/{id}:
+ * /restaurants/{rest_id}:
  *   get:
  *     summary: Get restaurant by id
  *     tags:
@@ -26,6 +26,11 @@ const { validateObjectId } = require('../middleware/validations');
  *             schema:
  *               $ref: '#/components/schemas/Restaurant'
  */
-router.get('/:id', validateObjectId, restaurantsController.getRestaurantById);
-router.get('/:id/statistics', validateObjectId, restaurantsController.getStatisticsByRestuarantId);
+router.get(
+  '/:rest_id/statistics',
+  validateObjectId,
+  restaurantsController.getStatisticsByRestuarantId
+);
+router.get('/:rest_id', validateObjectId, restaurantsController.getRestaurantById);
+
 module.exports = router;

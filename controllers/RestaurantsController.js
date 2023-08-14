@@ -7,8 +7,8 @@ const { OK } = StatusCodes;
 
 const restaurantsController = {
   getRestaurantById: asyncErrorHandler(async (req, res, next) => {
-    const { id } = req.params;
-    const restaurant = await Restaurant.findById(id);
+    const { rest_id } = req.params;
+    const restaurant = await Restaurant.findById(rest_id);
 
     if (!restaurant) {
       const err = new NotFoundError('No restaurant records found for the given restaurant ID!');
