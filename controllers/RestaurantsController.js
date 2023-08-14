@@ -28,6 +28,7 @@ const restaurantsController = {
 
     let pipeline;
     const today = new Date();
+    today.setUTCHours(21, 0, 0, 0);
 
     if (timestamp === 'year') {
       pipeline = statiscticsPipeline.year(id);
@@ -45,6 +46,7 @@ const restaurantsController = {
       const count = currentDayOfWeek === 0 ? 7 : currentDayOfWeek;
       startOfWeek.setDate(today.getDate() - count);
       const endOfWeek = new Date(today);
+
       pipeline = statiscticsPipeline.weekly(id, endOfWeek, startOfWeek);
     }
 
