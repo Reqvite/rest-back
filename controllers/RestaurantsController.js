@@ -42,7 +42,8 @@ const restaurantsController = {
     if (timestamp === 'week') {
       const currentDayOfWeek = today.getDay();
       const startOfWeek = new Date(today);
-      startOfWeek.setDate(today.getDate() - currentDayOfWeek);
+      const count = currentDayOfWeek === 0 ? 7 : currentDayOfWeek;
+      startOfWeek.setDate(today.getDate() - count);
       const endOfWeek = new Date(today);
       pipeline = statiscticsPipeline.weekly(id, endOfWeek, startOfWeek);
     }
