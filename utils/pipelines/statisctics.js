@@ -1,17 +1,6 @@
 const { ObjectId } = require('mongodb');
 const { monthNames, dayOfWeekNames } = require('../../constants/constants');
 
-const getProject = () => {
-  return {
-    _id: 0,
-    name: '$_id',
-    amount: 1,
-    transactions: 1,
-    online: 1,
-    pos: 1,
-    cash: 1,
-  };
-};
 const getGroup = () => {
   return {
     amount: {
@@ -80,7 +69,15 @@ const statiscticsPipeline = {
       },
     },
     {
-      $project: getProject(),
+      $project: {
+        _id: 0,
+        name: '$_id',
+        amount: 1,
+        transactions: 1,
+        online: 1,
+        pos: 1,
+        cash: 1,
+      },
     },
   ],
   year: (id) => [

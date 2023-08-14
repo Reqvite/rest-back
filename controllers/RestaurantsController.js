@@ -19,7 +19,7 @@ const restaurantsController = {
   }),
   getStatisticsByRestuarantId: asyncErrorHandler(async (req, res) => {
     const { id } = req.params;
-    const { timestamp = 'year' } = req.query;
+    const { timestamp = 'month' } = req.query;
     const restaurant = await Restaurant.findById(id);
 
     if (!restaurant) {
@@ -40,9 +40,11 @@ const restaurantsController = {
     }
 
     if (timestamp === 'week') {
-      const oneWeekAgo = new Date(today);
-      oneWeekAgo.setDate(today.getDate() - 7);
-      pipeline = statiscticsPipeline.weekly(id, today, oneWeekAgo);
+      const currentDayOfWeek = today.getDay();
+      const startOfWeek = new Date(today);
+      startOfWeek.setDate(today.getDate() - currentDayOfWeek);
+      const endOfWeek = new Date(today);
+      pipeline = statiscticsPipeline.weekly(id, endOfWeek, startOfWeek);
     }
 
     const statistics = await Transaction.aggregate(pipeline);
