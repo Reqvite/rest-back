@@ -77,8 +77,8 @@ const {
 //   };
 // };
 
-router.get('/:id', validateObjectId, tables.getTable);
-router.get('/restaurant/:id', validateObjectId, tables.getTablesByRestaurantId);
+router.get('/:id/restaurant/:rest_id', validateObjectId, tables.getTable);
+router.get('/restaurant/:rest_id', validateObjectId, tables.getTablesByRestaurantId);
 router.patch(
   '/:id',
   validateObjectId,
