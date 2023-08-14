@@ -10,31 +10,31 @@ const {
   updateDishStatusJoiSchema,
 } = require('../middleware/joiSchemas/ordersJoiSchemas');
 
-router.get('/:restId', validateObjectId, checkRestId, orders.getAllOrders);
-router.get('/:restId/table/:tableId', validateObjectId, checkRestId, orders.getOrdersByTableId);
-router.get('/:restId/:orderId', validateObjectId, checkRestId, orders.getOrderById);
+router.get('/:rest_id', validateObjectId, checkRestId, orders.getAllOrders);
+router.get('/:rest_id/table/:tableId', validateObjectId, checkRestId, orders.getOrdersByTableId);
+router.get('/:rest_id/:orderId', validateObjectId, checkRestId, orders.getOrderById);
 router.post(
-  '/:restId',
+  '/:rest_id',
   validateObjectId,
   checkRestId,
   validateBody(createOrderJoiSchema),
   orders.createOrder
 );
 router.patch(
-  '/:restId/table/:tableId',
+  '/:rest_id/table/:tableId',
   validateObjectId,
   checkRestId,
   orders.updateOrderStatusesToPaid
 );
 router.patch(
-  '/:restId/:orderId',
+  '/:rest_id/:orderId',
   validateObjectId,
   checkRestId,
   validateBody(updateOrderStatusJoiSchema),
   orders.updateOrderStatus
 );
 router.patch(
-  '/:restId/:orderId/:dishId',
+  '/:rest_id/:orderId/:dishId',
   validateObjectId,
   checkRestId,
   validateBody(updateDishStatusJoiSchema),

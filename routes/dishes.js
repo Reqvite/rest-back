@@ -109,19 +109,24 @@ const { dishJoiSchema, dishRequestJoiSchema } = require('../middleware/joiSchema
 
 // .dishes/
 router.get(
-  '/restaurant/:id',
+  '/restaurant/:rest_id',
   validateObjectId,
   validateQuery(dishRequestJoiSchema),
   dishController.getAllDishes
 );
 router.post(
-  '/restaurant/:id',
+  '/restaurant/:rest_id',
   validateObjectId,
   validateBody(dishJoiSchema),
   dishController.addDish
 );
 router.get('/:id', validateObjectId, dishController.getDishesById);
-router.patch('/:id', validateObjectId, validateBody(dishJoiSchema), dishController.editDishById);
+router.patch(
+  '/:id/edit/restaurant/:rest_id',
+  validateObjectId,
+  validateBody(dishJoiSchema),
+  dishController.editDishById
+);
 router.patch('/:id/restaurant/:rest_id', validateObjectId, dishController.disableDishById);
 
 module.exports = router;

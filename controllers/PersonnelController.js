@@ -21,15 +21,15 @@ const personnelController = {
         const page = parseInt(req.query.page) || 1; // Get the page number from query parameter, default to 1
         const limit = parseInt(req.query.limit) || 10; // Get the limit from query parameter, default to 10
         const searchText = req.query.searchText || ''; // Get the search text from query parameter, default to empty string
-
+        const { rest_id } = req.params;
         const skip = (page - 1) * limit;
 
         let totalPersonnel;
 
         if (!searchText) {
-            totalPersonnel = await Personnel.countDocuments({restaurant_id: req.params.id});
+            totalPersonnel = await Personnel.countDocuments({restaurant_id: rest_id});
         } else {
-            totalPersonnel = await Personnel.countDocuments({restaurant_id: req.params.id, name: {$regex: searchText, $options: 'i'}});
+            totalPersonnel = await Personnel.countDocuments({restaurant_id: rest_id, name: {$regex: searchText, $options: 'i'}});
         }
 
         const totalPages = Math.ceil(totalPersonnel / limit); // Calculate total pages
@@ -39,11 +39,11 @@ const personnelController = {
         console.log(searchText);
 
         if (!searchText) {
-            personnel = await Personnel.find({restaurant_id: req.params.id})
+            personnel = await Personnel.find({restaurant_id: rest_id})
                 .skip(skip)
                 .limit(limit);
         } else {
-            personnel = await Personnel.find({restaurant_id: req.params.id, name: {$regex: searchText, $options: 'i'}})
+            personnel = await Personnel.find({restaurant_id: rest_id, name: {$regex: searchText, $options: 'i'}})
                 .skip(skip)
                 .limit(limit);
         }
