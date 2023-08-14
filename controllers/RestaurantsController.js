@@ -18,9 +18,9 @@ const restaurantsController = {
     res.status(OK).json(restaurant);
   }),
   getStatisticsByRestuarantId: asyncErrorHandler(async (req, res) => {
-    const { id } = req.params;
+    const { rest_id } = req.params;
     const { timestamp = 'month' } = req.query;
-    const restaurant = await Restaurant.findById(id);
+    const restaurant = await Restaurant.findById(rest_id);
 
     if (!restaurant) {
       throw new NotFoundError('No restaurant records found for the given restaurant ID!');
@@ -31,13 +31,13 @@ const restaurantsController = {
     today.setUTCHours(21, 0, 0, 0);
 
     if (timestamp === 'year') {
-      pipeline = statiscticsPipeline.year(id);
+      pipeline = statiscticsPipeline.year(rest_id);
     }
 
     if (timestamp === 'month') {
       const firstDayOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
       const lastDayOfMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0);
-      pipeline = statiscticsPipeline.oneMonth(id, firstDayOfMonth, lastDayOfMonth);
+      pipeline = statiscticsPipeline.oneMonth(rest_id, firstDayOfMonth, lastDayOfMonth);
     }
 
     if (timestamp === 'week') {
@@ -47,7 +47,7 @@ const restaurantsController = {
       startOfWeek.setDate(today.getDate() - count);
       const endOfWeek = new Date(today);
 
-      pipeline = statiscticsPipeline.weekly(id, endOfWeek, startOfWeek);
+      pipeline = statiscticsPipeline.weekly(rest_id, endOfWeek, startOfWeek);
     }
 
     const statistics = await Transaction.aggregate(pipeline);
