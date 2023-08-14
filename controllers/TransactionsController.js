@@ -1,5 +1,5 @@
 const { mongoose } = require('mongoose');
-const { Order, Transaction } = require('../models');
+const { Order, Transaction, Restaurant } = require('../models');
 const LiqPayService = require('../services/liqpay/liqpayService');
 const asyncErrorHandler = require('../utils/errors/asyncErrorHandler');
 const Personnel = require('../models/personnelModel');
@@ -7,27 +7,18 @@ const { AuthorizationError } = require('../utils/errors/CustomErrors');
 
 const TransactionsController = {
   createPayOnline: asyncErrorHandler(async (req, res) => {
-    const { amount, type, info, frontLink, rest_id } = req.body;
-    let liqPayOrder_id = new mongoose.Types.ObjectId();
-    const infoIds = info.split(',').map((id) => id.trim());
+    const { amount, info, frontLink, rest_id } = req.body;
+    const liqPayOrder_id = new mongoose.Types.ObjectId();
 
-    await Transaction.updateMany(
-      {
-        restaurantOrders_id: { $in: infoIds },
-        status: { $ne: 'canceled' },
-      },
-      { $set: { status: 'canceled' } }
+    const { name } = await Restaurant.findById(rest_id);
+
+    const paymentInfo = LiqPayService.getLiqPayPaymentData(
+      amount,
+      liqPayOrder_id,
+      info,
+      frontLink,
+      name
     );
-
-    await Transaction.create({
-      rest_id,
-      paymentAmount: amount,
-      _id: liqPayOrder_id,
-      type,
-      restaurantOrders_id: infoIds,
-    });
-
-    const paymentInfo = LiqPayService.getLiqPayPaymentData(amount, liqPayOrder_id, info, frontLink);
 
     res.status(201).json({ status: 'success', code: 201, paymentInfo });
   }),
@@ -56,12 +47,27 @@ const TransactionsController = {
 
   updateStatus: asyncErrorHandler(async (req, res) => {
     const { data, signature } = req.body;
-    const { status, info, order_id } = LiqPayService.getPaymentStatus(data, signature);
+    const { status, info, order_id, description, amount } = LiqPayService.getPaymentStatus(
+      data,
+      signature
+    );
     const infoIds = info.split(',').map((id) => id.trim());
+
+    const start = description.indexOf('"');
+    const end = description.lastIndexOf('"');
+    const restaurantName = description.substring(start + 1, end);
+    const { _id } = await Restaurant.findOne({ name: restaurantName });
 
     if (status === 'success') {
       await Order.updateMany({ _id: { $in: infoIds } }, { status: 'Paid' });
-      await Transaction.findOneAndUpdate({ _id: order_id }, { $set: { status: 'success' } });
+      await Transaction.create({
+        rest_id: _id,
+        paymentAmount: amount,
+        _id: order_id,
+        type: 'online',
+        restaurantOrders_id: infoIds,
+        status: 'success',
+      });
     }
 
     return res.status(200).json({
