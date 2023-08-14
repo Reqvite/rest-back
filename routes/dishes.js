@@ -1,8 +1,8 @@
 const express = require('express');
 const router = express.Router();
 const dishController = require('../controllers/DishController');
-const { validateBody, validateObjectId } = require('../middleware/validations');
-const { dishJoiSchema } = require('../middleware/joiSchemas/dishJoiSchemas');
+const { validateBody, validateQuery, validateObjectId } = require('../middleware/validations');
+const { dishJoiSchema, dishRequestJoiSchema } = require('../middleware/joiSchemas/dishJoiSchemas');
 
 /**
  * @openapi
@@ -39,7 +39,7 @@ const { dishJoiSchema } = require('../middleware/joiSchemas/dishJoiSchemas');
  *                 type: array
  *                 items:
  *                   $ref: '#/components/schemas/Dish'
- * 
+ *
  *   /dishes/restaurant/{Id}:
  *     post:
  *       tags:
@@ -90,9 +90,9 @@ const { dishJoiSchema } = require('../middleware/joiSchemas/dishJoiSchemas');
  *       responses:
  *          '204':
  *           description: Dish edited.
- * 
- * 
- *   /dishes/{id}/restaurant/{Id}: 
+ *
+ *
+ *   /dishes/{id}/restaurant/{Id}:
  *     patch:
  *       tags:
  *         - Dishes
@@ -108,7 +108,12 @@ const { dishJoiSchema } = require('../middleware/joiSchemas/dishJoiSchemas');
  */
 
 // .dishes/
-router.get('/restaurant/:id', validateObjectId, dishController.getAllDishes);
+router.get(
+  '/restaurant/:id',
+  validateObjectId,
+  validateQuery(dishRequestJoiSchema),
+  dishController.getAllDishes
+);
 router.post(
   '/restaurant/:id',
   validateObjectId,

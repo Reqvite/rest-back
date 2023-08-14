@@ -16,9 +16,18 @@ const dishJoiSchema = Joi.object({
   pescatarian: Joi.boolean().required(),
   portionWeight: Joi.number().greater(0).required(),
   price: Joi.number().greater(0).required(),
-  isActive:Joi.boolean().required(),
+  isActive: Joi.boolean().required(),
+}).options({ abortEarly: false, allowUnknown: false });
+
+const dishRequestJoiSchema = Joi.object({
+  isActive: Joi.valid('true', 'false'),
+  type: Joi.string().valid(...dishCategories),
+  page: Joi.string().regex(/^\d+$/).min(1),
+  limit: Joi.string().regex(/^\d+$/).min(1),
+  searchText: Joi.string(),
 }).options({ abortEarly: false, allowUnknown: false });
 
 module.exports = {
   dishJoiSchema,
+  dishRequestJoiSchema,
 };
