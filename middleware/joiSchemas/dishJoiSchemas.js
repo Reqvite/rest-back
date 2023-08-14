@@ -21,10 +21,10 @@ const dishJoiSchema = Joi.object({
 
 const dishRequestJoiSchema = Joi.object({
   isActive: Joi.valid('true', 'false'),
-  type: Joi.string().valid(...dishCategories),
+  type: Joi.string().valid(...dishCategories).allow(''),
   page: Joi.string().regex(/^\d+$/).min(1),
   limit: Joi.string().regex(/^\d+$/).min(1),
-  searchText: Joi.string(),
+  searchText: Joi.string().allow(''),
 }).options({ abortEarly: false, allowUnknown: false });
 
 module.exports = {
