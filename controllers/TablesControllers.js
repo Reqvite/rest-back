@@ -99,7 +99,7 @@ const tableController = {
       }
     }
 
-    const eventMessage = `Table status updated`;
+    const eventMessage = `Table number ${table.table_number} is ${status}`;
     const eventType = 'table status';
     sendEventToClients(restaurant_id, eventMessage, eventType);
 

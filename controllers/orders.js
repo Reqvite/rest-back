@@ -94,9 +94,13 @@ const createOrder = asyncErrorHandler(async (req, res, next) => {
   };
 
   const order = await Order.create(data);
+  await Table.findOneAndUpdate(
+    { _id: table_id, restaurant_id: rest_id },
+    { $set: { status: 'Taken' } }
+  );
 
   const eventMessage = JSON.stringify(`New order`);
-  const eventType = 'New order';
+  const eventType = 'new order';
   sendEventToClients(rest_id, eventMessage, eventType);
 
   res.status(201).json({
@@ -161,13 +165,14 @@ const updateDishStatus = asyncErrorHandler(async (req, res, next) => {
   if (!order) {
     return next(new NotFoundError('Order or Dish not found'));
   }
+  const dish = await Dish.findById(dishId);
   if (status === 'Ready') {
-    const eventMessage = `Dish is ready`;
+    const eventMessage = `${dish.name} from order #${order.number} is ready`;
     const eventType = 'dish is ready';
     sendEventToClients(rest_id, eventMessage, eventType);
   }
 
-  const eventMessage = JSON.stringify('Dish status updated');
+  const eventMessage = JSON.stringify(`${order.table_id}`);
   const eventType = 'dish status';
   sendEventToClients(rest_id, eventMessage, eventType);
 

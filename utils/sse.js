@@ -1,8 +1,8 @@
 const clients = [];
 
-function sendEventToClients(restId, eventMessage, eventType) {
+function sendEventToClients(rest_id, eventMessage, eventType) {
   clients
-    .filter((client) => client.restId === restId)
+    .filter((client) => client.rest_id === rest_id)
     .forEach((client) => {
       client.response.write(
         `event: ${eventType}\ndata: ${JSON.stringify({ message: eventMessage })}\n\n`
@@ -10,12 +10,12 @@ function sendEventToClients(restId, eventMessage, eventType) {
     });
 }
 
-function addClient(restId, res) {
-  clients.push({ restId, response: res });
+function addClient(rest_id, res) {
+  clients.push({ rest_id, response: res });
 }
 
-function removeClient(restId, res) {
-  const index = clients.findIndex((client) => client.restId === restId);
+function removeClient(rest_id, res) {
+  const index = clients.findIndex((client) => client.rest_id === rest_id);
   if (index !== -1) {
     clients.splice(index, 1);
   }
