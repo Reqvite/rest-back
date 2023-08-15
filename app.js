@@ -37,7 +37,6 @@ app.use('/healthcheck', routes.healthcheck);
 app.use('/sse', routes.sse);
 app.use(`/restaurants`, routes.restaurants);
 app.use(`/personnel`, routes.personnel);
-app.use(`/waiters`, routes.waiters);
 app.use(`/transactions`, routes.transactions);
 app.use('/orders', routes.orders);
 app.use('/ingredients', routes.ingredients);

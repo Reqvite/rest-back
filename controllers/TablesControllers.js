@@ -23,8 +23,8 @@ const tableController = {
   }),
 
   getTablesByRestaurantId: asyncErrorHandler(async (req, res, next) => {
-    const { id } = req.params;
-    const tables = await Table.find({ restaurant_id: id });
+    const { rest_id } = req.params;
+    const tables = await Table.find({ restaurant_id: rest_id });
 
     if (!tables) {
       const err = new BadRequestError();
