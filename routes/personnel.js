@@ -10,7 +10,7 @@ const { validateBody, validateObjectId } = require('../middleware/validations');
 /**
  * @openapi
  * paths:
- *   /personnel/restaurant/{restaurantId}:
+ *   /personnel/restaurant/{rest_id}:
  *     get:
  *       tags:
  *         - Personnel
@@ -141,8 +141,8 @@ const { validateBody, validateObjectId } = require('../middleware/validations');
  *           description: Internal Server Error - Something went wrong on the server
  */
 
-router.get('/restaurant/:id', validateObjectId, personnelController.getPersonnelByRestaurantId);
-router.get('/:id', validateObjectId, personnelController.getPersonnelById);
+router.get('/restaurant/:rest_id', validateObjectId, personnelController.getPersonnelByRestaurantId);
+router.get('/:id/restaurant/:rest_id', validateObjectId, personnelController.getPersonnelById);
 router.post('/', validateBody(personnelJoiSchema), personnelController.addPersonnel);
 router.patch(
   '/:id',

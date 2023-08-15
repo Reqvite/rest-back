@@ -4,6 +4,6 @@ const { sse } = require('../controllers');
 const { validateObjectId } = require('../middleware/validations');
 const checkRestId = require('../middleware/checkRestId');
 
-router.get('/:restId', validateObjectId, checkRestId, sse.connection);
+router.get('/:rest_id', validateObjectId, checkRestId, sse.connection);
 
 module.exports = router;

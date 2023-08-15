@@ -11,7 +11,7 @@ const DishController = {
   // GET http://localhost:3001/dishes/restaurant/64c9f7904626278155af5599/?page=1&limit=11&isActive=true&type=Salads&searchText=Oli
 
   getAllDishes: asyncErrorHandler(async (req, res, next) => {
-    const restaurantId = req.params.id;
+    const restaurantId = req.params.rest_id;
     const { type, isActive } = req.query;
     const page = parseInt(req.query.page);
     const limit = parseInt(req.query.limit);
@@ -26,7 +26,7 @@ const DishController = {
 
     if (isActive !== undefined) {
       matchQuery.isActive = isActive;
-    }
+    } 
 
     const dish = await Restaurant.findById(restaurantId).populate({
       path: 'dishes_ids',
@@ -86,7 +86,7 @@ const DishController = {
   }),
 
   addDish: asyncErrorHandler(async (req, res, next) => {
-    const restaurantId = req.params.id;
+    const restaurantId = req.params.rest_id;
     // console.log(req.body)
 
     const newDish = new Dish({
