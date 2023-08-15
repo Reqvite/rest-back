@@ -1,3 +1,4 @@
+const NotFoundError = require("../utils/errors/CustomErrors").NotFoundError;
 const Restaurant = require("../models/restaurantModel");
 const Ingredient = require("../models/restaurantModel");
 
@@ -12,7 +13,19 @@ router.post("/:id", async (req, res) => {
         const {isVegan, likeSpicy, isPasc, wantHealthy, wantDrink} = req.body;
         const budget = parseInt(req.body.budget);
 
-        const restaurant = await Restaurant.findById(restaurantId).populate({
+        if (budget < 6) {
+            const err = new NotFoundError('Budget is too small!');
+            return res.status(err.statusCode).json({message: NotFoundError.message});
+        }
+
+        const restaurant = await Restaurant.findById(restaurantId);
+
+        if (!restaurant) {
+            const err = new NotFoundError('Restaurant with that ID is not found!');
+            return res.status(err.statusCode).json({message: NotFoundError.message});
+        }
+
+        const restaurants = await Restaurant.findById(restaurantId).populate({
             path: 'dishes_ids',
             select: 'name picture portionWeight price ingredients type isActive',
             populate: {
@@ -22,7 +35,7 @@ router.post("/:id", async (req, res) => {
             },
         });
 
-        const dishes = restaurant.dishes_ids;
+        const dishes = restaurants.dishes_ids;
 
         let prompt = `Hello, I want to eat in the restaurant and would like you to help me.
             I want to have a perfect meal. I will provide you with the data about the dishes 
