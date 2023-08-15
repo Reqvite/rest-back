@@ -12,4 +12,5 @@ module.exports = {
   login: require('./login'),
   upload: require('./upload'),
   sse: require('./sse'),
+  openai: require('./openai'),
 };
