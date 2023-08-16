@@ -27,6 +27,12 @@ router.patch(
   orders.updateOrderStatusesToPaid
 );
 router.patch(
+  '/:rest_id/dishes/:orderId',
+  validateObjectId,
+  checkRestId,
+  orders.updateReadyDishesToServed
+);
+router.patch(
   '/:rest_id/:orderId',
   validateObjectId,
   checkRestId,

@@ -7,6 +7,7 @@ const orderItemSchema = Joi.object({
     .required(),
   quantity: Joi.number().integer().min(1).required(),
   status: Joi.string().valid('Ordered', 'In progress', 'Ready', 'Served').optional(),
+  comment: Joi.string().optional(),
 });
 
 const createOrderJoiSchema = Joi.object({

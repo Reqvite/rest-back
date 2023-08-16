@@ -35,6 +35,9 @@ const orderSchema = new Schema(
           },
           default: 'Ordered',
         },
+        comment: {
+          type: String,
+        },
       },
     ],
     table_id: {
