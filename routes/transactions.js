@@ -1,18 +1,30 @@
 const express = require('express');
 const transactionsController = require('../controllers/TransactionsController');
 const {
-  createTransactionSchema,
+  createOnlineTransactionSchema,
   callbackTransactionSchema,
+  createOfflineTransactionSchema,
 } = require('../middleware/joiSchemas/transactionJoiSchemas');
 const { validateBody } = require('../middleware/validations');
 const router = express.Router();
 
-router.post('/', validateBody(createTransactionSchema), transactionsController.create);
+router.post(
+  '/',
+  validateBody(createOnlineTransactionSchema),
+  transactionsController.createPayOnline
+);
+router.post(
+  '/manual',
+  validateBody(createOfflineTransactionSchema),
+  transactionsController.createPayOffline
+);
 router.post(
   '/status',
   validateBody(callbackTransactionSchema),
   transactionsController.updateStatus
 );
+
+router.get('/:rest_id', transactionsController.getTransactions);
 
 module.exports = router;
 

@@ -1,7 +1,7 @@
 const { addClient, removeClient } = require('../utils/sse');
 
 const connection = async (req, res) => {
-  const { restId } = req.params;
+  const { rest_id } = req.params;
 
   res.setHeader('Content-Type', 'text/event-stream');
   res.setHeader('Cache-Control', 'no-cache');
@@ -9,10 +9,10 @@ const connection = async (req, res) => {
   res.setHeader('X-Accel-Buffering', 'no');
   res.flushHeaders();
 
-  addClient(restId, res);
+  addClient(rest_id, res);
 
   req.on('close', () => {
-    removeClient(restId, res);
+    removeClient(rest_id, res);
     res.end();
   });
 };
