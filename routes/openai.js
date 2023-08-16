@@ -8,25 +8,29 @@ const router = express.Router();
 
 // Fetch all dishes by their IDs and populate ingredients
 const fetchDishes = async (dishIdsArray) => {
-    const fetchedDishes = [];
+    const fetchPromises = [];
 
     for (const dishId of dishIdsArray) {
-        try {
-            const dish = await Dish.findById(dishId).populate({path: 'ingredients', model: 'Ingredient'});
+        const fetchPromise = Dish.findById(dishId)
+            .populate({ path: 'ingredients', model: 'Ingredient' })
+            .exec() // Convert mongoose thenable to promise
+            .then((dish) => {
+                if (!dish) {
+                    console.log(`Dish not found for dish ID: ${dishId}`);
+                    return null; // Return null for non-existent dishes
+                }
+                return dish;
+            })
+            .catch((error) => {
+                console.error(`Error fetching dish with ID ${dishId}:`, error);
+                return null; // Return null for errors during fetching
+            });
 
-            if (!dish) {
-                // Handle the case where a dish is not found
-                console.log(`Dish not found for dish ID: ${dishId}`);
-            } else {
-                fetchedDishes.push(dish);
-            }
-        } catch (error) {
-            // Handle any errors that occur during fetching
-            console.error(`Error fetching dish with ID ${dishId}:`, error);
-        }
+        fetchPromises.push(fetchPromise);
     }
 
-    return fetchedDishes;
+    const fetchedDishes = await Promise.all(fetchPromises);
+    return fetchedDishes.filter((dish) => dish !== null); // Remove null entries
 };
 
 router.post("/:id", async (req, res) => {
@@ -36,7 +40,7 @@ router.post("/:id", async (req, res) => {
         const {isVegan, likeSpicy, isPasc, wantHealthy, wantDrink} = req.body;
         const budget = parseInt(req.body.budget);
 
-        if (budget < 10) {
+        if (isNaN(budget) || budget <= 0) {
             const err = new NotFoundError('Budget is too small!');
             return res.status(err.statusCode).json({message: NotFoundError.message});
         }
@@ -116,6 +120,8 @@ router.post("/:id", async (req, res) => {
         });
         const response = await api.sendMessage(prompt);
 
+        console.log(response)
+
         let responseText = response.text;
 
         // Find the index of the occurrence of "LIST_OF_DISHES"
@@ -135,6 +141,7 @@ router.post("/:id", async (req, res) => {
         if (match) {
             const arrayOfIDs = JSON.parse("[" + match[1] + "]");
             const dishes = await fetchDishes(arrayOfIDs);
+            console.log(dishes);
             res.status(200).json({textBefore, dishes});
         } else {
             console.log("No array of IDs found.");
