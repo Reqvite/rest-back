@@ -45,19 +45,17 @@ router.post("/:id", async (req, res) => {
             return res.status(err.statusCode).json({message: NotFoundError.message});
         }
 
-        const restaurant = await Restaurant.findById(restaurantId);
+        const restaurant = await Restaurant.findById(restaurantId).populate({
+            path: 'dishes_ids',
+            select: 'name price type',
+        });
 
         if (!restaurant) {
             const err = new NotFoundError('Restaurant with that ID is not found!');
             return res.status(err.statusCode).json({message: NotFoundError.message});
         }
 
-        const restaurants = await Restaurant.findById(restaurantId).populate({
-            path: 'dishes_ids',
-            select: 'name price type',
-        });
-
-        const dishes = restaurants.dishes_ids;
+        const dishes = restaurant.dishes_ids;
 
         console.log('dishes', dishes);
 
@@ -120,8 +118,6 @@ router.post("/:id", async (req, res) => {
         });
         const response = await api.sendMessage(prompt);
 
-        console.log(response)
-
         let responseText = response.text;
 
         // Find the index of the occurrence of "LIST_OF_DISHES"
@@ -141,7 +137,6 @@ router.post("/:id", async (req, res) => {
         if (match) {
             const arrayOfIDs = JSON.parse("[" + match[1] + "]");
             const dishes = await fetchDishes(arrayOfIDs);
-            console.log(dishes);
             res.status(200).json({textBefore, dishes});
         } else {
             console.log("No array of IDs found.");
