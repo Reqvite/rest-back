@@ -1,3 +1,5 @@
+const s3 = require('@aws-sdk/client-s3');
+const presigner = require('@aws-sdk/s3-request-presigner');
 const Dish = require('../models/dishModel');
 const Restaurant = require('../models/restaurantModel');
 const Ingredient = require('../models/ingredientModel');
@@ -5,6 +7,14 @@ const asyncErrorHandler = require('../utils/errors/asyncErrorHandler');
 const { NotFoundError, BadRequestError } = require('../utils/errors/CustomErrors');
 const { StatusCodes } = require('http-status-codes');
 const { OK, CREATED } = StatusCodes;
+
+const s3Client = new s3.S3Client({
+  region: process.env.AWS_REGION,
+  credentials: {
+    accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+  },
+});
 
 const DishController = {
   // request example
@@ -26,7 +36,7 @@ const DishController = {
 
     if (isActive !== undefined) {
       matchQuery.isActive = isActive;
-    } 
+    }
 
     const dish = await Restaurant.findById(restaurantId).populate({
       path: 'dishes_ids',
@@ -60,6 +70,18 @@ const DishController = {
       const totalPages = Math.ceil(filteredDishes.length / limit);
       console.log(totalPages);
 
+      for (const dish of paginatedDishes) {
+        if (!dish.picture) {
+          dish.picture = 'RESTio.png';
+        }
+        const getObjectParams = {
+          Bucket: process.env.AWS_BUCKET_NAME,
+          Key: dish.picture,
+        };
+        const command = new s3.GetObjectCommand(getObjectParams);
+        dish.picture = await presigner.getSignedUrl(s3Client, command, { expiresIn: 3600 });
+      }
+
       let response = {
         dishes: paginatedDishes,
         totalPages,
@@ -76,6 +98,16 @@ const DishController = {
     const dishId = req.params.id;
 
     const dish = await Dish.findById(dishId).populate({ path: 'ingredients', model: 'Ingredient' });
+
+    if (!dish.picture) {
+      dish.picture = 'RESTio.png';
+    }
+    const getObjectParams = {
+      Bucket: process.env.AWS_BUCKET_NAME,
+      Key: dish.picture,
+    };
+    const command = new s3.GetObjectCommand(getObjectParams);
+    dish.picture = await presigner.getSignedUrl(s3Client, command, { expiresIn: 3600 });
 
     if (!dish) {
       const err = new NotFoundError('Dish not found for the given dish ID!');
