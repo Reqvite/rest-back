@@ -50,7 +50,7 @@ router.post("/:id", async (req, res) => {
 
         const restaurants = await Restaurant.findById(restaurantId).populate({
             path: 'dishes_ids',
-            select: 'name price',
+            select: 'name price type',
         });
 
         const dishes = restaurants.dishes_ids;
@@ -61,12 +61,13 @@ router.post("/:id", async (req, res) => {
             I want to have a perfect meal. I will provide you with the data about the dishes 
             in the restaurant and my preferences as well as my budget. I want you to choose the dishes
              that can fell into my budget and satisfy my preferences. If there is no such an option, pls tell me that 
-             with such a budget I can not have a perfect meal in the restaurant. I will provide you the JSON objects
-              of the menu: it will include the such fields: "name", "price", "_id". The price for every meal is shown in the 
+             with such a budget I can not have a meal in the restaurant. I will provide you the JSON objects
+              of the menu: it will include the such fields: "name", "price", "type", "_id". The price for every meal is shown in the 
              price field in the menu. And please use you intelligence to define dishes my their names. All the dishes 
              that will be present in menu are real dishes and you can find them in the internet or you must know 
-             about them.
-            Here is an array of json objects of the menu of the restaurant I am going to eat in: ${dishes}.`;
+             about them. Never give more than one dish of the same type.
+            Here is an array of json objects of the menu of the restaurant I am going to eat in: ${dishes}. It is very important for me to have a meal that will satisfy my preferences. Please
+            take into account my preferences: `;
 
         if (isVegan) {
             prompt = `${prompt} I am vegan.`
@@ -89,7 +90,11 @@ router.post("/:id", async (req, res) => {
         }
 
         prompt = `${prompt} My budget is ${budget}$. Also, if there is an option when only one dish can fit my budget, 
-        pls give me this option. In your response, can you pls add break lines between paragraphs.
+        pls give me this option. Don't give too much dishes, select up to 4
+        (maximum 4 but can be less if you consider that it will be enough for me) dishes from the menu that would
+        make a perfect meal for 1 person! The best setup would be some salad, some main dish and some drink. Of course,
+        you can add some other dishes if you consider that it will be better.
+        In your response, can you pls add break lines between paragraphs.
         Help me to choose the dishes. I want the response to look in specific way. There should be 2 paragraphs. 
         In the first, there should be your advices and the text that you consider as important. You should tell me 
         the best set of dishes and your other comments. The second, I want it to start with the word "LIST_OF_DISHES"
@@ -111,12 +116,6 @@ router.post("/:id", async (req, res) => {
         });
         const response = await api.sendMessage(prompt);
 
-        /*const response = {
-            text: `Based on your budget of $146 and the menu options provided, I have selected the following dishes that satisfy your preferences: - Pizza Chelentano ($15) - Olivier2 ($2) These dishes fit within your budget and offer a good variety. However, please note that the Salad option exceeds your budget. LIST_OF_DISHES [ "64d9ced6ec2a03efaaad15b0", "64da0f174574e1e22e9c0a5d" ]`
-        }*/
-
-        console.log(response);
-
         let responseText = response.text;
 
         // Find the index of the occurrence of "LIST_OF_DISHES"
@@ -125,11 +124,7 @@ router.post("/:id", async (req, res) => {
         // Extract the text before the occurrence
         const textBefore = responseText.substring(0, index);
 
-        console.log('textBefore', textBefore);
-
         responseText = responseText.replace(/\n/g, '');
-
-        console.log('responseText', responseText);
 
         // Regular expression to match an array of IDs
         const regex = /\[(.*?)\]/;
@@ -140,7 +135,6 @@ router.post("/:id", async (req, res) => {
         if (match) {
             const arrayOfIDs = JSON.parse("[" + match[1] + "]");
             const dishes = await fetchDishes(arrayOfIDs);
-            console.log("Array of IDs found:", dishes);
             res.status(200).json({textBefore, dishes});
         } else {
             console.log("No array of IDs found.");
