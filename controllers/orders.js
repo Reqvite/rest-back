@@ -150,7 +150,28 @@ const updateOrderStatus = asyncErrorHandler(async (req, res, next) => {
     order,
   });
 });
+const updateReadyDishesToServed = asyncErrorHandler(async (req, res, next) => {
+  const { rest_id, orderId } = req.params;
+  const order = await Order.findOneAndUpdate(
+    { _id: orderId, rest_id },
+    {
+      $set: { 'orderItems.$[item].status': 'Served' },
+    },
+    { new: true, arrayFilters: [{ 'item.status': 'Ready' }] }
+  );
+  if (!order) {
+    return next(new NotFoundError('Order or Dish not found'));
+  }
+  const eventMessage = JSON.stringify(`${order.table_id}`);
+  const eventType = 'dish status';
+  sendEventToClients(rest_id, eventMessage, eventType);
 
+  res.json({
+    code: 200,
+    status: 'success',
+    order,
+  });
+});
 const updateDishStatus = asyncErrorHandler(async (req, res, next) => {
   const { rest_id, orderId, dishId } = req.params;
   const { status } = req.body;
@@ -191,4 +212,5 @@ module.exports = {
   updateOrderStatus,
   updateDishStatus,
   updateOrderStatusesToPaid,
+  updateReadyDishesToServed,
 };
