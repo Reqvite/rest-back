@@ -21,7 +21,7 @@ const DishSchema = new mongoose.Schema(
       type: String,
       enum: {
         values: dishCategories,
-        message: "{VALUE} is not supported",
+        message: '{VALUE} is not supported',
       },
       required: true,
     },
