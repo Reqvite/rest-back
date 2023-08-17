@@ -4,7 +4,7 @@ const { tables } = require('../controllers');
 const { updateTableJoiSchema } = require('../middleware/joiSchemas/tableJoiSchemas');
 const {
   validateObjectId,
-  validateBody
+  validateBody,
   // checkSeatsNumber,
   // checkTableNumber,
   // checkExistingTable,

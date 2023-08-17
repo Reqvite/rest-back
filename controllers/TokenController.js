@@ -21,6 +21,15 @@ const tokenController = {
     return token;
   },
 
+  getUserById: async (user_id) => {
+    const user = await Token.findOne({ user_id });
+    if (!user) {
+      throw new NotFoundError('User is not found!');
+    }
+
+    return user;
+  },
+
   upsert: async (tokenData) =>
     Token.findOneAndUpdate(
       { user_id: tokenData.user_id },
@@ -69,7 +78,6 @@ const tokenController = {
   getUserToken: async (req, res) => {
     try {
       const user_id = req.params.id;
-      console.log(user_id);
       const authHeader = req.headers['authorization'];
       if (!authHeader || !authHeader.startsWith('Bearer ')) {
         throw new AuthorizationError('User authentication failed. Access denied.');

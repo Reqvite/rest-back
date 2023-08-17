@@ -58,7 +58,6 @@ const DishController = {
 
       let paginatedDishes = filteredDishes.slice(skip, skip + limit);
       const totalPages = Math.ceil(filteredDishes.length / limit);
-      console.log(totalPages);
 
       let response = {
         dishes: paginatedDishes,
@@ -87,7 +86,6 @@ const DishController = {
 
   addDish: asyncErrorHandler(async (req, res, next) => {
     const restaurantId = req.params.rest_id;
-    // console.log(req.body)
 
     const newDish = new Dish({
       name: req.body.name,

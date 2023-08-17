@@ -3,9 +3,11 @@ const personnelController = require('../controllers/PersonnelController');
 const router = express.Router();
 const {
   personnelJoiSchema,
-  personnelJoiSchemaDelete, personnelJoiSchemaPatch,
+  personnelJoiSchemaDelete,
+  personnelJoiSchemaPatch,
 } = require('../middleware/joiSchemas/personnelJoiSchemas');
 const { validateBody, validateObjectId } = require('../middleware/validations');
+const checkAdminAuth = require('../middleware/authorization/adminAuth');
 
 /**
  * @openapi
@@ -141,19 +143,36 @@ const { validateBody, validateObjectId } = require('../middleware/validations');
  *           description: Internal Server Error - Something went wrong on the server
  */
 
-router.get('/restaurant/:rest_id', validateObjectId, personnelController.getPersonnelByRestaurantId);
-router.get('/:id/restaurant/:rest_id', validateObjectId, personnelController.getPersonnelById);
-router.post('/', validateBody(personnelJoiSchema), personnelController.addPersonnel);
+router.get(
+  '/restaurant/:rest_id',
+  checkAdminAuth,
+  validateObjectId,
+  personnelController.getPersonnelByRestaurantId
+);
+router.get(
+  '/:id/restaurant/:rest_id',
+  checkAdminAuth,
+  validateObjectId,
+  personnelController.getPersonnelById
+);
+router.post(
+  '/',
+  validateBody(personnelJoiSchema),
+  checkAdminAuth,
+  personnelController.addPersonnel
+);
 router.patch(
   '/:id',
-  validateObjectId,
   validateBody(personnelJoiSchemaPatch),
+  checkAdminAuth,
+  validateObjectId,
   personnelController.updatePersonnel
 );
 router.delete(
   '/:id',
-  validateObjectId,
   validateBody(personnelJoiSchemaDelete),
+  checkAdminAuth,
+  validateObjectId,
   personnelController.deletePersonnel
 );
 
