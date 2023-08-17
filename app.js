@@ -12,6 +12,7 @@ const { NotFoundError } = require('./utils/errors/CustomErrors');
 
 //routes
 const routes = require('./routes');
+const checkAdminAuth = require('./middleware/authorization/adminAuth');
 
 let app = express();
 
