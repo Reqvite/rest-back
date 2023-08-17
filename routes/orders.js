@@ -9,6 +9,8 @@ const {
   updateOrderStatusJoiSchema,
   updateDishStatusJoiSchema,
 } = require('../middleware/joiSchemas/ordersJoiSchemas');
+const checkWaiterAuth = require('../middleware/authorization/waiterAuth');
+const checkCookAuth = require('../middleware/authorization/cookAuth');
 
 router.get('/:rest_id', validateObjectId, checkRestId, orders.getAllOrders);
 router.get('/:rest_id/table/:tableId', validateObjectId, checkRestId, orders.getOrdersByTableId);
@@ -23,12 +25,14 @@ router.post(
 router.patch(
   '/:rest_id/table/:tableId',
   validateObjectId,
+  checkWaiterAuth,
   checkRestId,
   orders.updateOrderStatusesToPaid
 );
 router.patch(
   '/:rest_id/dishes/:orderId',
   validateObjectId,
+  checkWaiterAuth,
   checkRestId,
   orders.updateReadyDishesToServed
 );
@@ -42,6 +46,7 @@ router.patch(
 router.patch(
   '/:rest_id/:orderId/:dishId',
   validateObjectId,
+  checkCookAuth,
   checkRestId,
   validateBody(updateDishStatusJoiSchema),
   orders.updateDishStatus

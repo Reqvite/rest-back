@@ -4,11 +4,12 @@ const { tables } = require('../controllers');
 const { updateTableJoiSchema } = require('../middleware/joiSchemas/tableJoiSchemas');
 const {
   validateObjectId,
-  validateBody
+  validateBody,
   // checkSeatsNumber,
   // checkTableNumber,
   // checkExistingTable,
 } = require('../middleware/validations');
+const checkWaiterAuth = require('../middleware/authorization/waiterAuth');
 
 /**
  * @openapi
@@ -82,6 +83,7 @@ router.get('/restaurant/:rest_id', validateObjectId, tables.getTablesByRestauran
 router.patch(
   '/:id',
   validateObjectId,
+  checkWaiterAuth,
   // checkSeatsNumber,
   // checkTableNumber,
   // checkExistingTable,

@@ -5,7 +5,7 @@ const { AuthorizationError } = require('../../utils/errors/CustomErrors');
 require('dotenv').config();
 const JWT_SECRET_KEY = process.env.JWT_SECRET_KEY;
 
-const checkAdminAuth = async (req, _, next) => {
+const checkWaiterAuth = async (req, _, next) => {
   try {
     const authHeader = req.headers['authorization'];
 
@@ -21,7 +21,7 @@ const checkAdminAuth = async (req, _, next) => {
     const userData = await tokenController.getUserById(user_id);
     const { restaurant_id, role } = userData;
 
-    if (restaurantId !== restaurant_id.toString() || role !== 'admin') {
+    if (restaurantId !== restaurant_id.toString() || (role !== 'admin' && role !== 'waiter')) {
       throw new AuthorizationError('User authorization failed. Access denied.');
     }
 
@@ -31,4 +31,4 @@ const checkAdminAuth = async (req, _, next) => {
   }
 };
 
-module.exports = checkAdminAuth;
+module.exports = checkWaiterAuth;
