@@ -46,6 +46,7 @@ app.use(`/dishes`, routes.dishes);
 app.use(`/login`, routes.login);
 app.use(`/tokens`, routes.tokens);
 app.use('/api', routes.upload);
+app.use('/openai', routes.openai);
 
 app.all('*', (req, _, next) => {
   const err = new NotFoundError(`Cant find ${req.originalUrl} on the server`);
