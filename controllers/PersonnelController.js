@@ -1,24 +1,15 @@
 const bcrypt = require('bcrypt');
-const s3 = require('@aws-sdk/client-s3');
-const presigner = require('@aws-sdk/s3-request-presigner');
 const {
-  AuthorizationError,
   NotFoundError,
   BadRequestError,
 } = require('../utils/errors/CustomErrors');
 const Personnel = require('../models/personnelModel');
 const Restaurant = require('../models/restaurantModel');
 const asyncErrorHandler = require('../utils/errors/asyncErrorHandler');
-const { StatusCodes, NOT_FOUND } = require('http-status-codes');
+const { StatusCodes } = require('http-status-codes');
 const { OK, CREATED } = StatusCodes;
+const { getSignedUrl, deleteFromS3 } = require('../utils/s3');
 
-const s3Client = new s3.S3Client({
-  region: process.env.AWS_REGION,
-  credentials: {
-    accessKeyId: process.env.AWS_ACCESS_KEY_ID,
-    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
-  },
-});
 
 const personnelController = {
   getPersonnelByRestaurantId: asyncErrorHandler(async (req, res, next) => {
@@ -53,21 +44,15 @@ const personnelController = {
         .skip(skip)
         .limit(limit);
     }
-    /*for (const person of personnel) {
-          if (!person.picture) {
-            person.picture = 'RESTio.png';
-          }
-          const getObjectParams = {
-            Bucket: process.env.AWS_BUCKET_NAME,
-            Key: person.picture,
-          };
-          const command = new s3.GetObjectCommand(getObjectParams);
-          person.picture = await presigner.getSignedUrl(s3Client, command, { expiresIn: 3600 });
-        }*/
 
     if (!personnel) {
       const err = new BadRequestError('Bad request');
       return next(err);
+    }
+
+    // Get the signed url for the personnel's picture
+    for (const person of personnel) {
+      person.picture = await getSignedUrl(person);
     }
 
     res.status(OK).json({ personnel, totalPages, page }); // Send paginated data and total pages
@@ -76,20 +61,13 @@ const personnelController = {
   getPersonnelById: asyncErrorHandler(async (req, res, next) => {
     const personnel = await Personnel.findById(req.params.id);
 
-    /*if (!personnel.picture) {
-          personnel.picture = 'RESTio.png';
-        }
-        const getObjectParams = {
-          Bucket: process.env.AWS_BUCKET_NAME,
-          Key: personnel.picture,
-        };
-        const command = new s3.GetObjectCommand(getObjectParams);
-        personnel.picture = await presigner.getSignedUrl(s3Client, command, { expiresIn: 3600 });
-    */
     if (!personnel) {
       const err = new NotFoundError('Personnel with that ID is not found!');
       return next(err);
     }
+
+    // Get the signed url for the personnel's picture
+    personnel.picture = await getSignedUrl(personnel);
 
     res.status(OK).json(personnel);
   }),
@@ -132,7 +110,7 @@ const personnelController = {
     });
 
     // Save the personnel data to the database
-    const savedPersonnel = await newPersonnel.save();
+    await newPersonnel.save();
 
     res.status(CREATED).json({ message: 'Personnel added successfully!' });
   }),
@@ -189,7 +167,7 @@ const personnelController = {
     }
 
     // Save the updated personnel data to the database
-    const updatedPersonnel = await personnel.save();
+    await personnel.save();
 
     res.status(OK).json({ message: 'Personnel updated successfully!' });
   }),
@@ -212,11 +190,7 @@ const personnelController = {
       return next(err);
     }
 
-    //Take a restaurant id from the request body and check if it matches the rest id of the personnel
-    // if (personnel.restaurant_id.toString() !== restaurant_id) {
-    //   const err = new AuthorizationError();
-    //   return next(err);
-    // }
+    await deleteFromS3(personnel.picture);
 
     // Delete the personnel from the database
     await personnel.deleteOne();
