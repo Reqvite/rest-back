@@ -1,10 +1,20 @@
 const Joi = require('joi');
+const { validateIdInJoiSchema } = require('../validations');
 
-const createTransactionSchema = Joi.object({
+const createOnlineTransactionSchema = Joi.object({
+  rest_id: Joi.string()
+    .custom((value, helpers) => validateIdInJoiSchema(value, helpers))
+    .required(),
   amount: Joi.number().positive().greater(0).required(),
-  type: Joi.string().valid('online').required(),
   info: Joi.string().required(),
   frontLink: Joi.string().uri().required(),
+}).options({ abortEarly: false, allowUnknown: false });
+
+const createOfflineTransactionSchema = Joi.object({
+  createdById: Joi.string(),
+  amount: Joi.number().positive().greater(0).required(),
+  type: Joi.string().required(),
+  info: Joi.array().required(),
 }).options({ abortEarly: false, allowUnknown: false });
 
 const callbackTransactionSchema = Joi.object({
@@ -12,4 +22,8 @@ const callbackTransactionSchema = Joi.object({
   signature: Joi.string().required(),
 }).options({ abortEarly: false, allowUnknown: false });
 
-module.exports = { createTransactionSchema, callbackTransactionSchema };
+module.exports = {
+  createOnlineTransactionSchema,
+  callbackTransactionSchema,
+  createOfflineTransactionSchema,
+};
