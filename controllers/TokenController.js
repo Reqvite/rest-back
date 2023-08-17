@@ -80,13 +80,13 @@ const tokenController = {
       const user_id = req.params.id;
       const authHeader = req.headers['authorization'];
       if (!authHeader || !authHeader.startsWith('Bearer ')) {
-        throw new AuthorizationError('User authentication failed. Access denied.');
+        throw new AuthorizationError('User authorization failed. Access denied.');
       }
       const refreshToken = authHeader.split(' ')[1];
       const { id: userId, token_id } = jwt.verify(refreshToken, JWT_REFRESH_SECRET_KEY);
 
       if (userId !== user_id) {
-        throw new AuthorizationError('User authentication failed. Access denied.');
+        throw new AuthorizationError('User authorization failed. Access denied.');
       }
 
       const tokens = await tokenController.refresh(user_id, token_id);
