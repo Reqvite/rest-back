@@ -43,4 +43,47 @@ router.get("/upload", async (req, res) => {
     }
 });
 
+/**
+ * @swagger
+ * tags:
+ *   name: S3
+ *   description: Operations related to Amazon S3
+ * /upload:
+ *   get:
+ *     tags:
+ *       - S3
+ *     summary: Generate a pre-signed URL for image upload to Amazon S3
+ *     parameters:
+ *       - name: type
+ *         in: query
+ *         description: Content type of the image (e.g., image/jpeg)
+ *         required: false
+ *         type: string
+ *       - name: size
+ *         in: query
+ *         description: Size of the image in bytes
+ *         required: false
+ *         type: integer
+ *     responses:
+ *       200:
+ *         description: Successful response
+ *         schema:
+ *           type: object
+ *           properties:
+ *             uploadURL:
+ *               type: string
+ *               description: Pre-signed URL for uploading the image
+ *             imageName:
+ *               type: string
+ *               description: The name of the generated image
+ *       400:
+ *         description: Bad Request
+ *         schema:
+ *           $ref: "#/definitions/ErrorResponse"
+ *       500:
+ *         description: Internal Server Error
+ *         schema:
+ *           $ref: "#/definitions/ErrorResponse"
+ */
+
 module.exports = router;
