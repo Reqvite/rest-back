@@ -5,7 +5,7 @@ const {
   callbackTransactionSchema,
   createOfflineTransactionSchema,
 } = require('../middleware/joiSchemas/transactionJoiSchemas');
-const { validateBody } = require('../middleware/validations');
+const { validateBody, validateObjectId } = require('../middleware/validations');
 const router = express.Router();
 
 router.post(
@@ -25,6 +25,12 @@ router.post(
 );
 
 router.get('/:rest_id', transactionsController.getTransactions);
+
+router.get(
+  '/statistics/:rest_id',
+  validateObjectId,
+  transactionsController.getTransactionsStatisticsByRestuarantId
+);
 
 module.exports = router;
 
