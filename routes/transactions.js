@@ -15,7 +15,7 @@ router.post(
   transactionsController.createPayOnline
 );
 router.post(
-  '/manual',
+  '/manual/:rest_id',
   checkAuth(['admin', 'waiter']),
   validateBody(createOfflineTransactionSchema),
   transactionsController.createPayOffline
