@@ -51,9 +51,9 @@ const personnelController = {
     }
 
     // Get the signed url for the personnel's picture
-    for (const person of personnel) {
+    /*for (const person of personnel) {
       person.picture = await getSignedUrl(person);
-    }
+    }*/
 
     res.status(OK).json({ personnel, totalPages, page }); // Send paginated data and total pages
   }),
@@ -67,7 +67,7 @@ const personnelController = {
     }
 
     // Get the signed url for the personnel's picture
-    personnel.picture = await getSignedUrl(personnel);
+    //personnel.picture = await getSignedUrl(personnel);
 
     res.status(OK).json(personnel);
   }),
