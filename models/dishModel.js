@@ -15,7 +15,7 @@ const DishSchema = new mongoose.Schema(
     ],
     picture: {
       type: String,
-      required: true,
+      //required: true,
     },
     type: {
       type: String,

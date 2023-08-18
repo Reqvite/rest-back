@@ -8,7 +8,6 @@ const { NotFoundError, BadRequestError } = require('../utils/errors/CustomErrors
 const { StatusCodes } = require('http-status-codes');
 const { OK, CREATED } = StatusCodes;
 
-
 const s3Client = new s3.S3Client({
   region: process.env.AWS_REGION,
   credentials: {
@@ -16,6 +15,15 @@ const s3Client = new s3.S3Client({
     secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
   },
 });
+
+const getSignedImageURL = async (imageName) => {
+  const getObjectParams = {
+    Bucket: process.env.AWS_BUCKET_NAME,
+    Key: imageName,
+  };
+  const command = new s3.GetObjectCommand(getObjectParams);
+  return await presigner.getSignedUrl(s3Client, command, { expiresIn: 3600 });
+};
 
 const DishController = {
   // request example
@@ -75,12 +83,7 @@ const DishController = {
         if (!dish.picture) {
           dish.picture = 'RESTio.png';
         }
-        const getObjectParams = {
-          Bucket: process.env.AWS_BUCKET_NAME,
-          Key: dish.picture,
-        };
-        const command = new s3.GetObjectCommand(getObjectParams);
-        dish.picture = await presigner.getSignedUrl(s3Client, command, { expiresIn: 3600 });
+        dish.picture = await getSignedImageURL(dish.picture);
       }
 
       let response = {
@@ -91,7 +94,14 @@ const DishController = {
 
       res.status(OK).json(response);
     } else {
-      res.status(OK).json(dish.dishes_ids);
+      let data = dish.dishes_ids;
+      for (const dish of data) {
+        if (!dish.picture) {
+          dish.picture = 'RESTio.png';
+        }
+        dish.picture = await getSignedImageURL(dish.picture);
+      }
+      res.status(OK).json(data);
     }
   }),
 
@@ -103,12 +113,7 @@ const DishController = {
     if (!dish.picture) {
       dish.picture = 'RESTio.png';
     }
-    const getObjectParams = {
-      Bucket: process.env.AWS_BUCKET_NAME,
-      Key: dish.picture,
-    };
-    const command = new s3.GetObjectCommand(getObjectParams);
-    dish.picture = await presigner.getSignedUrl(s3Client, command, { expiresIn: 3600 });
+    dish.picture = await getSignedImageURL(dish.picture);
 
     if (!dish) {
       const err = new NotFoundError('Dish not found for the given dish ID!');
