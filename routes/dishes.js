@@ -3,7 +3,7 @@ const router = express.Router();
 const dishController = require('../controllers/DishController');
 const { validateBody, validateQuery, validateObjectId } = require('../middleware/validations');
 const { dishJoiSchema, dishRequestJoiSchema } = require('../middleware/joiSchemas/dishJoiSchemas');
-const checkAdminAuth = require('../middleware/authorization/adminAuth');
+const checkAuth = require('../middleware/authorization/checkAuth');
 
 /**
  * @openapi
@@ -117,7 +117,7 @@ router.get(
 );
 router.post(
   '/restaurant/:rest_id',
-  checkAdminAuth,
+  checkAuth(['admin']),
   validateObjectId,
   validateBody(dishJoiSchema),
   dishController.addDish
@@ -125,14 +125,14 @@ router.post(
 router.get('/:id', validateObjectId, dishController.getDishesById);
 router.patch(
   '/:id/edit/restaurant/:rest_id',
-  checkAdminAuth,
+  checkAuth(['admin']),
   validateObjectId,
   validateBody(dishJoiSchema),
   dishController.editDishById
 );
 router.patch(
   '/:id/restaurant/:rest_id',
-  checkAdminAuth,
+  checkAuth(['admin']),
   validateObjectId,
   dishController.disableDishById
 );

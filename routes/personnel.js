@@ -7,7 +7,7 @@ const {
   personnelJoiSchemaPatch,
 } = require('../middleware/joiSchemas/personnelJoiSchemas');
 const { validateBody, validateObjectId } = require('../middleware/validations');
-const checkAdminAuth = require('../middleware/authorization/adminAuth');
+const checkAuth = require('../middleware/authorization/checkAuth');
 
 /**
  * @openapi
@@ -145,33 +145,33 @@ const checkAdminAuth = require('../middleware/authorization/adminAuth');
 
 router.get(
   '/restaurant/:rest_id',
-  checkAdminAuth,
+  checkAuth(['admin']),
   validateObjectId,
   personnelController.getPersonnelByRestaurantId
 );
 router.get(
   '/:id/restaurant/:rest_id',
-  checkAdminAuth,
+  checkAuth(['admin']),
   validateObjectId,
   personnelController.getPersonnelById
 );
 router.post(
   '/',
   validateBody(personnelJoiSchema),
-  checkAdminAuth,
+  checkAuth(['admin']),
   personnelController.addPersonnel
 );
 router.patch(
   '/:id',
   validateBody(personnelJoiSchemaPatch),
-  checkAdminAuth,
+  checkAuth(['admin']),
   validateObjectId,
   personnelController.updatePersonnel
 );
 router.delete(
   '/:id',
   validateBody(personnelJoiSchemaDelete),
-  checkAdminAuth,
+  checkAuth(['admin']),
   validateObjectId,
   personnelController.deletePersonnel
 );

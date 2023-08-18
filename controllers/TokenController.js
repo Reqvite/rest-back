@@ -9,7 +9,7 @@ const { OK, INTERNAL_SERVER_ERROR } = StatusCodes;
 JWT_SECRET_KEY = process.env.JWT_SECRET_KEY;
 JWT_REFRESH_SECRET_KEY = process.env.JWT_REFRESH_SECRET_KEY;
 JWT_EXPIRE_TIME = '1h';
-JWT_REFRESH_EXPIRE_TIME = 4.5 * 60 * 60;
+JWT_REFRESH_EXPIRE_TIME = 4.5 * 60 * 60; // 4.5h
 
 const tokenController = {
   get: async (user_id, token_id) => {

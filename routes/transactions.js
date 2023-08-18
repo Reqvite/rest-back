@@ -6,6 +6,7 @@ const {
   createOfflineTransactionSchema,
 } = require('../middleware/joiSchemas/transactionJoiSchemas');
 const { validateBody } = require('../middleware/validations');
+const checkAuth = require('../middleware/authorization/checkAuth');
 const router = express.Router();
 
 router.post(
@@ -15,6 +16,7 @@ router.post(
 );
 router.post(
   '/manual',
+  checkAuth(['admin', 'waiter']),
   validateBody(createOfflineTransactionSchema),
   transactionsController.createPayOffline
 );
@@ -24,7 +26,7 @@ router.post(
   transactionsController.updateStatus
 );
 
-router.get('/:rest_id', transactionsController.getTransactions);
+router.get('/:rest_id', checkAuth(['admin']), transactionsController.getTransactions);
 
 module.exports = router;
 
