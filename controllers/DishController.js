@@ -8,6 +8,7 @@ const { NotFoundError, BadRequestError } = require('../utils/errors/CustomErrors
 const { StatusCodes } = require('http-status-codes');
 const { OK, CREATED } = StatusCodes;
 
+
 const s3Client = new s3.S3Client({
   region: process.env.AWS_REGION,
   credentials: {
@@ -68,6 +69,7 @@ const DishController = {
 
       let paginatedDishes = filteredDishes.slice(skip, skip + limit);
       const totalPages = Math.ceil(filteredDishes.length / limit);
+      console.log(totalPages);
 
       for (const dish of paginatedDishes) {
         if (!dish.picture) {
@@ -118,6 +120,7 @@ const DishController = {
 
   addDish: asyncErrorHandler(async (req, res, next) => {
     const restaurantId = req.params.rest_id;
+    // console.log(req.body)
 
     const newDish = new Dish({
       name: req.body.name,
