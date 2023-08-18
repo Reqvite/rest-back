@@ -137,7 +137,7 @@ const TransactionsController = {
       tableTransactions,
     });
   }),
-  getTransactionsStatisticsByRestuarantId: asyncErrorHandler(async (req, res) => {
+  getTransactionsStatisticsByRestaurantId: asyncErrorHandler(async (req, res) => {
     const { rest_id } = req.params;
     const { timestamp = 'month' } = req.query;
     const restaurant = await Restaurant.findById(rest_id);
