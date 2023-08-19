@@ -49,7 +49,7 @@ const DishController = {
 
     const dish = await Restaurant.findById(restaurantId).populate({
       path: 'dishes_ids',
-      select: 'name picture portionWeight price ingredients type isActive',
+      select: 'name picture portionWeight price ingredients type isActive vegetarian',
       match: matchQuery,
       populate: {
         path: 'ingredients',
