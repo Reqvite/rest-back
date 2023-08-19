@@ -1,3 +1,5 @@
+const s3 = require('@aws-sdk/client-s3');
+const presigner = require('@aws-sdk/s3-request-presigner');
 const Dish = require('../models/dishModel');
 const Restaurant = require('../models/restaurantModel');
 const Ingredient = require('../models/ingredientModel');
@@ -5,6 +7,23 @@ const asyncErrorHandler = require('../utils/errors/asyncErrorHandler');
 const { NotFoundError, BadRequestError } = require('../utils/errors/CustomErrors');
 const { StatusCodes } = require('http-status-codes');
 const { OK, CREATED } = StatusCodes;
+
+const s3Client = new s3.S3Client({
+  region: process.env.AWS_REGION,
+  credentials: {
+    accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+  },
+});
+
+const getSignedImageURL = async (imageName) => {
+  const getObjectParams = {
+    Bucket: process.env.AWS_BUCKET_NAME,
+    Key: imageName,
+  };
+  const command = new s3.GetObjectCommand(getObjectParams);
+  return await presigner.getSignedUrl(s3Client, command, { expiresIn: 3600 });
+};
 
 const DishController = {
   // request example
@@ -26,7 +45,7 @@ const DishController = {
 
     if (isActive !== undefined) {
       matchQuery.isActive = isActive;
-    } 
+    }
 
     const dish = await Restaurant.findById(restaurantId).populate({
       path: 'dishes_ids',
@@ -58,6 +77,14 @@ const DishController = {
 
       let paginatedDishes = filteredDishes.slice(skip, skip + limit);
       const totalPages = Math.ceil(filteredDishes.length / limit);
+      console.log(totalPages);
+
+      for (const dish of paginatedDishes) {
+        if (!dish.picture) {
+          dish.picture = 'RESTio.png';
+        }
+        dish.picture = await getSignedImageURL(dish.picture);
+      }
 
       let response = {
         dishes: paginatedDishes,
@@ -67,7 +94,14 @@ const DishController = {
 
       res.status(OK).json(response);
     } else {
-      res.status(OK).json(dish.dishes_ids);
+      let data = dish.dishes_ids;
+      for (const dish of data) {
+        if (!dish.picture) {
+          dish.picture = 'RESTio.png';
+        }
+        dish.picture = await getSignedImageURL(dish.picture);
+      }
+      res.status(OK).json(data);
     }
   }),
 
@@ -75,6 +109,11 @@ const DishController = {
     const dishId = req.params.id;
 
     const dish = await Dish.findById(dishId).populate({ path: 'ingredients', model: 'Ingredient' });
+
+    if (!dish.picture) {
+      dish.picture = 'RESTio.png';
+    }
+    dish.picture = await getSignedImageURL(dish.picture);
 
     if (!dish) {
       const err = new NotFoundError('Dish not found for the given dish ID!');
@@ -86,6 +125,7 @@ const DishController = {
 
   addDish: asyncErrorHandler(async (req, res, next) => {
     const restaurantId = req.params.rest_id;
+    // console.log(req.body)
 
     const newDish = new Dish({
       name: req.body.name,
