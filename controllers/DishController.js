@@ -198,7 +198,16 @@ const DishController = {
       return next(err);
     }
 
-    await Dish.findByIdAndUpdate(dishId, { $set: { isActive: req.body.isActive } });
+    const dish = await Dish.findById(dishId);
+
+    if (!dish) {
+      const err = new NotFoundError('No dish records found for the given dish ID!');
+      return next(err);
+    }
+
+    const updatedIsActive = !dish.isActive;
+
+    await Dish.findByIdAndUpdate(dishId, { $set: { isActive: updatedIsActive } });
 
     res.status(OK).json({ message: 'Dish status updated successfully' });
   }),
