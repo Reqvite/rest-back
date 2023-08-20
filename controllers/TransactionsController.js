@@ -2,9 +2,12 @@ const { mongoose } = require('mongoose');
 const { Order, Transaction, Restaurant } = require('../models');
 const LiqPayService = require('../services/liqpay/liqpayService');
 const asyncErrorHandler = require('../utils/errors/asyncErrorHandler');
-const { BadRequestError } = require('../utils/errors/CustomErrors');
+const { BadRequestError, AuthorizationError } = require('../utils/errors/CustomErrors');
 const statiscticsPipeline = require('../utils/pipelines/statisctics');
 const parseBool = require('../utils/helpers/parseBool');
+const moment = require('moment-timezone');
+const Personnel = require('../models/personnelModel');
+const { TIME_ZONE } = process.env;
 
 const TransactionsController = {
   createPayOnline: asyncErrorHandler(async (req, res) => {
@@ -36,9 +39,10 @@ const TransactionsController = {
     );
     const infoIds = info.split(',').map((id) => id.trim());
 
-    const start = description.indexOf('"');
-    const end = description.lastIndexOf('"');
-    const restaurantName = description.substring(start + 1, end);
+    const restaurantName = description.slice(
+      description.indexOf('"') + 1,
+      description.lastIndexOf('"')
+    );
     const { _id } = await Restaurant.findOne({ name: restaurantName });
 
     const session = await mongoose.startSession();
@@ -76,7 +80,11 @@ const TransactionsController = {
   createPayOffline: asyncErrorHandler(async (req, res) => {
     const { amount, info, type } = req.body;
 
-    const user = req.user;
+    const user = await Personnel.findById(req.user.user_id);
+
+    if (!user) {
+      throw new AuthorizationError();
+    }
 
     const existingTransactions = await Transaction.find({
       restaurantOrders_id: { $in: info },
@@ -113,19 +121,11 @@ const TransactionsController = {
     let query = { rest_id, status: 'success' };
 
     if (parseBool(today)) {
-      const currentDate = new Date();
-      const todayStartDate = new Date(
-        currentDate.getFullYear(),
-        currentDate.getMonth(),
-        currentDate.getDate()
-      );
-      const tomorrowStartDate = new Date(
-        currentDate.getFullYear(),
-        currentDate.getMonth(),
-        currentDate.getDate() + 1
-      );
+      const currentDate = moment().tz(TIME_ZONE);
+      const todayStartDate = currentDate.clone().startOf('day');
+      const tomorrowStartDate = currentDate.clone().add(1, 'day').startOf('day');
 
-      query.createdAt = { $gte: todayStartDate, $lt: tomorrowStartDate };
+      query.createdAt = { $gte: todayStartDate.toDate(), $lt: tomorrowStartDate.toDate() };
     }
 
     if (userType !== 'all') {
@@ -137,11 +137,10 @@ const TransactionsController = {
     }
 
     if (parseBool(date)) {
-      const selectedDate = new Date(date);
-      selectedDate.setUTCHours(0, 0, 0, 0);
-      const endOfDay = new Date(selectedDate);
-      endOfDay.setUTCHours(23, 59, 59, 999);
-      query.createdAt = { $gte: selectedDate, $lte: endOfDay };
+      const selectedDate = moment.tz(date, TIME_ZONE);
+      const startOfDay = selectedDate.clone().startOf('day');
+      const endOfDay = selectedDate.clone().endOf('day');
+      query.createdAt = { $gte: startOfDay.toDate(), $lte: endOfDay.toDate() };
     }
 
     if (!newPageIndex || !perPage) {
@@ -175,29 +174,26 @@ const TransactionsController = {
     }
 
     let pipeline;
-    const today = new Date(2023, 7, 22);
-    const offset = today.getTimezoneOffset();
-    today.setUTCHours(21, 0, 0, 0);
-    today.setMinutes(today.getMinutes() + offset);
+    const today = moment().tz(TIME_ZONE);
 
     if (timestamp === 'year') {
       pipeline = statiscticsPipeline.year(rest_id);
     }
 
     if (timestamp === 'month') {
-      const firstDayOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
-      const lastDayOfMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0);
-      pipeline = statiscticsPipeline.oneMonth(rest_id, firstDayOfMonth, lastDayOfMonth);
+      const firstDayOfMonth = today.clone().startOf('month');
+      const lastDayOfMonth = today.clone().endOf('month');
+      pipeline = statiscticsPipeline.oneMonth(
+        rest_id,
+        firstDayOfMonth.toDate(),
+        lastDayOfMonth.toDate()
+      );
     }
 
     if (timestamp === 'week') {
-      const currentDayOfWeek = today.getDay();
-      const startOfWeek = new Date(today);
-      const count = currentDayOfWeek === 0 ? 7 : currentDayOfWeek;
-      startOfWeek.setDate(today.getDate() - count);
-      const endOfWeek = new Date(today);
-
-      pipeline = statiscticsPipeline.weekly(rest_id, endOfWeek, startOfWeek);
+      const startOfWeek = today.clone().startOf('week');
+      const endOfWeek = today.clone().endOf('week');
+      pipeline = statiscticsPipeline.weekly(rest_id, endOfWeek.toDate(), startOfWeek.toDate());
     }
 
     const statistics = await Transaction.aggregate(pipeline);
