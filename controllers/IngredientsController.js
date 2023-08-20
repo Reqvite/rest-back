@@ -1,6 +1,6 @@
 const Ingredient = require('../models/ingredientModel');
 const asyncErrorHandler = require('../utils/errors/asyncErrorHandler');
-const { BadRequestError } = require('../utils/errors/CustomErrors');
+const { InternalServerError } = require('../utils/errors/CustomErrors');
 const { StatusCodes } = require('http-status-codes');
 const { OK } = StatusCodes;
 
@@ -9,7 +9,7 @@ const IngredientsController = {
     const result = await Ingredient.find();
 
     if (!result) {
-      const err = new BadRequestError();
+      const err = new InternalServerError();
       return next(err);
     }
 
