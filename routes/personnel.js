@@ -5,8 +5,9 @@ const {
   personnelJoiSchema,
   personnelJoiSchemaDelete,
   personnelJoiSchemaPatch,
+  personnelRequestJoiSchema,
 } = require('../middleware/joiSchemas/personnelJoiSchemas');
-const { validateBody, validateObjectId } = require('../middleware/validations');
+const { validateBody, validateObjectId, validateQuery } = require('../middleware/validations');
 const checkAuth = require('../middleware/authorization/checkAuth');
 
 /**
@@ -147,6 +148,7 @@ router.get(
   '/restaurant/:rest_id',
   checkAuth(['admin']),
   validateObjectId,
+  validateQuery(personnelRequestJoiSchema),
   personnelController.getPersonnelByRestaurantId
 );
 router.get(

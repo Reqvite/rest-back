@@ -3,7 +3,7 @@ const { validateIdInJoiSchema } = require('../validations');
 const { dishCategories } = require('../../constants/constants');
 
 const dishJoiSchema = Joi.object({
-  name: Joi.string().min(2).max(30).required(),
+  name: Joi.string().min(2).max(50).required(),
   ingredients: Joi.array().items(
     Joi.string().custom((value, helpers) => validateIdInJoiSchema(value, helpers))
   ),

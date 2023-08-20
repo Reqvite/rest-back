@@ -1,5 +1,5 @@
 const { StatusCodes, getReasonPhrase } = require('http-status-codes');
-const { NOT_FOUND, UNAUTHORIZED, FORBIDDEN, BAD_REQUEST } = StatusCodes;
+const { NOT_FOUND, UNAUTHORIZED, FORBIDDEN, BAD_REQUEST, INTERNAL_SERVER_ERROR } = StatusCodes;
 
 class CustomError extends Error {
   constructor(message, statusCode) {
@@ -35,9 +35,16 @@ class AuthenticationError extends CustomError {
   }
 }
 
+class InternalServerError extends CustomError {
+  constructor(message) {
+    super(message || getReasonPhrase(INTERNAL_SERVER_ERROR), INTERNAL_SERVER_ERROR);
+  }
+}
+
 module.exports = {
   NotFoundError,
   BadRequestError,
   AuthorizationError,
   AuthenticationError,
+  InternalServerError,
 };

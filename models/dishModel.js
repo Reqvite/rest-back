@@ -5,6 +5,8 @@ const DishSchema = new mongoose.Schema(
   {
     name: {
       type: String,
+      minlength: 2,
+      maxlength: 50,
       required: true,
     },
     ingredients: [
