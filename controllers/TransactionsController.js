@@ -21,7 +21,7 @@ const TransactionsController = {
       name
     );
 
-    res.status(201).json({ status: 'success', code: 200, paymentInfo });
+    res.status(200).json({ status: 'success', code: 200, paymentInfo });
   }),
   updateStatus: asyncErrorHandler(async (req, res) => {
     const { data, signature } = req.body;
