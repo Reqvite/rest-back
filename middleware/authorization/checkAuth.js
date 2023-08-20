@@ -25,6 +25,7 @@ const checkAuth = (allowedRoles) => async (req, _, next) => {
       throw new AuthorizationError('User authorization failed. Access denied.');
     }
 
+    req.user = userData;
     next();
   } catch (error) {
     next(error);

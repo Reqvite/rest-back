@@ -2,8 +2,7 @@ const { mongoose } = require('mongoose');
 const { Order, Transaction, Restaurant } = require('../models');
 const LiqPayService = require('../services/liqpay/liqpayService');
 const asyncErrorHandler = require('../utils/errors/asyncErrorHandler');
-const Personnel = require('../models/personnelModel');
-const { AuthorizationError } = require('../utils/errors/CustomErrors');
+const { BadRequestError } = require('../utils/errors/CustomErrors');
 const statiscticsPipeline = require('../utils/pipelines/statisctics');
 
 const TransactionsController = {
@@ -54,12 +53,17 @@ const TransactionsController = {
     });
   }),
   createPayOffline: asyncErrorHandler(async (req, res) => {
-    const { createdById, amount, info, type } = req.body;
+    const { amount, info, type } = req.body;
 
-    const user = await Personnel.findOne({ _id: createdById });
+    const user = req.user;
 
-    if (!user || (user.role !== 'admin' && user.role !== 'waiter')) {
-      throw new AuthorizationError('Acces denied.');
+    console.log(info);
+    const existingTransactions = await Transaction.find({
+      restaurantOrders_id: { $in: info },
+    });
+
+    if (existingTransactions.length !== 0) {
+      throw new BadRequestError('Orders with such IDs have already been paid');
     }
 
     await Transaction.create({
