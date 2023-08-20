@@ -2,15 +2,24 @@ const { mongoose } = require('mongoose');
 const { Order, Transaction, Restaurant } = require('../models');
 const LiqPayService = require('../services/liqpay/liqpayService');
 const asyncErrorHandler = require('../utils/errors/asyncErrorHandler');
-const { BadRequestError } = require('../utils/errors/CustomErrors');
+const { BadRequestError, AuthorizationError } = require('../utils/errors/CustomErrors');
 const statiscticsPipeline = require('../utils/pipelines/statisctics');
+const parseBool = require('../utils/helpers/parseBool');
+const moment = require('moment-timezone');
+const Personnel = require('../models/personnelModel');
+const { TIME_ZONE } = process.env;
 
 const TransactionsController = {
   createPayOnline: asyncErrorHandler(async (req, res) => {
     const { amount, info, frontLink, rest_id } = req.body;
     const liqPayOrder_id = new mongoose.Types.ObjectId();
 
-    const { name } = await Restaurant.findById(rest_id);
+    const restaurant = await Restaurant.findById(rest_id);
+    if (!restaurant) {
+      const err = new NotFoundError('No restaurant records found for the given restaurant ID!');
+      return next(err);
+    }
+    const name = restaurant.name;
 
     const paymentInfo = LiqPayService.getLiqPayPaymentData(
       amount,
@@ -30,21 +39,37 @@ const TransactionsController = {
     );
     const infoIds = info.split(',').map((id) => id.trim());
 
-    const start = description.indexOf('"');
-    const end = description.lastIndexOf('"');
-    const restaurantName = description.substring(start + 1, end);
+    const restaurantName = description.slice(
+      description.indexOf('"') + 1,
+      description.lastIndexOf('"')
+    );
     const { _id } = await Restaurant.findOne({ name: restaurantName });
 
-    if (status === 'success') {
-      await Order.updateMany({ _id: { $in: infoIds } }, { status: 'Paid' });
-      await Transaction.create({
-        rest_id: _id,
-        paymentAmount: amount,
-        _id: order_id,
-        type: 'online',
-        restaurantOrders_id: infoIds,
-        status: 'success',
-      });
+    const session = await mongoose.startSession();
+    session.startTransaction();
+    try {
+      if (status === 'success') {
+        await Order.updateMany({ _id: { $in: infoIds } }, { status: 'Paid' }, { session });
+        await Transaction.create(
+          [
+            {
+              rest_id: _id,
+              paymentAmount: amount,
+              _id: order_id,
+              type: 'online',
+              restaurantOrders_id: infoIds,
+              status: 'success',
+            },
+          ],
+          { session }
+        );
+        await session.commitTransaction();
+      }
+    } catch (err) {
+      await session.abortTransaction();
+      throw err;
+    } finally {
+      session.endSession();
     }
 
     return res.status(200).json({
@@ -55,9 +80,12 @@ const TransactionsController = {
   createPayOffline: asyncErrorHandler(async (req, res) => {
     const { amount, info, type } = req.body;
 
-    const user = req.user;
+    const user = await Personnel.findById(req.user.user_id);
 
-    console.log(info);
+    if (!user) {
+      throw new AuthorizationError();
+    }
+
     const existingTransactions = await Transaction.find({
       restaurantOrders_id: { $in: info },
     });
@@ -92,20 +120,12 @@ const TransactionsController = {
     let newPageIndex = pageIndex;
     let query = { rest_id, status: 'success' };
 
-    if (today === 'true') {
-      const currentDate = new Date();
-      const todayStartDate = new Date(
-        currentDate.getFullYear(),
-        currentDate.getMonth(),
-        currentDate.getDate()
-      );
-      const tomorrowStartDate = new Date(
-        currentDate.getFullYear(),
-        currentDate.getMonth(),
-        currentDate.getDate() + 1
-      );
+    if (parseBool(today)) {
+      const currentDate = moment().tz(TIME_ZONE);
+      const todayStartDate = currentDate.clone().startOf('day');
+      const tomorrowStartDate = currentDate.clone().add(1, 'day').startOf('day');
 
-      query.createdAt = { $gte: todayStartDate, $lt: tomorrowStartDate };
+      query.createdAt = { $gte: todayStartDate.toDate(), $lt: tomorrowStartDate.toDate() };
     }
 
     if (userType !== 'all') {
@@ -116,12 +136,15 @@ const TransactionsController = {
       query.type = transactionType;
     }
 
-    if (date !== 'undefined') {
-      const selectedDate = new Date(date);
-      selectedDate.setUTCHours(0, 0, 0, 0);
-      const endOfDay = new Date(selectedDate);
-      endOfDay.setUTCHours(23, 59, 59, 999);
-      query.createdAt = { $gte: selectedDate, $lte: endOfDay };
+    if (parseBool(date)) {
+      const selectedDate = moment.tz(date, TIME_ZONE);
+      const startOfDay = selectedDate.clone().startOf('day');
+      const endOfDay = selectedDate.clone().endOf('day');
+      query.createdAt = { $gte: startOfDay.toDate(), $lte: endOfDay.toDate() };
+    }
+
+    if (!newPageIndex || !perPage) {
+      throw new BadRequestError('Missing pagination newPageIndex and perPage parameters');
     }
 
     const transactions = await Transaction.find(query)
@@ -151,27 +174,26 @@ const TransactionsController = {
     }
 
     let pipeline;
-    const today = new Date();
-    today.setUTCHours(21, 0, 0, 0);
+    const today = moment().tz(TIME_ZONE);
 
     if (timestamp === 'year') {
       pipeline = statiscticsPipeline.year(rest_id);
     }
 
     if (timestamp === 'month') {
-      const firstDayOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
-      const lastDayOfMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0);
-      pipeline = statiscticsPipeline.oneMonth(rest_id, firstDayOfMonth, lastDayOfMonth);
+      const firstDayOfMonth = today.clone().startOf('month');
+      const lastDayOfMonth = today.clone().endOf('month');
+      pipeline = statiscticsPipeline.oneMonth(
+        rest_id,
+        firstDayOfMonth.toDate(),
+        lastDayOfMonth.toDate()
+      );
     }
 
     if (timestamp === 'week') {
-      const currentDayOfWeek = today.getDay();
-      const startOfWeek = new Date(today);
-      const count = currentDayOfWeek === 0 ? 7 : currentDayOfWeek;
-      startOfWeek.setDate(today.getDate() - count);
-      const endOfWeek = new Date(today);
-
-      pipeline = statiscticsPipeline.weekly(rest_id, endOfWeek, startOfWeek);
+      const startOfWeek = today.clone().startOf('week');
+      const endOfWeek = today.clone().endOf('week');
+      pipeline = statiscticsPipeline.weekly(rest_id, endOfWeek.toDate(), startOfWeek.toDate());
     }
 
     const statistics = await Transaction.aggregate(pipeline);
