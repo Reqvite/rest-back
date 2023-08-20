@@ -4,13 +4,19 @@ const LiqPayService = require('../services/liqpay/liqpayService');
 const asyncErrorHandler = require('../utils/errors/asyncErrorHandler');
 const { BadRequestError } = require('../utils/errors/CustomErrors');
 const statiscticsPipeline = require('../utils/pipelines/statisctics');
+const parseBool = require('../utils/helpers/parseBool');
 
 const TransactionsController = {
   createPayOnline: asyncErrorHandler(async (req, res) => {
     const { amount, info, frontLink, rest_id } = req.body;
     const liqPayOrder_id = new mongoose.Types.ObjectId();
 
-    const { name } = await Restaurant.findById(rest_id);
+    const restaurant = await Restaurant.findById(rest_id);
+    if (!restaurant) {
+      const err = new NotFoundError('No restaurant records found for the given restaurant ID!');
+      return next(err);
+    }
+    const name = restaurant.name;
 
     const paymentInfo = LiqPayService.getLiqPayPaymentData(
       amount,
@@ -35,16 +41,31 @@ const TransactionsController = {
     const restaurantName = description.substring(start + 1, end);
     const { _id } = await Restaurant.findOne({ name: restaurantName });
 
-    if (status === 'success') {
-      await Order.updateMany({ _id: { $in: infoIds } }, { status: 'Paid' });
-      await Transaction.create({
-        rest_id: _id,
-        paymentAmount: amount,
-        _id: order_id,
-        type: 'online',
-        restaurantOrders_id: infoIds,
-        status: 'success',
-      });
+    const session = await mongoose.startSession();
+    session.startTransaction();
+    try {
+      if (status === 'success') {
+        await Order.updateMany({ _id: { $in: infoIds } }, { status: 'Paid' }, { session });
+        await Transaction.create(
+          [
+            {
+              rest_id: _id,
+              paymentAmount: amount,
+              _id: order_id,
+              type: 'online',
+              restaurantOrders_id: infoIds,
+              status: 'success',
+            },
+          ],
+          { session }
+        );
+        await session.commitTransaction();
+      }
+    } catch (err) {
+      await session.abortTransaction();
+      throw err;
+    } finally {
+      session.endSession();
     }
 
     return res.status(200).json({
@@ -57,7 +78,6 @@ const TransactionsController = {
 
     const user = req.user;
 
-    console.log(info);
     const existingTransactions = await Transaction.find({
       restaurantOrders_id: { $in: info },
     });
@@ -92,7 +112,7 @@ const TransactionsController = {
     let newPageIndex = pageIndex;
     let query = { rest_id, status: 'success' };
 
-    if (today === 'true') {
+    if (parseBool(today)) {
       const currentDate = new Date();
       const todayStartDate = new Date(
         currentDate.getFullYear(),
@@ -116,12 +136,16 @@ const TransactionsController = {
       query.type = transactionType;
     }
 
-    if (date !== 'undefined') {
+    if (parseBool(date)) {
       const selectedDate = new Date(date);
       selectedDate.setUTCHours(0, 0, 0, 0);
       const endOfDay = new Date(selectedDate);
       endOfDay.setUTCHours(23, 59, 59, 999);
       query.createdAt = { $gte: selectedDate, $lte: endOfDay };
+    }
+
+    if (!newPageIndex || !perPage) {
+      throw new BadRequestError('Missing pagination newPageIndex and perPage parameters');
     }
 
     const transactions = await Transaction.find(query)
@@ -151,8 +175,10 @@ const TransactionsController = {
     }
 
     let pipeline;
-    const today = new Date();
+    const today = new Date(2023, 7, 22);
+    const offset = today.getTimezoneOffset();
     today.setUTCHours(21, 0, 0, 0);
+    today.setMinutes(today.getMinutes() + offset);
 
     if (timestamp === 'year') {
       pipeline = statiscticsPipeline.year(rest_id);

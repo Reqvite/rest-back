@@ -11,9 +11,8 @@ const createOnlineTransactionSchema = Joi.object({
 }).options({ abortEarly: false, allowUnknown: false });
 
 const createOfflineTransactionSchema = Joi.object({
-  createdById: Joi.string(),
   amount: Joi.number().positive().greater(0).required(),
-  type: Joi.string().required(),
+  type: Joi.string().valid('POS', 'Cash').required(),
   info: Joi.array().required(),
 }).options({ abortEarly: false, allowUnknown: false });
 
