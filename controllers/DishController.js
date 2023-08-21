@@ -124,42 +124,47 @@ const DishController = {
   }),
 
   addDish: asyncErrorHandler(async (req, res, next) => {
-     const restaurantId = req.params.rest_id;
+    const restaurantId = req.params.rest_id;
+    
+      const session = await mongoose.startSession();
+      session.startTransaction();
 
-    const restaurant = await Restaurant.findById(restaurantId);
-    if (!restaurant) {
-      const err = new NotFoundError('No restaurant records found for the given restaurant ID!');
-      return next(err);
-    }
+      const newDish = new Dish({
+        name: req.body.name,
+        ingredients: req.body.ingredients,
+        picture: req.body.picture,
+        type: req.body.type,
+        spicy: req.body.spicy,
+        vegetarian: req.body.vegetarian,
+        pescatarian: req.body.pescatarian,
+        portionWeight: req.body.portionWeight,
+        price: req.body.price,
+        isActive: req.body.isActive,
+      });
+    
+      if (!newDish) {
+        const err = new BadRequestError('Unable to add dish to the database');
+        return next(err);
+      }
+    
+      await newDish.save({ session });
+    
+      const restUpdation = await Restaurant.updateOne(
+        { _id: restaurantId },
+        { $push: { dishes_ids: newDish._id } },
+        { session }
+      );
+      console.log(restUpdation)
 
-    const newDish = new Dish({
-      name: req.body.name,
-      ingredients: req.body.ingredients,
-      picture: req.body.picture,
-      type: req.body.type,
-      spicy: req.body.spicy,
-      vegetarian: req.body.vegetarian,
-      pescatarian: req.body.pescatarian,
-      portionWeight: req.body.portionWeight,
-      price: req.body.price,
-      isActive: req.body.isActive,
-    });
-
-    console.log(newDish);
-
-    if (!newDish) {
-      const err = new BadRequestError('Unable to add dish to database');
-      return next(err);
-    }
-
-    const savedDish = await newDish.save();
-
-    const dishAdded = await Restaurant.updateOne(
-      { _id: restaurantId },
-      { $push: { dishes_ids: savedDish._id } }
-    );
-
-    res.status(CREATED).json(newDish);
+      if (restUpdation.modifiedCount > 0){
+        await session.commitTransaction();
+        session.endSession();
+        res.status(CREATED).json(newDish);
+      } else if (restUpdation.modifiedCount === 0) {
+        await session.abortTransaction();
+        const err = new BadRequestError('No restaurant records found for the given restaurant ID!');
+        return next(err);
+      }
   }),
 
   editDishById: asyncErrorHandler(async (req, res, next) => {
