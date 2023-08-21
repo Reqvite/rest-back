@@ -19,6 +19,15 @@ const TransactionsController = {
       const err = new NotFoundError('No restaurant records found for the given restaurant ID!');
       return next(err);
     }
+
+    const existingTransactions = await Transaction.find({
+      restaurantOrders_id: { $in: info.split(',') },
+    });
+
+    if (existingTransactions.length !== 0) {
+      throw new BadRequestError('Orders with such IDs have already been paid');
+    }
+
     const name = restaurant.name;
 
     const paymentInfo = LiqPayService.getLiqPayPaymentData(
