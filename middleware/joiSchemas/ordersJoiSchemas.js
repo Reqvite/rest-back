@@ -21,13 +21,21 @@ const createOrderJoiSchema = Joi.object({
 const updateOrderStatusJoiSchema = Joi.object({
   status: Joi.string().valid('Open', 'Paid', 'Canceled', 'Closed').required(),
 }).options({ abortEarly: false, allowUnknown: false });
+const item = Joi.string()
+  .pattern(/^[0-9a-fA-F]{24}$/)
+  .required();
 
 const updateDishStatusJoiSchema = Joi.object({
   status: Joi.string().valid('Ordered', 'In progress', 'Ready', 'Served').required(),
 }).options({ abortEarly: false, allowUnknown: false });
 
+const updateOrderStatusesToPaid = Joi.object({
+  orders: Joi.array().items(item).required(),
+});
+
 module.exports = {
   createOrderJoiSchema,
   updateOrderStatusJoiSchema,
   updateDishStatusJoiSchema,
+  updateOrderStatusesToPaid,
 };
