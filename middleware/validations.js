@@ -1,10 +1,7 @@
-const mongoose = require('mongoose');
-const { BadRequestError, AuthorizationError } = require('../utils/errors/CustomErrors');
+const { BadRequestError } = require('../utils/errors/CustomErrors');
 const { StatusCodes } = require('http-status-codes');
-const { BAD_REQUEST, FORBIDDEN } = StatusCodes;
-const Token = require('../models/tokenModel');
+const { BAD_REQUEST } = StatusCodes;
 
-// const isValidObjectId = (id) => mongoose.Types.ObjectId.isValid(id);
 const isValidObjectId = (id) => /^[0-9a-fA-F]{24}$/.test(id);
 
 const validateObjectId = (req, _, next) => {
