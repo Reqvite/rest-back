@@ -41,82 +41,70 @@ const tableController = {
     let updatedTable = [];
     let response = {};
 
-    const session = await mongoose.startSession();
-    session.startTransaction();
+    const table = await Table.findById(id);
 
-    try {
-      const table = await Table.findById(id).session(session);
+    if (!table) {
+      const err = new NotFoundError('Table not found for the given table ID!');
+      return next(err);
+    }
 
-      if (!table) {
-        const err = new NotFoundError('Table not found for the given table ID!');
+    if (table.restaurant_id.toString() !== restaurant_id) {
+      const err = new AuthorizationError();
+      return next(err);
+    }
+
+    table.status = status;
+
+    if (status !== 'Free') {
+      updatedTable = await table.save();
+      response.updatedTable = updatedTable;
+    }
+
+    if (status === 'Free') {
+      const orders = await Order.find({
+        table_id: id,
+        rest_id: restaurant_id,
+        status: { $nin: ['Closed', 'Canceled'] },
+      });
+
+      const hasUnservedDishes = orders.some((order) => {
+        return order.orderItems.some((item) => item.status !== 'Served');
+      });
+
+      if (hasUnservedDishes) {
+        const err = new BadRequestError(
+          'Cannot change table status. Some dishes are not served yet.'
+        );
         return next(err);
       }
 
-      if (table.restaurant_id.toString() !== restaurant_id) {
-        const err = new AuthorizationError();
-        return next(err);
-      }
-
-      table.status = status;
-
-      if (status !== 'Free') {
-        updatedTable = await table.save({ session });
+      if (orders.length === 0) {
+        updatedTable = await table.save();
         response.updatedTable = updatedTable;
-      }
-
-      if (status === 'Free') {
-        const orders = await Order.find({
-          table_id: id,
-          rest_id: restaurant_id,
-          status: { $nin: ['Closed', 'Canceled'] },
-        }).session(session);
-
-        const hasUnservedDishes = orders.some((order) => {
-          return order.orderItems.some((item) => item.status !== 'Served');
+      } else {
+        const allOrdersCanBeClosed = orders.every((order) => {
+          return order.status === 'Paid';
         });
 
-        if (hasUnservedDishes) {
-          const err = new BadRequestError(
-            'Cannot change table status. Some dishes are not served yet.'
-          );
+        if (!allOrdersCanBeClosed) {
+          const err = new NotFoundError('Not all orders are paid for this table ID!');
           return next(err);
         }
 
-        if (orders.length === 0) {
-          updatedTable = await table.save({ session });
+        if (allOrdersCanBeClosed) {
+          await Promise.all(orders.map((order) => closeOrder(order)));
+          updatedTable = await table.save();
           response.updatedTable = updatedTable;
-        } else {
-          const allOrdersCanBeClosed = orders.every((order) => {
-            return order.status === 'Paid';
-          });
-
-          if (!allOrdersCanBeClosed) {
-            const err = new NotFoundError('Not all orders are paid for this table ID!');
-            return next(err);
-          }
-
-          if (allOrdersCanBeClosed) {
-            await Promise.all(orders.map((order) => closeOrder(order, session)));
-            updatedTable = await table.save({ session });
-            response.updatedTable = updatedTable;
-            response.updatedOrders = orders;
-          }
+          response.updatedOrders = orders;
         }
-        await session.commitTransaction();
       }
-
-      const eventMessage = `Table number ${table.table_number} is ${status}`;
-      const eventType = 'table status';
-      sendEventToClients(restaurant_id, eventMessage, eventType);
-
-      res.status(OK).json(response);
-    } catch (error) {
-      await session.abortTransaction();
-      session.endSession();
-      return next(error);
-    } finally {
-      session.endSession();
     }
+
+    const eventMessage = `Table number ${table.table_number} is ${status}`;
+    const eventType = 'table status';
+    sendEventToClients(restaurant_id, eventMessage, eventType);
+
+    res.status(OK).json(response);
   }),
 };
 
