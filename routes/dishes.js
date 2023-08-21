@@ -8,14 +8,14 @@ const checkAuth = require('../middleware/authorization/checkAuth');
 /**
  * @openapi
  * paths:
- *   /dishes/restaurant/{id}:
+ *   /dishes/restaurant/{restId}:
  *     get:
  *       tags:
  *         - Dishes
  *       summary: Get all dishes by restaurant id.
  *       parameters:
  *          - in: path
- *            name: Id
+ *            name: restId
  *            required: true
  *            schema:
  *             type: string
@@ -41,14 +41,13 @@ const checkAuth = require('../middleware/authorization/checkAuth');
  *                 items:
  *                   $ref: '#/components/schemas/Dish'
  *
- *   /dishes/restaurant/{Id}:
  *     post:
  *       tags:
  *         - Dishes
  *       summary: Add dish to the collection and update restaurant dishes.
  *       parameters:
  *          - in: path
- *            name: restaurant_id
+ *            name: restId
  *            required: true
  *            type: string
  *       responses:
@@ -60,7 +59,7 @@ const checkAuth = require('../middleware/authorization/checkAuth');
  *                 type: array
  *                 items:
  *                   $ref: '#/components/schemas/Dish'
- *   /dishes/{id}:
+ *   /dishes/{dish_id}:
  *     get:
  *       tags:
  *         - Dishes
@@ -79,6 +78,8 @@ const checkAuth = require('../middleware/authorization/checkAuth');
  *                 type: array
  *                 items:
  *                   $ref: '#/components/schemas/Dish'
+ *
+ *   /dishes/{dish_id}/edit/restaurant/{restId}:
  *     patch:
  *       tags:
  *         - Dishes
@@ -91,9 +92,8 @@ const checkAuth = require('../middleware/authorization/checkAuth');
  *       responses:
  *          '204':
  *           description: Dish edited.
- *
- *
- *   /dishes/{id}/restaurant/{Id}:
+ * 
+ *   /dishes/{dish_id}/restaurant/{restId}:
  *     patch:
  *       tags:
  *         - Dishes
