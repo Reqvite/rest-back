@@ -12,7 +12,7 @@ const asyncErrorHandler = (func) => {
 
       if (err.code === MONGO_ENTITY_EXISTS_ERROR_CODE) {
         err.statusCode = CONFLICT;
-        err.message = 'An account with this email already exists.';
+        err.message = 'Invalid credentials!';
         console.log(err);
       }
 

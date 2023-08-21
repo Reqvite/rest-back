@@ -3,11 +3,11 @@ const { validateIdInJoiSchema } = require('../validations');
 const { dishCategories } = require('../../constants/constants');
 
 const dishJoiSchema = Joi.object({
-  name: Joi.string().min(2).max(30).required(),
+  name: Joi.string().min(2).max(50).required(),
   ingredients: Joi.array().items(
     Joi.string().custom((value, helpers) => validateIdInJoiSchema(value, helpers))
   ),
-  picture: Joi.string().required(),
+  picture: Joi.string(),
   type: Joi.string()
     .valid(...dishCategories)
     .required(),
@@ -21,7 +21,9 @@ const dishJoiSchema = Joi.object({
 
 const dishRequestJoiSchema = Joi.object({
   isActive: Joi.valid('true', 'false'),
-  type: Joi.string().valid(...dishCategories).allow(''),
+  type: Joi.string()
+    .valid(...dishCategories)
+    .allow(''),
   page: Joi.string().regex(/^\d+$/).min(1),
   limit: Joi.string().regex(/^\d+$/).min(1),
   searchText: Joi.string().allow(''),

@@ -2,11 +2,12 @@ const express = require('express');
 const personnelController = require('../controllers/PersonnelController');
 const router = express.Router();
 const {
-    personnelJoiSchema,
-    personnelJoiSchemaDelete,
-    personnelJoiSchemaPatch,
+  personnelJoiSchema,
+  personnelJoiSchemaDelete,
+  personnelJoiSchemaPatch,
+  personnelRequestJoiSchema,
 } = require('../middleware/joiSchemas/personnelJoiSchemas');
-const {validateBody, validateObjectId} = require('../middleware/validations');
+const { validateBody, validateObjectId, validateQuery } = require('../middleware/validations');
 const checkAuth = require('../middleware/authorization/checkAuth');
 
 router.get(
@@ -247,4 +248,39 @@ router.delete(
  *         - email
  *         - address
  */
+
+router.get(
+  '/restaurant/:rest_id',
+  checkAuth(['admin']),
+  validateObjectId,
+  validateQuery(personnelRequestJoiSchema),
+  personnelController.getPersonnelByRestaurantId
+);
+router.get(
+  '/:id/restaurant/:rest_id',
+  checkAuth(['admin']),
+  validateObjectId,
+  personnelController.getPersonnelById
+);
+router.post(
+  '/',
+  validateBody(personnelJoiSchema),
+  checkAuth(['admin']),
+  personnelController.addPersonnel
+);
+router.patch(
+  '/:id',
+  validateBody(personnelJoiSchemaPatch),
+  checkAuth(['admin']),
+  validateObjectId,
+  personnelController.updatePersonnel
+);
+router.delete(
+  '/:id',
+  validateBody(personnelJoiSchemaDelete),
+  checkAuth(['admin']),
+  validateObjectId,
+  personnelController.deletePersonnel
+);
+
 module.exports = router;
