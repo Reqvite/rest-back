@@ -125,48 +125,63 @@ const DishController = {
 
   addDish: asyncErrorHandler(async (req, res, next) => {
     const restaurantId = req.params.rest_id;
-    // console.log(req.body)
+    const session = await mongoose.startSession();
+    session.startTransaction();
 
-    const newDish = new Dish({
-      name: req.body.name,
-      ingredients: req.body.ingredients,
-      picture: req.body.picture,
-      type: req.body.type,
-      spicy: req.body.spicy,
-      vegetarian: req.body.vegetarian,
-      pescatarian: req.body.pescatarian,
-      portionWeight: req.body.portionWeight,
-      price: req.body.price,
-      isActive: req.body.isActive,
-    });
+    try {
+      const newDish = new Dish({
+        name: req.body.name,
+        ingredients: req.body.ingredients,
+        picture: req.body.picture,
+        type: req.body.type,
+        spicy: req.body.spicy,
+        vegetarian: req.body.vegetarian,
+        pescatarian: req.body.pescatarian,
+        portionWeight: req.body.portionWeight,
+        price: req.body.price,
+        isActive: req.body.isActive,
+      });
 
-    console.log(newDish);
+      console.log(newDish);
 
-    if (!newDish) {
+      if (!newDish) {
+        const err = new BadRequestError('Unable to add dish to database');
+        return next(err);
+      }
+
+      const savedDish = await newDish.save();
+
+      const restaurant = await Restaurant.updateOne(
+        { _id: restaurantId },
+        { $push: { dishes_ids: savedDish._id } }
+      ).session(session);
+
+      if (!restaurant) {
+        await session.abortTransaction();
+        session.endSession();
+
+        const err = new BadRequestError(
+          'Unable to add dish to restaurant dishes_ids. Check if the dish was added to Dish collection'
+        );
+        return next(err);
+      }
+      await session.commitTransaction();
+      session.endSession();
+
+      res.status(CREATED).json(newDish);
+    } catch (error) {
+      await session.abortTransaction();
+      session.endSession();
+
       const err = new BadRequestError('Unable to add dish to database');
       return next(err);
-    }
-
-    const savedDish = await newDish.save();
-
-    const restaurant = await Restaurant.findByIdAndUpdate(restaurantId, {
-      $push: { dishes_ids: savedDish._id },
-    });
-
-    if (!restaurant) {
-      const err = new BadRequestError(
-        'Unable to add dish to restaurant dishes_ids. Check if the dish was added to Dish collection'
-      );
-      return next(err);
-    }
-
-    res.status(CREATED).json(newDish);
+  }
   }),
 
   editDishById: asyncErrorHandler(async (req, res, next) => {
     const dishId = req.params.id;
 
-    const dish = await Dish.findByIdAndUpdate(dishId, {
+    const dish = await Dish.updateOne({ _id: dishId }, {
       name: req.body.name,
       ingredients: req.body.ingredients,
       picture: req.body.picture,
@@ -207,7 +222,7 @@ const DishController = {
 
     const updatedIsActive = !dish.isActive;
 
-    await Dish.findByIdAndUpdate(dishId, { $set: { isActive: updatedIsActive } });
+    await Dish.updateOne({ _id: dishId }, { $set: { isActive: updatedIsActive } });
 
     res.status(OK).json({ message: 'Dish status updated successfully' });
   }),
