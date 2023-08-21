@@ -1,15 +1,17 @@
 const Token = require('../models/tokenModel');
 const jwt = require('jsonwebtoken');
 const { randomUUID } = require('crypto');
-require('dotenv').config();
+const util = require('util');
 const { NotFoundError, AuthorizationError } = require('../utils/errors/CustomErrors');
 const { StatusCodes } = require('http-status-codes');
 const { OK, INTERNAL_SERVER_ERROR } = StatusCodes;
+const JWT_SECRET_KEY = process.env.JWT_SECRET_KEY;
+const JWT_REFRESH_SECRET_KEY = process.env.JWT_REFRESH_SECRET_KEY;
+const JWT_EXPIRE_TIME = process.env.JWT_EXPIRE_TIME;
+const JWT_REFRESH_EXPIRE_TIME = Number(process.env.JWT_REFRESH_EXPIRE_TIME);
 
-JWT_SECRET_KEY = process.env.JWT_SECRET_KEY;
-JWT_REFRESH_SECRET_KEY = process.env.JWT_REFRESH_SECRET_KEY;
-JWT_EXPIRE_TIME = '1h';
-JWT_REFRESH_EXPIRE_TIME = 4.5 * 60 * 60; // 4.5h
+const jwtSignAsync = util.promisify(jwt.sign);
+const jwtVerifyAsync = util.promisify(jwt.verify);
 
 const tokenController = {
   get: async (user_id, token_id) => {
@@ -38,12 +40,12 @@ const tokenController = {
     ),
 
   getTokens: async (user_id, restaurant_id, role) => {
-    const token = jwt.sign({ id: user_id }, JWT_SECRET_KEY, {
+    const token = await jwtSignAsync({ id: user_id }, JWT_SECRET_KEY, {
       expiresIn: JWT_EXPIRE_TIME,
     });
 
     const token_id = randomUUID();
-    const refreshToken = jwt.sign({ id: user_id, token_id }, JWT_REFRESH_SECRET_KEY, {
+    const refreshToken = await jwtSignAsync({ id: user_id, token_id }, JWT_REFRESH_SECRET_KEY, {
       expiresIn: JWT_REFRESH_EXPIRE_TIME,
     });
 
@@ -83,7 +85,8 @@ const tokenController = {
         throw new AuthorizationError('User authorization failed. Access denied.');
       }
       const refreshToken = authHeader.split(' ')[1];
-      const { id: userId, token_id } = jwt.verify(refreshToken, JWT_REFRESH_SECRET_KEY);
+
+      const { id: userId, token_id } = await jwtVerifyAsync(refreshToken, JWT_REFRESH_SECRET_KEY);
 
       if (userId !== user_id) {
         throw new AuthorizationError('User authorization failed. Access denied.');
