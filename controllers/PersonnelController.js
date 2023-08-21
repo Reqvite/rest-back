@@ -190,7 +190,9 @@ const personnelController = {
       return next(err);
     }
 
-    await deleteFromS3(personnel.picture);
+    if(personnel.picture && personnel.picture !== 'RESTio.png'){
+      await deleteFromS3(personnel.picture);
+    }
 
     // Delete the personnel from the database
     await personnel.deleteOne();

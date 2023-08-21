@@ -10,6 +10,39 @@ const {
 const { validateBody, validateObjectId, validateQuery } = require('../middleware/validations');
 const checkAuth = require('../middleware/authorization/checkAuth');
 
+router.get(
+    '/restaurant/:rest_id',
+    checkAuth(['admin']),
+    validateObjectId,
+    personnelController.getPersonnelByRestaurantId
+);
+router.get(
+    '/:id/restaurant/:rest_id',
+    checkAuth(['admin']),
+    validateObjectId,
+    personnelController.getPersonnelById
+);
+router.post(
+    '/',
+    validateBody(personnelJoiSchema),
+    checkAuth(['admin']),
+    personnelController.addPersonnel
+);
+router.patch(
+    '/:id',
+    validateBody(personnelJoiSchemaPatch),
+    checkAuth(['admin']),
+    validateObjectId,
+    personnelController.updatePersonnel
+);
+router.delete(
+    '/:id',
+    validateBody(personnelJoiSchemaDelete),
+    checkAuth(['admin']),
+    validateObjectId,
+    personnelController.deletePersonnel
+);
+
 /**
  * @openapi
  * paths:
@@ -20,7 +53,7 @@ const checkAuth = require('../middleware/authorization/checkAuth');
  *       summary: Get all personnel by restaurant
  *       parameters:
  *         - in: path
- *           name: restaurantId
+ *           name: rest_id
  *           required: true
  *           schema:
  *             type: string
@@ -34,37 +67,19 @@ const checkAuth = require('../middleware/authorization/checkAuth');
  *                 items:
  *                   $ref: '#/components/schemas/Personnel'
  *
- *   /personnel:
- *     post:
- *       tags:
- *         - Personnel
- *       summary: Add new personnel
- *       requestBody:
- *         required: true
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/Personnel'
- *       responses:
- *         '201':
- *           description: Personnel added
- *           content:
- *             application/json:
- *               schema:
- *                 $ref: '#/components/schemas/Personnel'
- *         '400':
- *           description: Bad Request - Missing required fields or invalid data
- *         '500':
- *           description: Internal Server Error - Something went wrong on the server
- *
- *   /personnel/{personnelId}:
+ *   /personnel/{id}/restaurant/{rest_id}:
  *     get:
  *       tags:
  *         - Personnel
  *       summary: Get personnel by id
  *       parameters:
  *         - in: path
- *           name: personnelId
+ *           name: id
+ *           required: true
+ *           schema:
+ *             type: string
+ *         - in: path
+ *           name: rest_id
  *           required: true
  *           schema:
  *             type: string
@@ -80,13 +95,37 @@ const checkAuth = require('../middleware/authorization/checkAuth');
  *         '500':
  *           description: Internal Server Error - Something went wrong on the server
  *
+ *   /personnel:
+ *     post:
+ *       tags:
+ *         - Personnel
+ *       summary: Add new personnel
+ *       requestBody:
+ *         required: true
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/PersonnelInput'
+ *       responses:
+ *         '201':
+ *           description: Personnel added
+ *           content:
+ *             application/json:
+ *               schema:
+ *                 $ref: '#/components/schemas/Personnel'
+ *         '400':
+ *           description: Bad Request - Missing required fields or invalid data
+ *         '500':
+ *           description: Internal Server Error - Something went wrong on the server
+ *
+ *   /personnel/{id}:
  *     patch:
  *       tags:
  *         - Personnel
  *       summary: Update personnel
  *       parameters:
  *         - in: path
- *           name: personnelId
+ *           name: id
  *           required: true
  *           schema:
  *             type: string
@@ -95,7 +134,7 @@ const checkAuth = require('../middleware/authorization/checkAuth');
  *         content:
  *           application/json:
  *             schema:
- *               $ref: '#/components/schemas/Personnel'
+ *               $ref: '#/components/schemas/PersonnelInput'
  *       responses:
  *         '200':
  *           description: Personnel updated
@@ -118,7 +157,7 @@ const checkAuth = require('../middleware/authorization/checkAuth');
  *       summary: Delete personnel
  *       parameters:
  *         - in: path
- *           name: personnelId
+ *           name: id
  *           required: true
  *           schema:
  *             type: string
@@ -142,6 +181,72 @@ const checkAuth = require('../middleware/authorization/checkAuth');
  *           description: Personnel not found
  *         '500':
  *           description: Internal Server Error - Something went wrong on the server
+ *
+ * components:
+ *   schemas:
+ *     Personnel:
+ *       type: object
+ *       properties:
+ *         _id:
+ *           type: string
+ *         name:
+ *           type: string
+ *         gender:
+ *           type: string
+ *         role:
+ *           type: string
+ *         restaurant_id:
+ *           type: string
+ *         phone:
+ *           type: string
+ *         email:
+ *           type: string
+ *         address:
+ *           type: string
+ *         picture:
+ *           type: string
+ *       required:
+ *         - _id
+ *         - name
+ *         - gender
+ *         - role
+ *         - restaurant_id
+ *         - phone
+ *         - email
+ *         - address
+ *
+ *     PersonnelInput:
+ *       type: object
+ *       properties:
+ *         firstName:
+ *           type: string
+ *         lastName:
+ *           type: string
+ *         gender:
+ *           type: string
+ *         role:
+ *           type: string
+ *         restaurant_id:
+ *           type: string
+ *         phone:
+ *           type: string
+ *         email:
+ *           type: string
+ *         address:
+ *           type: string
+ *         picture:
+ *           type: string
+ *         password:
+ *           type: string
+ *       required:
+ *         - firstName
+ *         - lastName
+ *         - gender
+ *         - role
+ *         - restaurant_id
+ *         - phone
+ *         - email
+ *         - address
  */
 
 router.get(
