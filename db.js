@@ -3,8 +3,6 @@ require('dotenv').config();
 
 const uri = process.env.ATLAS_URI;
 
-console.log('hello server');
-
 const connectDB = async () => {
   try {
     await mongoose.connect(uri, {
