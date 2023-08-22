@@ -8,7 +8,7 @@ const Restaurant = require('../models/restaurantModel');
 const asyncErrorHandler = require('../utils/errors/asyncErrorHandler');
 const { StatusCodes } = require('http-status-codes');
 const { OK, CREATED } = StatusCodes;
-const { getSignedUrl, deleteFromS3 } = require('../utils/s3');
+const { deleteFromS3 } = require('../utils/s3');
 
 
 const personnelController = {
@@ -72,7 +72,7 @@ const personnelController = {
     res.status(OK).json(personnel);
   }),
 
-  addPersonnel: asyncErrorHandler(async (req, res) => {
+  addPersonnel: asyncErrorHandler(async (req, res, next) => {
     const {
       firstName,
       lastName,

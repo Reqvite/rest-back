@@ -2,7 +2,11 @@ const { mongoose } = require('mongoose');
 const { Order, Transaction, Restaurant } = require('../models');
 const LiqPayService = require('../services/liqpay/liqpayService');
 const asyncErrorHandler = require('../utils/errors/asyncErrorHandler');
-const { BadRequestError, AuthorizationError } = require('../utils/errors/CustomErrors');
+const {
+  BadRequestError,
+  AuthorizationError,
+  NotFoundError,
+} = require('../utils/errors/CustomErrors');
 const statiscticsPipeline = require('../utils/pipelines/statisctics');
 const parseBool = require('../utils/helpers/parseBool');
 const moment = require('moment-timezone');
@@ -10,7 +14,7 @@ const Personnel = require('../models/personnelModel');
 const { TIME_ZONE } = process.env;
 
 const TransactionsController = {
-  createPayOnline: asyncErrorHandler(async (req, res) => {
+  createPayOnline: asyncErrorHandler(async (req, res, next) => {
     const { amount, info, frontLink, rest_id } = req.body;
     const liqPayOrder_id = new mongoose.Types.ObjectId();
 
