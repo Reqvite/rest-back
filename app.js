@@ -47,6 +47,8 @@ app.use(`/tokens`, routes.tokens);
 app.use('/api', routes.upload);
 app.use('/openai', routes.openai);
 
+let x;
+
 app.all('*', (req, _, next) => {
   const err = new NotFoundError(`Cant find ${req.originalUrl} on the server`);
   next(err);
