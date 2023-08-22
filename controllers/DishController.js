@@ -1,6 +1,7 @@
 const s3 = require('@aws-sdk/client-s3');
 const presigner = require('@aws-sdk/s3-request-presigner');
 const Dish = require('../models/dishModel');
+const mongoose = require('mongoose');
 const Restaurant = require('../models/restaurantModel');
 const Ingredient = require('../models/ingredientModel');
 const asyncErrorHandler = require('../utils/errors/asyncErrorHandler');
