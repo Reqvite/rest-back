@@ -1,4 +1,3 @@
-const mongoose = require('mongoose');
 const { Table, Order } = require('../models');
 const asyncErrorHandler = require('../utils/errors/asyncErrorHandler');
 const {
