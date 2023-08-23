@@ -8,23 +8,8 @@ const asyncErrorHandler = require('../utils/errors/asyncErrorHandler');
 const { NotFoundError, BadRequestError } = require('../utils/errors/CustomErrors');
 const { StatusCodes } = require('http-status-codes');
 const { OK, CREATED } = StatusCodes;
+const { getSignedUrl } = require('../utils/s3');
 
-const s3Client = new s3.S3Client({
-  region: process.env.AWS_REGION,
-  credentials: {
-    accessKeyId: process.env.AWS_ACCESS_KEY_ID,
-    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
-  },
-});
-
-const getSignedImageURL = async (imageName) => {
-  const getObjectParams = {
-    Bucket: process.env.AWS_BUCKET_NAME,
-    Key: imageName,
-  };
-  const command = new s3.GetObjectCommand(getObjectParams);
-  return await presigner.getSignedUrl(s3Client, command, { expiresIn: 3600 });
-};
 
 const DishController = {
   // request example
@@ -81,10 +66,7 @@ const DishController = {
       console.log(totalPages);
 
       for (const dish of paginatedDishes) {
-        if (!dish.picture) {
-          dish.picture = 'RESTio.png';
-        }
-        dish.picture = await getSignedImageURL(dish.picture);
+        dish.picture = await getSignedUrl(dish);
       }
 
       let response = {
@@ -97,10 +79,7 @@ const DishController = {
     } else {
       let data = dish.dishes_ids;
       for (const dish of data) {
-        if (!dish.picture) {
-          dish.picture = 'RESTio.png';
-        }
-        dish.picture = await getSignedImageURL(dish.picture);
+        dish.picture = await getSignedUrl(dish);
       }
       res.status(OK).json(data);
     }
@@ -111,10 +90,7 @@ const DishController = {
 
     const dish = await Dish.findById(dishId).populate({ path: 'ingredients', model: 'Ingredient' });
 
-    if (!dish.picture) {
-      dish.picture = 'RESTio.png';
-    }
-    dish.picture = await getSignedImageURL(dish.picture);
+    dish.picture = await getSignedUrl(dish);
 
     if (!dish) {
       const err = new NotFoundError('Dish not found for the given dish ID!');
@@ -126,46 +102,46 @@ const DishController = {
 
   addDish: asyncErrorHandler(async (req, res, next) => {
     const restaurantId = req.params.rest_id;
-    
-      const session = await mongoose.startSession();
-      session.startTransaction();
 
-      const newDish = new Dish({
-        name: req.body.name,
-        ingredients: req.body.ingredients,
-        picture: req.body.picture,
-        type: req.body.type,
-        spicy: req.body.spicy,
-        vegetarian: req.body.vegetarian,
-        pescatarian: req.body.pescatarian,
-        portionWeight: req.body.portionWeight,
-        price: req.body.price,
-        isActive: req.body.isActive,
-      });
-    
-      if (!newDish) {
-        const err = new BadRequestError('Unable to add dish to the database');
-        return next(err);
-      }
-    
-      await newDish.save({ session });
-    
-      const restUpdation = await Restaurant.updateOne(
-        { _id: restaurantId },
-        { $push: { dishes_ids: newDish._id } },
-        { session }
-      );
-      console.log(restUpdation)
+    const session = await mongoose.startSession();
+    session.startTransaction();
 
-      if (restUpdation.modifiedCount > 0){
-        await session.commitTransaction();
-        session.endSession();
-        res.status(CREATED).json(newDish);
-      } else if (restUpdation.modifiedCount === 0) {
-        await session.abortTransaction();
-        const err = new BadRequestError('No restaurant records found for the given restaurant ID!');
-        return next(err);
-      }
+    const newDish = new Dish({
+      name: req.body.name,
+      ingredients: req.body.ingredients,
+      picture: req.body.picture,
+      type: req.body.type,
+      spicy: req.body.spicy,
+      vegetarian: req.body.vegetarian,
+      pescatarian: req.body.pescatarian,
+      portionWeight: req.body.portionWeight,
+      price: req.body.price,
+      isActive: req.body.isActive,
+    });
+
+    if (!newDish) {
+      const err = new BadRequestError('Unable to add dish to the database');
+      return next(err);
+    }
+
+    await newDish.save({ session });
+
+    const restUpdation = await Restaurant.updateOne(
+      { _id: restaurantId },
+      { $push: { dishes_ids: newDish._id } },
+      { session }
+    );
+    console.log(restUpdation)
+
+    if (restUpdation.modifiedCount > 0) {
+      await session.commitTransaction();
+      session.endSession();
+      res.status(CREATED).json(newDish);
+    } else if (restUpdation.modifiedCount === 0) {
+      await session.abortTransaction();
+      const err = new BadRequestError('No restaurant records found for the given restaurant ID!');
+      return next(err);
+    }
   }),
 
   editDishById: asyncErrorHandler(async (req, res, next) => {
