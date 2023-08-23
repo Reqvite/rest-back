@@ -7,6 +7,7 @@ const Ingredient = require('../models/ingredientModel');
 const asyncErrorHandler = require('../utils/errors/asyncErrorHandler');
 const { NotFoundError, BadRequestError } = require('../utils/errors/CustomErrors');
 const { StatusCodes } = require('http-status-codes');
+const mongoose = require('mongoose');
 const { OK, CREATED } = StatusCodes;
 const { getSignedUrl } = require('../utils/s3');
 
@@ -107,6 +108,7 @@ const DishController = {
     session.startTransaction();
 
     const newDish = new Dish({
+
       name: req.body.name,
       ingredients: req.body.ingredients,
       picture: req.body.picture,
@@ -131,7 +133,7 @@ const DishController = {
       { $push: { dishes_ids: newDish._id } },
       { session }
     );
-    console.log(restUpdation)
+    console.log(restUpdation);
 
     if (restUpdation.modifiedCount > 0) {
       await session.commitTransaction();
@@ -147,18 +149,21 @@ const DishController = {
   editDishById: asyncErrorHandler(async (req, res, next) => {
     const dishId = req.params.id;
 
-    const dish = await Dish.updateOne({ _id: dishId }, {
-      name: req.body.name,
-      ingredients: req.body.ingredients,
-      picture: req.body.picture,
-      type: req.body.type,
-      spicy: req.body.spicy,
-      vegetarian: req.body.vegetarian,
-      pescatarian: req.body.pescatarian,
-      portionWeight: req.body.portionWeight,
-      price: req.body.price,
-      isActive: req.body.isActive,
-    });
+    const dish = await Dish.updateOne(
+      { _id: dishId },
+      {
+        name: req.body.name,
+        ingredients: req.body.ingredients,
+        picture: req.body.picture,
+        type: req.body.type,
+        spicy: req.body.spicy,
+        vegetarian: req.body.vegetarian,
+        pescatarian: req.body.pescatarian,
+        portionWeight: req.body.portionWeight,
+        price: req.body.price,
+        isActive: req.body.isActive,
+      }
+    );
 
     if (!dish) {
       const err = new NotFoundError('Dish not found for the given dish ID!');

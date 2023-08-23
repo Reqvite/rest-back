@@ -14,7 +14,7 @@ function addClient(rest_id, res) {
   clients.push({ rest_id, response: res });
 }
 
-function removeClient(rest_id, res) {
+function removeClient(rest_id) {
   const index = clients.findIndex((client) => client.rest_id === rest_id);
   if (index !== -1) {
     clients.splice(index, 1);
