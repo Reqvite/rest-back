@@ -208,15 +208,25 @@ const updateDishStatus = asyncErrorHandler(async (req, res, next) => {
     { _id: orderId, rest_id, 'orderItems.dish': dishId },
     {
       $set: { 'orderItems.$.status': status },
-    },
-    { new: true }
+    }
+   
   );
   if (!order) {
     return next(new NotFoundError('Order or Dish not found'));
   }
   const dish = await Dish.findById(dishId);
+  const table = await Table.findById(order.table_id);
+const previousDishStatus = order.orderItems.find(
+    (item) => item.dish.toString() === dishId
+  ).status;
+  if (previousDishStatus === 'Ready' && status === 'In progress') {
+    const eventMessage = `${dish.name} from table #${table.table_number} return to cooking`;
+    const eventType = 'dish is ready';
+    sendEventToClients(rest_id, eventMessage, eventType);
+  }
+
   if (status === 'Ready') {
-    const eventMessage = `${dish.name} from order #${order.number} is ready`;
+    const eventMessage = `${dish.name} from table #${table.table_number} is ready`;
     const eventType = 'dish is ready';
     sendEventToClients(rest_id, eventMessage, eventType);
   }
@@ -228,6 +238,7 @@ const updateDishStatus = asyncErrorHandler(async (req, res, next) => {
   res.json({
     code: 200,
     status: 'success',
+
   });
 });
 

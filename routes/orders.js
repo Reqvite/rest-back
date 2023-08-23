@@ -49,7 +49,7 @@ router.patch(
 );
 router.patch(
   '/:rest_id/:orderId/:dishId',
-  checkAuth(['admin', 'waiter', 'cook']),
+  // checkAuth(['admin', 'waiter', 'cook']),
   validateObjectId,
   validateBody(updateDishStatusJoiSchema),
   orders.updateDishStatus
