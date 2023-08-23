@@ -4,7 +4,8 @@
   "private": true,
   "scripts": {
     "start": "cross-env NODE_ENV=production node ./app.js",
-    "start:dev": "cross-env NODE_ENV=development nodemon ./app.js"
+    "start:dev": "cross-env NODE_ENV=development nodemon ./app.js",
+    "prepare": "husky install"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.374.0",
@@ -32,5 +33,17 @@
     "openai": "^3.3.0",
     "swagger-jsdoc": "^6.2.8",
     "swagger-ui-express": "^5.0.0"
+  },
+  "devDependencies": {
+    "eslint": "^8.47.0",
+    "husky": "^8.0.0",
+    "lint-staged": "^14.0.1",
+    "prettier": "^3.0.2"
+  },
+  "lint-staged": {
+    "**/*.js": [
+      "prettier --write",
+      "eslint"
+    ]
   }
 }
