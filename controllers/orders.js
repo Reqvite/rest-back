@@ -3,6 +3,7 @@ const { Order, Table, Dish } = require('../models');
 const { NotFoundError, BadRequestError } = require('../utils/errors/CustomErrors');
 const asyncErrorHandler = require('../utils/errors/asyncErrorHandler');
 const { sendEventToClients } = require('../utils/sse');
+const { getSignedUrl } = require('../utils/s3');
 
 const getAllOrders = asyncErrorHandler(async (req, res, next) => {
   const { rest_id } = req.params;
@@ -38,6 +39,14 @@ const getOrderById = asyncErrorHandler(async (req, res, next) => {
   if (!order) {
     return next(new NotFoundError('Order not found'));
   }
+  for (const item of order.orderItems) {
+    const dish = item.dish;
+
+    if (dish.picture) {
+      dish.picture = await getSignedUrl(dish);
+    }
+  }
+
   res.json({
     status: 'success',
     code: 200,
@@ -51,6 +60,16 @@ const getOrdersByTableId = asyncErrorHandler(async (req, res, next) => {
   const orders = await Order.find({ rest_id, table_id: tableId, status: { $ne: 'Closed' } })
     .populate({ path: 'orderItems.dish', select: 'name picture price' })
     .exec();
+
+  for (const order of orders) {
+    for (const item of order.orderItems) {
+      const dish = item.dish;
+
+      if (dish.picture) {
+        dish.picture = await getSignedUrl(dish);
+      }
+    }
+  }
 
   res.json({
     status: 'success',
@@ -95,7 +114,7 @@ const createOrder = asyncErrorHandler(async (req, res, next) => {
       { $set: { status: 'Taken' } }
     );
     await session.commitTransaction();
-    const eventMessage = JSON.stringify(`New order`);
+    const eventMessage = JSON.stringify(`${table_id}`);
     const eventType = 'new order';
     sendEventToClients(rest_id, eventMessage, eventType);
   } catch (error) {
