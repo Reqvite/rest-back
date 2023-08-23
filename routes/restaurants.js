@@ -19,12 +19,16 @@ const { validateObjectId } = require('../middleware/validations');
  *         schema:
  *           type: string (ObjectId)
  *     responses:
- *       200:
+ *       '200':
  *         description: The restaurant object
  *         content:
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/Restaurant'
+ *       '404':
+ *         description: No restaurant records found for the given restaurant ID!
+ *       '500':
+ *         description: Internal server error
  */
 router.get('/:rest_id', validateObjectId, restaurantsController.getRestaurantById);
 
