@@ -1,15 +1,11 @@
 const bcrypt = require('bcrypt');
-const {
-  NotFoundError,
-  BadRequestError,
-} = require('../utils/errors/CustomErrors');
+const { NotFoundError, BadRequestError } = require('../utils/errors/CustomErrors');
 const Personnel = require('../models/personnelModel');
 const Restaurant = require('../models/restaurantModel');
 const asyncErrorHandler = require('../utils/errors/asyncErrorHandler');
 const { StatusCodes } = require('http-status-codes');
 const { OK, CREATED } = StatusCodes;
-const { deleteFromS3 } = require('../utils/s3');
-
+const { deleteFromS3, getSignedUrl } = require('../utils/s3');
 
 const personnelController = {
   getPersonnelByRestaurantId: asyncErrorHandler(async (req, res, next) => {
@@ -51,9 +47,9 @@ const personnelController = {
     }
 
     // Get the signed url for the personnel's picture
-    /*for (const person of personnel) {
+    for (const person of personnel) {
       person.picture = await getSignedUrl(person);
-    }*/
+    }
 
     res.status(OK).json({ personnel, totalPages, page }); // Send paginated data and total pages
   }),
@@ -67,7 +63,7 @@ const personnelController = {
     }
 
     // Get the signed url for the personnel's picture
-    //personnel.picture = await getSignedUrl(personnel);
+    personnel.picture = await getSignedUrl(personnel);
 
     res.status(OK).json(personnel);
   }),
@@ -145,13 +141,6 @@ const personnelController = {
       return next(err);
     }
 
-    //Take a restaurant id from the request body and check if it matches the rest id of the personnel
-    // if (personnel.restaurant_id.toString() !== restaurant_id) {
-    //   console.log(personnel.restaurant_id.toString());
-    //   const err = new AuthorizationError();
-    //   return next(err);
-    // }
-
     // Update the personnel data
     personnel.name = `${firstName} ${lastName}`;
     personnel.gender = gender;
@@ -160,6 +149,13 @@ const personnelController = {
     personnel.email = email;
     personnel.address = address;
     if (picture) {
+      if (
+        personnel.picture !== picture &&
+        personnel.picture !== 'RESTio.png' &&
+        personnel.picture !== ''
+      ) {
+        await deleteFromS3(personnel.picture);
+      }
       personnel.picture = picture;
     }
     if (password) {
@@ -190,7 +186,7 @@ const personnelController = {
       return next(err);
     }
 
-    if(personnel.picture && personnel.picture !== 'RESTio.png'){
+    if (personnel.picture && personnel.picture !== 'RESTio.png' && personnel.picture !== '') {
       await deleteFromS3(personnel.picture);
     }
 
