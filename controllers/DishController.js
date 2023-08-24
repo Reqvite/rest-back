@@ -1,15 +1,11 @@
-const s3 = require('@aws-sdk/client-s3');
-const presigner = require('@aws-sdk/s3-request-presigner');
 const Dish = require('../models/dishModel');
 const Restaurant = require('../models/restaurantModel');
 const Ingredient = require('../models/ingredientModel');
 const asyncErrorHandler = require('../utils/errors/asyncErrorHandler');
 const { NotFoundError, BadRequestError } = require('../utils/errors/CustomErrors');
 const { StatusCodes } = require('http-status-codes');
-const mongoose = require('mongoose');
 const { OK, CREATED } = StatusCodes;
 const { getSignedUrl } = require('../utils/s3');
-
 
 const DishController = {
   // request example
@@ -107,7 +103,6 @@ const DishController = {
     session.startTransaction();
 
     const newDish = new Dish({
-
       name: req.body.name,
       ingredients: req.body.ingredients,
       picture: req.body.picture,
