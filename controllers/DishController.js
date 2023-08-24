@@ -7,7 +7,6 @@ const Ingredient = require('../models/ingredientModel');
 const asyncErrorHandler = require('../utils/errors/asyncErrorHandler');
 const { NotFoundError, BadRequestError } = require('../utils/errors/CustomErrors');
 const { StatusCodes } = require('http-status-codes');
-const mongoose = require('mongoose');
 const { OK, CREATED } = StatusCodes;
 const { getSignedUrl } = require('../utils/s3');
 
