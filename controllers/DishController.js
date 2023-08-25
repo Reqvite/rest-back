@@ -68,7 +68,6 @@ const DishController = {
 
       let paginatedDishes = filteredDishes.slice(skip, skip + limit);
       const totalPages = Math.ceil(filteredDishes.length / limit);
-      console.log(totalPages);
 
       for (const dish of paginatedDishes) {
         dish.picture = await getSignedUrl(dish);
