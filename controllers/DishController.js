@@ -1,6 +1,6 @@
 const Dish = require('../models/dishModel');
-const mongoose = require('mongoose');
 const Restaurant = require('../models/restaurantModel');
+const mongoose = require('mongoose');
 const Ingredient = require('../models/ingredientModel');
 const asyncErrorHandler = require('../utils/errors/asyncErrorHandler');
 const { NotFoundError, BadRequestError } = require('../utils/errors/CustomErrors');
