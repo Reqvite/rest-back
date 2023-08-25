@@ -61,12 +61,19 @@ const getOrdersByTableId = asyncErrorHandler(async (req, res, next) => {
     .populate({ path: 'orderItems.dish', select: 'name picture price' })
     .exec();
 
+ const processedDishes = new Map(); 
+
   for (const order of orders) {
     for (const item of order.orderItems) {
       const dish = item.dish;
 
       if (dish.picture) {
-        dish.picture = await getSignedUrl(dish);
+        if (!processedDishes.has(dish._id)) {
+          dish.picture = await getSignedUrl(dish);
+          processedDishes.set(dish._id, dish.picture);
+        } else {
+          dish.picture = processedDishes.get(dish._id);
+        }
       }
     }
   }
