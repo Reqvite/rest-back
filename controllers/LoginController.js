@@ -45,7 +45,9 @@ const loginController = {
       });
     } catch (error) {
       if (error.message === "Couldn't find a user with this email") {
-        res.status(NOT_FOUND).json({ message: 'This email does not exist.', status: NOT_FOUND });
+        res
+          .status(NOT_FOUND)
+          .json({ message: 'Incorrect credentials. Please check your data.', status: NOT_FOUND });
       } else if (error.message === 'Credentials do not match. Access denied.') {
         res
           .status(FORBIDDEN)

@@ -112,7 +112,7 @@ router.post("/:id", async (req, res) => {
         console.log('prompt', prompt);
 
         const api = new ChatGPTAPI({
-            apiKey: process.env.OPENAI_API_KEY,
+            apiKey: process.env.OPENAI_API_KEY || '',
             maxResponseTokens: 400,
 
         });
