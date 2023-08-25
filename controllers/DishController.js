@@ -1,5 +1,4 @@
 const Dish = require('../models/dishModel');
-const mongoose = require('mongoose');
 const Restaurant = require('../models/restaurantModel');
 const Ingredient = require('../models/ingredientModel');
 const asyncErrorHandler = require('../utils/errors/asyncErrorHandler');

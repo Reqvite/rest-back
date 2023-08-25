@@ -128,11 +128,14 @@ const TransactionsController = {
       userType = 'all',
       transactionType = 'all',
       date,
+      nameFilter,
+      transactionSortType = 'newest',
     } = req.query;
     const perPage = pageSize;
     let newPageIndex = pageIndex;
     let query = { rest_id, status: 'success' };
-
+    let sort = {createdAt: -1 };
+    
     if (parseBool(today)) {
       const currentDate = moment().tz(TIME_ZONE);
       const todayStartDate = currentDate.clone().startOf('day');
@@ -149,6 +152,15 @@ const TransactionsController = {
       query.type = transactionType;
     }
 
+
+    if (transactionSortType !== 'newest') {
+      if (transactionSortType === 'ascending') {
+        sort = { paymentAmount: 1 }; 
+      } else if (transactionSortType === 'descending') {
+        sort = { paymentAmount: -1 }; 
+      }
+    }
+
     if (parseBool(date)) {
       const selectedDate = moment.tz(date, TIME_ZONE);
       const startOfDay = selectedDate.clone().startOf('day');
@@ -156,12 +168,17 @@ const TransactionsController = {
       query.createdAt = { $gte: startOfDay.toDate(), $lte: endOfDay.toDate() };
     }
 
+    if(parseBool(nameFilter)){
+      const nameRegex = new RegExp(nameFilter, 'i');
+      query.createdByName = nameRegex;
+    }
+
     if (!newPageIndex || !perPage) {
       throw new BadRequestError('Missing pagination newPageIndex and perPage parameters');
     }
 
     const transactions = await Transaction.find(query)
-      .sort({ createdAt: -1 })
+      .sort(sort)
       .skip(newPageIndex * perPage)
       .limit(perPage);
 
