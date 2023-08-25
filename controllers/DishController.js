@@ -136,7 +136,6 @@ const DishController = {
       { $push: { dishes_ids: newDish._id } },
       { session }
     );
-    console.log(restUpdation);
 
     if (restUpdation.modifiedCount > 0) {
       await session.commitTransaction();
