@@ -9,7 +9,6 @@ const { OK, CREATED } = StatusCodes;
 const { getSignedUrl } = require('../utils/s3');
 
 const DishController = {
-  // request example
   // GET http://localhost:3001/dishes/restaurant/64c9f7904626278155af5599/?page=1&limit=11&isActive=true&type=Salads&searchText=Oli
 
   getAllDishes: asyncErrorHandler(async (req, res, next) => {
