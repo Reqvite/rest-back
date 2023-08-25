@@ -46,16 +46,26 @@ const DishController = {
       return next(err);
     }
 
+    let sortedDishes = dish.dishes_ids.sort((a, b) => {
+      if (a.isActive && !b.isActive) {
+        return -1;
+      }
+      if (!a.isActive && b.isActive) {
+        return 1;
+      }
+      return 0;
+    });
+
     if (page && limit) {
       let filteredDishes;
       if (searchText) {
         let searchTextLower = searchText.toLowerCase();
-        filteredDishes = dish.dishes_ids.filter((d) => {
+        filteredDishes = sortedDishes.filter((d) => {
           let dishNameLower = d.name.toLowerCase();
           return dishNameLower.includes(searchTextLower);
         });
       } else {
-        filteredDishes = dish.dishes_ids;
+        filteredDishes = sortedDishes;
       }
 
       let paginatedDishes = filteredDishes.slice(skip, skip + limit);
@@ -74,7 +84,7 @@ const DishController = {
 
       res.status(OK).json(response);
     } else {
-      let data = dish.dishes_ids;
+      let data = sortedDishes;
       for (const dish of data) {
         dish.picture = await getSignedUrl(dish);
       }
