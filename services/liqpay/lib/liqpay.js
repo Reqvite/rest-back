@@ -37,26 +37,20 @@ class LiqPay {
       });
   }
 
-  cnbSignature(params) {
-    params = this.cnbParams(params);
-    const data = Buffer.from(JSON.stringify(params)).toString('base64');
-    return this.strToSign(this.private_key + data + this.private_key);
-  }
-
   cnbParams(params) {
     params.public_key = this.public_key;
 
     if (!params.version) {
-      throw new BadRequestError('version is null');
+      throw new BadRequestError('The version is not specified');
     }
     if (!params.amount) {
-      throw new BadRequestError('amount is null');
+      throw new BadRequestError('The amount is not specified');
     }
     if (!params.currency) {
-      throw new BadRequestError('currency is null');
+      throw new BadRequestError('The currency is not specified');
     }
     if (!params.description) {
-      throw new BadRequestError('description is null');
+      throw new BadRequestError('The description is not specified');
     }
 
     return params;
@@ -79,13 +73,18 @@ class LiqPay {
     const data = Buffer.from(JSON.stringify(params)).toString('base64');
     const signature = this.strToSign(this.private_key + data + this.private_key);
 
-    return { data: data, signature: signature };
+    return { data, signature };
   }
 
   decodeBase64UTF8(base64String) {
-    const decodedBase64 = Buffer.from(base64String, 'base64');
-    const decodedUTF8 = new TextDecoder().decode(decodedBase64);
-    return JSON.parse(decodedUTF8);
+    try {
+      const decodedBase64 = Buffer.from(base64String, 'base64');
+      const decodedUTF8 = new TextDecoder().decode(decodedBase64);
+      const parsedData = JSON.parse(decodedUTF8);
+      return parsedData;
+    } catch {
+      throw new BadRequestError('Invalid base64 data');
+    }
   }
 }
 
