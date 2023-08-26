@@ -50,7 +50,6 @@ const statiscticsPipeline = {
     {
       $match: {
         rest_id: new ObjectId(id),
-        status: 'success',
         createdAt: {
           $gte: firstDayOfMonth,
           $lt: lastDayOfMonth,
@@ -84,7 +83,6 @@ const statiscticsPipeline = {
     {
       $match: {
         rest_id: new ObjectId(id),
-        status: 'success',
       },
     },
     {
@@ -120,7 +118,6 @@ const statiscticsPipeline = {
     {
       $match: {
         rest_id: new ObjectId(id),
-        status: 'success',
         createdAt: {
           $gte: oneWeekAgo,
           $lt: today,

@@ -11,7 +11,7 @@ class LiqPay {
 
   api(path, params, callback, callbackerr) {
     if (!params.version) {
-      throw new BadRequestError('version is null');
+      throw new BadRequestError('The version is not specified');
     }
 
     params.public_key = this.public_key;
