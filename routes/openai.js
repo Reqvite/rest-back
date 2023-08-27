@@ -18,14 +18,12 @@ const fetchDishes = async (dishIdsArray) => {
       .exec() // Convert mongoose thenable to promise
       .then(async (dish) => {
         if (!dish) {
-          console.log(`Dish not found for dish ID: ${dishId}`);
           return null; // Return null for non-existent dishes
         }
         dish.picture = await getSignedUrl(dish);
         return dish;
       })
-      .catch((error) => {
-        console.error(`Error fetching dish with ID ${dishId}:`, error);
+      .catch(() => {
         return null; // Return null for errors during fetching
       });
 
@@ -59,8 +57,6 @@ router.post('/:id', async (req, res) => {
     }
 
     const dishes = restaurant.dishes_ids;
-
-    console.log('dishes', dishes);
 
     let prompt = `Hello, I want to eat in the restaurant and would like you to help me.
             I want to have a perfect meal. I will provide you with the data about the dishes 
@@ -111,8 +107,6 @@ router.post('/:id', async (req, res) => {
         _id symbols without the word "ObjectId" before them. I want to have only the _id symbols. 
         The example: [ "64d9ced6ec2a03efaaad15b0", "64da0f174574e1e22e9c0a5d" ].`;
 
-    console.log('prompt', prompt);
-
     const api = new ChatGPTAPI({
       apiKey: process.env.OPENAI_API_KEY || '',
       maxResponseTokens: 400,
@@ -140,11 +134,9 @@ router.post('/:id', async (req, res) => {
       const dishes = await fetchDishes(arrayOfIDs);
       res.status(200).json({ textBefore, dishes });
     } else {
-      console.log('No array of IDs found.');
       res.status(200).json({ textBefore, dishes: [] });
     }
   } catch (error) {
-    console.error(error);
     res.status(500).json({ message: 'Something went wrong' });
   }
 });
