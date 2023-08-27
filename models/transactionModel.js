@@ -26,7 +26,7 @@ const transactionSchema = new Schema(
     },
     status: {
       type: String,
-      enum: ['success'],
+      enum: ['success', 'pending'],
       required: true,
       description: 'The type of transaction.',
       default: 'pending',
