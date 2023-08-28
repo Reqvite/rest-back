@@ -133,7 +133,7 @@ const TransactionsController = {
     } = req.query;
     const perPage = pageSize;
     let newPageIndex = pageIndex;
-    let query = { rest_id, status: 'success' };
+    let query = { rest_id};
     let sort = {createdAt: -1 };
     
     if (parseBool(today)) {
@@ -151,7 +151,6 @@ const TransactionsController = {
     if (transactionType !== 'all') {
       query.type = transactionType;
     }
-
 
     if (transactionSortType !== 'newest') {
       if (transactionSortType === 'ascending') {
@@ -223,7 +222,7 @@ const TransactionsController = {
     if (timestamp === 'week') {
       const startOfWeek = today.clone().startOf('week');
       const endOfWeek = today.clone().endOf('week');
-      pipeline = statiscticsPipeline.weekly(rest_id, endOfWeek.toDate(), startOfWeek.toDate());
+      pipeline = statiscticsPipeline.week(rest_id, endOfWeek.toDate(), startOfWeek.toDate());
     }
 
     const statistics = await Transaction.aggregate(pipeline);

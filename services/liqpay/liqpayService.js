@@ -13,7 +13,6 @@ const LiqPayService = {
     const description = `Payment for the "${name}" restaurant bill.`;
 
     const dataParams = {
-      public_key: PUBLIC_LIQPAY_KEY,
       version: 3,
       action: 'pay',
       amount,
