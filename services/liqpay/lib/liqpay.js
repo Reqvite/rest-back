@@ -79,8 +79,7 @@ class LiqPay {
     try {
       const decodedBase64 = Buffer.from(base64String, 'base64');
       const decodedUTF8 = new TextDecoder().decode(decodedBase64);
-      const parsedData = JSON.parse(decodedUTF8);
-      return parsedData;
+      return JSON.parse(decodedUTF8);
     } catch {
       throw new BadRequestError('Invalid base64 data');
     }
