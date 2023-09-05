@@ -114,7 +114,7 @@ const statiscticsPipeline = {
       },
     },
   ],
-  weekly: (id, today, oneWeekAgo) => [
+  week: (id, today, oneWeekAgo) => [
     {
       $match: {
         rest_id: new ObjectId(id),

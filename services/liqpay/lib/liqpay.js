@@ -15,13 +15,12 @@ class LiqPay {
     }
 
     params.public_key = this.public_key;
-    const data = Buffer.from(JSON.stringify(params)).toString('base64');
-    const signature = this.strToSign(this.private_key + data + this.private_key);
+    const data =  this.cnbObject(params)
 
     axios
       .post(
         this.host + path,
-        { data: data, signature: signature },
+        data,
         {
           headers: {
             'Content-Type': 'application/x-www-form-urlencoded',
@@ -80,8 +79,7 @@ class LiqPay {
     try {
       const decodedBase64 = Buffer.from(base64String, 'base64');
       const decodedUTF8 = new TextDecoder().decode(decodedBase64);
-      const parsedData = JSON.parse(decodedUTF8);
-      return parsedData;
+      return JSON.parse(decodedUTF8);
     } catch {
       throw new BadRequestError('Invalid base64 data');
     }
